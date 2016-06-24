@@ -1,0 +1,968 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd"
+	default-autowire="byName" default-lazy-init="true">
+
+	<bean id="queryProviderMapping-new"
+		class="org.nestframework.commons.hibernate.QueryProviderMappingImpl">
+		<property name="queryMap">
+			<map>
+			<!-- 查询课改内置课程授课表-->
+			<entry key="IInnerCourseExt.queryRoles.query">
+					<value><![CDATA[
+					  select 
+					    ou.personid as teacherId,
+					    ou.userid,
+					    our.roleid,
+					    our.userroleid,
+					    orc.campusid,
+					    count(ou.personid) as count
+					  from  o_user ou
+					  left join o_userrole our on our.userid=ou.userid and our.roleid=:roleId
+					  left join o_rolecampus orc on orc.userroleid=our.userroleid and orc.campusid=:campusid
+					  where ou.personid in (<#list teacherIds as teacherId>${teacherId}<#if teacherId_has_next>,</#if></#list>)
+					  group by ou.userid,ou.personid, our.userroleid, our.roleid,orc.campusid
+					]]></value>
+				</entry>
+			<!-- 查询课改内置课程授课表-->
+			<entry key="IInnerCourseExt.queryKgTeacherInfo.query">
+					<value><![CDATA[
+					  select 
+					    kcm.teacherid as teacherId,
+					    ou.userid,
+					    our.roleid,
+					    our.userroleid,
+					    orc.campusid,
+					    count( kcm.teacherid) as count
+					  from k_class_model kcm
+					  inner join o_user ou on ou.personid=kcm.teacherid and ou.unitid=:cmis30Id
+					  left join o_userrole our on our.userid=ou.userid and our.roleid=:roleId
+					  left join o_rolecampus orc on orc.userroleid=our.userroleid and orc.campusid=:campusid
+					  where kcm.teacherid in (<#list teacherIds as teacherId>${teacherId}<#if teacherId_has_next>,</#if></#list>) 
+					  group by ou.userid, kcm.teacherid, our.userroleid, our.roleid,orc.campusid
+					]]></value>
+				</entry>
+			<!-- 查询课改内置课程授课表(删除前)-->
+			<entry key="IInnerCourseExt.queryBeforeDelete.query">
+					<value><![CDATA[
+					  select 
+					    kcm.teacherid as teacherId,
+					    ou.userid,
+					    our.roleid,
+					    our.userroleid,
+					    orc.campusid,
+					    count( kcm.teacherid) as count
+					  from k_class_model kcm
+					  inner join o_user ou on ou.personid=kcm.teacherid and ou.unitid=:cmis30Id
+					  left join o_userrole our on our.userid=ou.userid and our.roleid=:roleId
+					  left join o_rolecampus orc on orc.userroleid=our.userroleid and orc.campusid=:campusid
+					  where kcm.teacherid in (
+    						select distinct teacherid from K_CLASS_MODEL where SEMENT_MODEL_ID in(
+                            <#list sementmodelid as semlid>
+                              '${semlid}'
+                              <#if semlid_has_next>,</#if>
+                            </#list>
+                          ) and teacherid is not null
+          			  ) 
+					  group by ou.userid, kcm.teacherid, our.userroleid, our.roleid,orc.campusid
+					]]></value>
+				</entry>
+			<!-- 查询课改内置课程授课表-->
+			<entry key="IInnerCourseExt.queryKcTeacherInfo.query">
+					<value><![CDATA[
+					  select 
+					    ec.teacherid as teacherId,
+					    ou.userid,
+					    our.roleid,
+					    our.userroleid,
+					    orc.campusid,
+					    count(ec.teacherid) as count
+					  from e_classcourse ec
+					  inner join o_user ou on ou.personid=ec.teacherid and ou.unitid=:cmis30Id
+					  left join o_userrole our on our.userid=ou.userid and our.roleid=:roleId
+					  left join o_rolecampus orc on orc.userroleid=our.userroleid and orc.campusid=:campusid
+					  where ec.teacherid in (<#list teacherIds as teacherId>${teacherId}<#if teacherId_has_next>,</#if></#list>) 
+					  group by ou.userid, ec.teacherid, our.userroleid, our.roleid,orc.campusid
+					]]></value>
+				</entry>
+			<!-- 查询课改内置课程授课表-->
+			<entry key="IInnerCourseExt.queryBeforeTeacherId.query">
+					<value><![CDATA[
+					 select 
+					    kcm.teacherid as teacherId,
+					    ou.userid,
+					    our.roleid,
+					    our.userroleid,
+					    orc.campusid,
+					    count( kcm.teacherid) as count
+					  from k_class_model kcm
+					  inner join o_user ou on ou.personid=kcm.teacherid and ou.unitid=:cmis30Id
+					  left join o_userrole our on our.userid=ou.userid and our.roleid=:roleId
+					  left join o_rolecampus orc on orc.userroleid=our.userroleid and orc.campusid=:campusid
+					  where kcm.class_model_id in (<#list classModelIds as classModelId>'${classModelId}'<#if classModelId_has_next>,</#if></#list>) 
+					  group by ou.userid, kcm.teacherid, our.userroleid, our.roleid,orc.campusid
+					]]></value>
+				</entry>
+				
+				<!-- 从数据库中查询用户信息 -->
+				<entry key="IInnerCourseExt.queryUserIdFromDB.query">
+				     <value><![CDATA[
+						select 
+							userid,
+							personid
+						from o_user 
+						where personid in (<#list teacherIds as teacherId>${teacherId}<#if teacherId_has_next>,</#if></#list>)
+				     ]]></value>
+				</entry>
+				<!-- 从数据库中查询用户信息 -->
+				<entry key="IScoreExt.queryUserRoleType.query">
+				     <value><![CDATA[
+				     select 
+				     	orl.roletype 
+			     	from o_userrole our
+					inner join o_role orl on our.roleid=orl.roleid and orl.roletype in('1502032','1502007') and unitid=:unitId
+					where our.userid=:userId
+				     ]]></value>
+				</entry>
+				<!-- 从数据库中查询用户信息 -->
+				<entry key="IMasterReportExt.queryStudentBaseInfos.query">
+				     <value><![CDATA[
+					select 
+					  sb.studentid,
+					  sb.edu_id,
+					  sbd.inschoolid as nummber,
+					  sb.name as studentName,
+					  case 
+					      when sb.sex ='9001001' then '男' 
+					      when sb.sex ='9001002' then '女' end as sex,
+					  TRUNC(months_between(sysdate, sb.birthday)/12) AS age,
+					  sd.name as polityName,
+					  eg.gradename,
+					  ec.classsname,
+					  sb.studentno,
+					  bb.schoolname,
+					  sb.cmis30id,
+					  sb.discode
+					  from s_baseinfo sb
+					inner join s_beadroll sbd on sbd.studentid=sb.studentid and sbd.cmis30id=:cmis30id and sbd.discode=:discode and sbd.partid=mod(:cmis30id,20) 
+					inner join e_stuclass es on es.studentid=sb.studentid and es.cmis30id=:cmis30id and es.discode=:discode and es.partid=mod(:cmis30id,20) and es.used=1
+					inner join e_class ec on ec.classid=es.classid and ec.cmis30id=:cmis30id and ec.discode=:discode and ec.used=1
+					inner join e_grade eg on eg.gradeid=ec.gradeid and eg.cmis30id=:cmis30id and eg.discode=:discode and eg.used=1
+					inner join e_term et on et.schoolyear=eg.schoolyear and et.used=1
+					inner join b_baseinfo bb on bb.cmis30id=sb.cmis30id and bb.cmis30id=:cmis30id and bb.discode=:discode
+					left join s_polity sp on sp.studentid=sb.studentid and sp.state=1 and sp.cmis30id=:cmis30id and sp.discode=:discode and sp.partid=mod(:cmis30id,20)
+					left join sys_dict sd on sd.dict_id=sp.polity
+					where sb.edu_id in (<#list eduIds as eduId>${eduId}<#if eduId_has_next>,</#if></#list>)
+					and sb.cmis30id=:cmis30id 
+					and sb.discode=:discode 
+					and sb.partid=mod(:cmis30id,20)
+				     ]]></value>
+				</entry>
+			<!--查询班主任管辖内班级信息 -->
+			<entry key="IMasterReportExt.queryTeacherInfos.query">
+					<value><![CDATA[
+					select ee.levelid,
+					        tb.name,
+					       ee.levelnum,
+					       ee.levelcode,
+					       case 
+					        ee.levelcode
+					          when 2012001 then '小学' 
+					          when 2012002 then '初中'
+					          when 2012003 then '高中'
+					          when 2012004 then '内高班'         
+					          end as levelname,
+					       eg.gradeid,
+                           case
+	                     	 eg.gradenum
+	                   	   when 1 then '一' 
+	                       when 2 then '二' 
+	                       when 3 then '三' 
+	                       end as gradename,
+					       eg.gradenum,
+					       ec.classid,
+					       ec.classsname,
+					       ec.classnum
+					from e_class ec
+					inner join e_grade eg on eg.gradeid=ec.gradeid and eg.used=1  
+					inner join e_edusys ee on ee.levelid=eg.levelid and ee.used=1  
+					inner join e_term et on et.schoolyear=eg.schoolyear and et.used=1
+					inner join t_baseinfo tb on tb.teacherid = ec.masterid
+					where 1=1
+					  <#if techerid?has_content>
+					    and ec.masterid=:techerid
+					  </#if>
+					  <#if levelcode?has_content>
+					    and ee.levelcode=:levelcode
+					  </#if>
+					   <#if campusid?has_content>
+					    and ee.campusid=:campusid
+					  </#if>
+					  <#if cmis30id?has_content>
+					    and ec.cmis30id=:cmis30id
+					    and eg.cmis30id=:cmis30id
+					    and ee.cmis30id=:cmis30id
+					  </#if>
+					  <#if discode?has_content>
+					    and ee.discode=:discode
+					    and eg.discode=:discode
+					    and ec.discode=:discode
+					  </#if>
+	  				  <#if classid?has_content>
+					   and ec.classid=:classid
+					  </#if>
+					  order by to_number(eg.gradenum), to_number(ec.classnum)
+					]]></value>
+				</entry>
+				<!-- 从数据库中获取个性发展评语信息 -->
+				<entry key="IMasterReportExt.queryPersonalAppral.query">
+				     <value><![CDATA[
+					select 
+					  ap.edu_id,
+					  ap.semesterid,
+					  ap.apprasial,
+					  ap.appraisaltypeid
+					from a_apprasial ap
+					where ap.appraisaltypeid in('7020','7050')
+					and ap.edu_id in(<#list eduIds as eduId>'${eduId}'<#if eduId_has_next>,</#if></#list>)
+				     ]]></value>
+				</entry>
+				<!-- 从数据库中获取个性发展评语信息 -->
+				<entry key="IMasterReportExt.queryStudyAppral.query">
+				     <value><![CDATA[
+					select 
+					 semesterid as termId,
+					 edu_id as eduId,
+					 item6 as topic,
+					 item1 as contents 
+					from A_PRACTICES
+					where appraisaltypeid='9010'
+					and edu_id in(<#list eduIds as eduId>${eduId}<#if eduId_has_next>,</#if></#list>)
+				     ]]></value>
+				</entry>
+				<!-- 从数据库中获取班主任评语信息 -->
+				<entry key="IMasterReportExt.queryMasterAppral.query">
+				     <value><![CDATA[
+						SELECT 
+						  sb.edu_id,
+						  ee.length-(to_number(to_char(eg.graduateyear, 'yyyy'))-to_number(et.schoolyear)-1) gradenum,
+						  substr(et.termid,5,6) as term,
+						  sa.assesscontent
+						FROM s_baseinfo sb
+						  inner join s_assess sa on sa.studentid=sb.studentid and sa.cmis30id=:cmis30id and sa.discode=:discode and sa.partid=mod(:cmis30id,20)
+						  inner join e_stuclass es on es.studentid=sb.studentid and es.used=1 and es.cmis30id=:cmis30id and es.discode=:discode and es.partid=mod(:cmis30id,20)
+						  inner join e_grade eg on eg.gradeid=es.gradeid and eg.used=1 and eg.cmis30id=:cmis30id and eg.discode=:discode 
+              			  inner join e_term ett on ett.schoolyear=eg.schoolyear and ett.used=1
+						  inner join e_edusys ee on ee.levelid=eg.levelid and ee.levelcode in ('2012003','2012004')
+						  inner join e_term et on et.termid=sa.termid           
+						  where sb.edu_id in (<#list eduIds as eduId>${eduId}<#if eduId_has_next>,</#if></#list>)
+						  and sb.cmis30id=:cmis30id
+						  and sb.discode=:discode
+						  and sb.partid=mod(:cmis30id,20)
+						  order by et.termid
+				     ]]></value>
+				</entry>
+				<!-- 个性发展自我评价（输出） -->
+				<entry key="IMasterReportExt.queryOutPersonalAppralSelf.query">
+				     <value><![CDATA[
+						SELECT 
+							eduid,
+							description 
+						FROM a_output_self
+						where eduid in(<#list eduIds as eduId>${eduId}<#if eduId_has_next>,</#if></#list>)
+						order by outputid
+				     ]]></value>
+				</entry>
+				<!-- 个性发展成果展示（输出） -->
+				<entry key="IMasterReportExt.queryOutPersonalAppralExtra.query">
+				     <value><![CDATA[
+						SELECT
+							 eduid,
+							 description
+					    FROM a_output_strong
+						where eduid in(<#list eduIds as eduId>${eduId}<#if eduId_has_next>,</#if></#list>)
+						order by outputid
+				     ]]></value>
+				</entry>
+				<!-- 研究性啥的（输出） -->
+				<entry key="IMasterReportExt.queryOutStudyAppral.query">
+				     <value><![CDATA[
+						SELECT 
+							eduid,
+							title,
+							description 
+						FROM a_output_investigation
+						where eduid in(<#list eduIds as eduId>${eduId}<#if eduId_has_next>,</#if></#list>)
+						order by outputid
+				     ]]></value>
+				</entry>
+				<!-- 查询体检数据详细表 -->
+				<entry key="IMasterReportExt.queryHealthDdatas.query">
+				     <value><![CDATA[
+					select 
+          	case gradenum
+					    when 1 then '一'
+					    when 2 then '二'
+					    when 3 then '三'
+					  end as gradeNum,
+            gradenum||'年级' gradename,
+            edu_id,
+					  name,
+					  reward_score,
+					  year_score,
+					  year_grade,
+            wm_concat(
+					    case when item_name is null then '-1' else item_name end ||'@'||
+					    case when item_type is null then '-1' else item_type end||'@'||
+					    case when item_mark is null then '-1' else item_mark end||'@'||
+					    case when item_score is null then '-1' else item_score end||'@'||
+					    case when item_grade is null then '-1' else item_grade end) as dataDetails
+			from (
+			 SELECT 
+          ee.length-(to_number(to_char(eg.graduateyear, 'yyyy'))-to_number(sh.schoolyear)-1) gradenum,
+					  sb.edu_id,
+					  sb.name,
+					  sh.reward_score,
+					  sh.year_score,
+					  sh.year_grade,
+					 shh.item_name ,
+					 shh.item_type ,
+          shh.item_mark ,
+          shh.item_score,
+          shh.item_grade
+					FROM sh_healthstandard sh
+					inner join s_baseinfo sb on sh.studentid=sb.studentid and sb.cmis30id=:cmis30id and sb.discode=:discode and sb.partid=mod(:cmis30id,20)
+					inner join e_stuclass es on es.studentid=sb.studentid and es.cmis30id=:cmis30id and es.discode=:discode and es.partid=mod(:cmis30id,20) and es.used=1
+					inner join e_grade eg on eg.gradeid=es.gradeid  and eg.cmis30id=:cmis30id and eg.discode=:discode and eg.used=1
+          	inner join e_term et on et.schoolyear=eg.schoolyear and et.used=1
+					inner join e_edusys ee on ee.levelid=eg.levelid and ee.levelcode in ('2012003','2012004') and ee.cmis30id=:cmis30id and ee.discode=:discode and ee.used=1
+					left join sh_healthdata shh on shh.healthstdid=sh.healthstdid and shh.cmis30id=:cmis30id and shh.discode=:discode and shh.partid=mod(:cmis30id,20)
+					where sb.edu_id in (<#list eduIds as eduId>${eduId}<#if eduId_has_next>,</#if></#list>)
+			          and sh.cmis30id=:cmis30id
+			          and sh.discode=:discode
+			          and sh.partid=mod(:cmis30id,20)
+				)group by  gradenum,edu_id,name,reward_score,year_score,year_grade
+				     ]]></value>
+				</entry>
+				<!-- 查询体检数据详细表 -->
+				<entry key="IMasterReportExt.queryCheckItems.query">
+				     <value><![CDATA[
+				     select 
+						sb.edu_id,
+						sb.name,
+						eg.gradenum||substr(shs.termid,5,6) as termId,
+						shs.unit,
+						shb.result,
+						shbc.item,
+						shbc.subitemsort,
+						shbc.itemresult,
+						shbc.note,
+						sf.medicalrecord
+					from sh_bodychecksequenceinfo shb
+					inner join s_baseinfo sb on sb.studentid=shb.studentid and sb.cmis30id=:cmis30id and sb.discode=:discode and sb.partid=mod(:cmis30id,20)
+					left join s_firstaid sf on sf.studentid=sb.studentid and sf.cmis30id=:cmis30id and sf.discode=:discode and sf.partid=mod(:cmis30id,20)
+					inner join sh_sequenceinfo shs on shs.seqid=shb.seqid and shs.cmis30id=:cmis30id and shs.discode=:discode
+					inner join sh_bodycheckiteminfo shbc on shbc.bodycheckid=shb.bodycheckid and shbc.cmis30id=:cmis30id and shbc.discode=:discode and shbc.partid=mod(:cmis30id,20)
+					inner join e_stuclass es on es.studentid=sb.studentid and es.cmis30id=:cmis30id and es.discode=:discode and es.partid=mod(:cmis30id,20) and es.USED = 1
+					inner join e_grade eg on eg.gradeid=es.gradeid and eg.schoolyear=substr(shs.termid,1,4) and eg.cmis30id=:cmis30id and eg.discode=:discode and eg.USED = 1
+					inner join e_edusys ee on ee.levelid=eg.levelid and ee.levelcode in ('2012003','2012004') and ee.cmis30id=:cmis30id and ee.discode=:discode
+					where sb.edu_id in (<#list eduIds as eduId>${eduId}<#if eduId_has_next>,</#if></#list>)
+			          and shb.cmis30id=:cmis30id
+			          and shb.discode=:discode
+			          and shb.partid=mod(:cmis30id,20)
+				     ]]></value>
+				</entry>
+				<!-- 查询体检数据详细表-改进 -->
+				<entry key="IMasterReportExt.queryCheckItems.query1">
+				     <value><![CDATA[
+				     select 
+						sb.edu_id,
+						sb.name,
+						(ee.length-(to_number(to_char(eg.graduateyear, 'yyyy'))-to_number(substr(shs.termid,1,4))-1))||substr(shs.termid,5,6) as termId,
+						shs.unit,
+						shb.result,
+						shbc.item,
+						shbc.subitemsort,
+						shbc.itemresult,
+						shbc.note,
+						sf.medicalrecord
+					from sh_bodychecksequenceinfo shb
+					inner join s_baseinfo sb on sb.studentid=shb.studentid and sb.cmis30id=:cmis30id and sb.discode=:discode and sb.partid=mod(:cmis30id,20)
+					left join s_firstaid sf on sf.studentid=sb.studentid and sf.cmis30id=:cmis30id and sf.discode=:discode and sf.partid=mod(:cmis30id,20)
+					inner join sh_sequenceinfo shs on shs.seqid=shb.seqid and shs.cmis30id=:cmis30id and shs.discode=:discode
+					inner join sh_bodycheckiteminfo shbc on shbc.bodycheckid=shb.bodycheckid and shbc.cmis30id=:cmis30id and shbc.discode=:discode and shbc.partid=mod(:cmis30id,20)
+					inner join e_stuclass es on es.studentid=sb.studentid and es.cmis30id=:cmis30id and es.discode=:discode and es.partid=mod(:cmis30id,20) and es.used=1
+					inner join e_grade eg on eg.gradeid=es.gradeid  and eg.cmis30id=:cmis30id and eg.discode=:discode and eg.used=1
+          			inner join e_term et on et.schoolyear=eg.schoolyear and et.used=1
+					inner join e_edusys ee on ee.levelid=eg.levelid and ee.levelcode in ('2012003','2012004') and ee.cmis30id=:cmis30id and ee.discode=:discode and ee.used=1
+					where sb.edu_id in (<#list eduIds as eduId>${eduId}<#if eduId_has_next>,</#if></#list>)
+			          and shb.cmis30id=:cmis30id
+			          and shb.discode=:discode
+			          and shb.partid=mod(:cmis30id,20)
+				     ]]></value>
+				</entry>
+				<!-- 删除个性发展自我评价 -->
+				<entry key="IMasterReportExt.deletePersonalSelf.delete">
+				     <value><![CDATA[
+				    	 delete from a_output_self where eduid = :eduId
+				     ]]></value>
+				</entry>
+				<!-- 保存个性发展自我评价 -->
+				<entry key="IMasterReportExt.insertPersonalSelf.insert">
+				     <value><![CDATA[
+				    	 insert into a_output_self (outputid,studentid,description,eduid) values(s_a_output_self.nextval,:studentid,:description,:eduid)
+				     ]]></value>
+				</entry>
+				<!-- 删除个性发展特长 -->
+				<entry key="IMasterReportExt.deletePersonalSelfExtra.delete">
+				     <value><![CDATA[
+				    	delete from a_output_strong where eduid = :eduId
+				     ]]></value>
+				</entry>
+				<!-- 保存个性发展特长 -->
+				<entry key="IMasterReportExt.insertPersonalSelfExtra.insert">
+				     <value><![CDATA[
+				    	insert into a_output_strong (outputid,studentid,description,eduid,orderby) values (s_a_output_self.nextval,:studentid,:description,:eduid,:orderby)
+				     ]]></value>
+				</entry>
+				<!-- 删除研究性学习 -->
+				<entry key="IMasterReportExt.deleteStudy.delete">
+				     <value><![CDATA[
+				    	delete from a_output_investigation where eduid = :eduId
+				     ]]></value>
+				</entry>
+				<!-- 保存研究性学习 -->
+				<entry key="IMasterReportExt.insertStudy.insert">
+				     <value><![CDATA[
+				    	insert into a_output_investigation (outputid,studentid,title,description,orderby,eduid) values(s_a_output_investigation.nextval,:studentid,:title,:description,:orderby,:eduid)
+				     ]]></value>
+				</entry>
+				<!-- 获取成绩 -->
+				<entry key="IMasterReportExt.queryAllScore.query">
+				     <value><![CDATA[
+				     select distinct * from (
+					select 
+					  sb.edu_id,
+            case when oeg.graduateyear is null then
+					   case when ee.length=4 then ee.length-(to_char(eg.graduateyear,'yyyy')-kssg.schoolyear) else
+			            ee.length-(to_char(eg.graduateyear,'yyyy')-kssg.schoolyear)+1 end
+            else 
+            case when oee.length=4 then oee.length-(to_char(oeg.graduateyear,'yyyy')-kssg.schoolyear) else
+			            oee.length-(to_char(oeg.graduateyear,'yyyy')-kssg.schoolyear)+1 end
+            end gradenum,
+					  sdNZ.name,
+					  sdNZ.code,
+					  ksy.subject_name,
+					  kco.course_short_name course_name,
+					  kco.course_kind,
+					  case when ksm.peacetime18 is null or ksm.peacetime18=' ' then ksm.examine_result else ksm.peacetime18 end as examine_result,
+				      case when ksm.credit_hour is null then 0 else ksm.credit_hour end as credit_hour
+					from e_edusys ee
+					inner join e_grade eg on eg.levelid=ee.levelid and eg.cmis30id=:cmis30id and eg.discode=:discode and eg.used=1
+					inner join e_term et on et.schoolyear=eg.schoolyear and et.used=1
+					inner join e_stuclass es on es.gradeid=eg.gradeid and es.cmis30id=:cmis30id and es.discode=:discode and es.partid=mod(:cmis30id,20) and es.used=1
+					inner join s_baseinfo sb on  sb.studentid=es.studentid and sb.edu_id in(<#list eduIds as eduId>${eduId}<#if eduId_has_next>,</#if></#list>) and  sb.cmis30id=:cmis30id and sb.discode=:discode and sb.partid=mod(:cmis30id,20)
+					left join k_student_model ksm on ksm.studentid=sb.studentid and ksm.cmis30id=:cmis30id and ksm.discode=:discode and ksm.partid=mod(:cmis30id,20) and ksm.discode=:discode
+					left join k_class_model kcm on kcm.class_model_id=ksm.class_model_id
+          left join e_class oecl on oecl.classid=kcm.classid
+          left join e_grade oeg on oeg.gradeid=oecl.gradeid
+          left join e_edusys oee on oee.levelid=oeg.levelid
+					left join k_segment_model kssg1 on kssg1.sement_model_id=kcm.sement_model_id 
+					left join k_course kco on kco.course_id=kssg1.course_id and kco.cmis30id=:cmis30id
+					left join k_sys_subject ksy on ksy.subject_id=kco.subject_id
+					left join k_study_segment kssg on kssg.segment_id=kssg1.segment_id and kssg.cmis30id=:cmis30id
+					left join sys_dict sdNZ on sdNZ.dict_id=kssg.segment_order
+					where ee.levelcode in ('2012003','2012004')  and ee.used=1
+					and ee.cmis30id=:cmis30id
+                    and ee.discode=:discode
+					and sdNZ.name is not null
+					union all
+					select 
+					  sb.edu_id,
+            case when oeg.graduateyear is null then
+					    case when ee.length=4 then ee.length-(to_char(eg.graduateyear,'yyyy')-kss.schoolyear) else
+			          ee.length-(to_char(eg.graduateyear,'yyyy')-kss.schoolyear)+1
+			          end
+            else 
+            case when oee.length=4 then oee.length-(to_char(oeg.graduateyear,'yyyy')-kss.schoolyear) else
+			            oee.length-(to_char(oeg.graduateyear,'yyyy')-kss.schoolyear)+1 end
+            end gradenum,
+					  sdXB.name,
+					  sdXB.code,
+					  '校本课程' as subject_name,
+					  kcoo.course_name,
+					  kcoo.course_kind,
+					  case when ksmm.peacetime18 is null or ksmm.peacetime18=' ' then ksmm.examine_result else ksmm.peacetime18 end as examine_result,
+				      case when ksmm.credit_hour is null then 0 else ksmm.credit_hour end as credit_hour
+					from e_edusys ee
+					inner join e_grade eg on eg.levelid=ee.levelid and eg.cmis30id=:cmis30id and eg.discode=:discode and eg.used=1
+					inner join e_term et on et.schoolyear=eg.schoolyear and et.used=1
+					inner join e_stuclass es on es.gradeid=eg.gradeid and es.cmis30id=:cmis30id and es.discode=:discode and es.partid=mod(:cmis30id,20) and es.used=1
+					inner join s_baseinfo sb on  sb.studentid=es.studentid and sb.edu_id in(<#list eduIds as eduId>${eduId}<#if eduId_has_next>,</#if></#list>) and  sb.cmis30id=:cmis30id and sb.discode=:discode and sb.partid=mod(:cmis30id,20)
+					left join k_student_matriculate ksmm on ksmm.studentid=sb.studentid and ksmm.cmis30id=:cmis30id and ksmm.partid=mod(:cmis30id,20) and ksmm.discode=:discode
+          left join e_class oecl on oecl.classid=ksmm.classid
+          left join e_grade oeg on oeg.gradeid=oecl.gradeid
+          left join e_edusys oee on oee.levelid=oeg.levelid
+					left join k_segment_course ksc on ksc.segment_course_id=ksmm.segment_course_id
+					left join k_course kcoo on kcoo.course_id=ksc.course_id and kcoo.cmis30id=:cmis30id
+					left join k_sys_subject ksy1 on ksy1.subject_id=kcoo.subject_id
+					left join k_study_segment kss on kss.segment_id=ksc.segment_id and kss.cmis30id=:cmis30id
+					left join sys_dict sdXB on sdXB.dict_id=kss.segment_order
+					where ee.levelcode in ('2012003','2012004') and ee.used=1
+					and ee.cmis30id=:cmis30id
+                    and ee.discode=:discode
+					and sdXB.name is not null)
+				     ]]></value>
+				</entry>
+			<!-- 查询学生信息 -->
+			<entry key="MasterAppriseExt.getStudentInfo1.query">
+					<value><![CDATA[
+					SELECT distinct si.studentid,si.name,sb.inschoolid,si.edu_id,si.photo,si.studentno
+				           FROM s_baseinfo si
+				           join s_beadroll sb on sb.studentid = si.studentid
+				           join e_stuclass es on es.studentid = si.studentid and es.used=1
+				           inner join e_grade eg on eg.gradeid=es.gradeid and eg.used=1
+						   inner join e_term et on et.schoolyear=eg.schoolyear and et.used=1
+					 where 1 = 1
+					  <#if discode?has_content>
+			         	and si.discode = :discode
+			         	and sb.discode = :discode
+			         	and es.discode = :discode
+			         	and eg.discode=:discode
+			          </#if>
+			          <#if cmis30Id?has_content>
+			         	and eg.cmis30id=:cmis30Id
+			         	and si.cmis30id = :cmis30Id
+			         	and sb.cmis30id = :cmis30Id
+			         	and es.cmis30id = :cmis30Id
+               			and si.partid   = mod(:cmis30Id,20)
+			         	and sb.partid   = mod(:cmis30Id,20)
+			         	and es.partid   = mod(:cmis30Id,20)
+			         </#if>
+					    and si.inschoolstate='1002001'
+					 <#if lids?has_content>
+					 	and es.classid in (<#list lids as classId>${classId}<#if classId_has_next>,</#if></#list>)
+					 </#if>
+					 <#if personid?has_content>
+					 	and si.studentid=:personid
+					 </#if>
+					 order by sb.inschoolid,si.name
+					]]></value>
+				</entry>
+			<!-- 查询会考成绩 -->
+			<entry key="IMasterReportExt.queryHKScore.query">
+					<value><![CDATA[
+					select 
+					  sb.edu_id,
+					  kss.subject_name,
+					  kges.level_name 
+					from s_baseinfo sb
+					join k_general_examination_score kges on kges.student_id=sb.studentid and kges.cmis30id=:cmis30id and kges.discode=:discode and kges.partid=mod(:cmis30id,20)
+					join k_sys_subject kss on kss.subject_id=kges.subject_id
+					where sb.edu_id in (<#list eduIds as eduId>${eduId}<#if eduId_has_next>,</#if></#list>)
+					and sb.cmis30id=:cmis30id
+					and sb.discode=:discode
+					and sb.partid=mod(:cmis30id,20)
+					and sb.edu_id is not null
+					]]></value>
+				</entry>
+				
+				
+						<!-- 查询会考成绩 -->
+				<entry key="IMasterReportExt.queryHKScore1.query">
+					<value><![CDATA[
+		  select  sb.edu_id,kss.subject_name,kges.level_name
+          from k_sys_subject kss
+          inner join s_baseinfo sb on sb.inschoolstate='1002001' and sb.edu_id in (<#list eduIds as eduId>${eduId}<#if eduId_has_next>,</#if></#list>) and sb.cmis30id=:cmis30id and sb.discode=:discode and sb.partid=mod(:cmis30id,20) 	and sb.edu_id is not null
+          inner join e_stuclass est on est.studentid=sb.studentid and est.used=1
+          inner join e_grade eg on eg.gradeid=est.gradeid and eg.used=1
+          inner join e_term et on et.schoolyear=eg.schoolyear and et.used=1
+          left join k_general_examination_score kges on kges.student_id=sb.studentid and kss.subject_id=kges.subject_id and kges.cmis30id=:cmis30id and kges.discode=:discode and kges.partid=mod(:cmis30id,20)
+          where kss.subject_id <>'ECC12830-B3A0-4400-93Bc-91380621' and kss.subject_id<>'ECC12830-B3A0-4400-93BB-913806G1'
+					]]></value>
+				</entry>
+				<!--查询社会实践、社区服务、研究性学习授课及成绩录入情况 -->
+				<entry key="IScoreExt.querSpecailSubjectsScores.query">
+					<value><![CDATA[
+					select 
+					  kss.schoolyear,
+					  kc.course_name,
+					  kc.course_id,
+					  ksm.segment_id,
+					  kss.segment_order,
+					  ksm.sement_model_id,
+					  kcm.class_model_id,
+					  ksms.studentid,
+                      kcm.classid,
+                      kssb.subject_name,
+                      kcm.schoolyear as historySchoolYears
+					from k_segment_model ksm
+					join k_course kc on kc.course_id=ksm.course_id and kc.cmis30id=:cmis30Id and kc.course_kind<>1230320 
+					join k_sys_subject kssb on kssb.subject_id=kc.subject_id
+					join k_study_segment kss on kss.segment_id=ksm.segment_id and kss.cmis30id=:cmis30Id 
+					left join k_class_model kcm on kcm.sement_model_id=ksm.sement_model_id
+					left join k_student_model ksms on ksms.class_model_id=kcm.class_model_id
+					where kssb.subject_name in ('社会实践','社区服务','研究性学习活动')
+					]]></value>
+				</entry>
+				
+								<!--查询学段模块信息 -->
+				<entry key="IScoreExt.querSegmentInfos.query">
+					<value><![CDATA[
+					select 
+					  schoolyear||'@'||segment_order||'@'||segment_id as segmentInfos
+					from k_study_segment
+					where cmis30id=:cmis30Id 
+					and schoolyear>(select schoolyear-3 from e_term where used=1)
+					]]></value>
+				</entry>
+				
+												<!--插入学段模块 -->
+				<entry key="IScoreExt.insertSegmentModel.insert">
+					<value><![CDATA[
+					insert into 
+					  k_segment_model 
+					value(sement_model_id,segment_id,course_id,is_assign)
+					values(:sement_model_id,:segment_id,:course_id,1)
+					]]></value>
+				</entry>
+				
+																<!--插入授课表 -->
+				<entry key="IScoreExt.insertClassModel.insert">
+					<value><![CDATA[
+    				insert into 
+					  k_class_model
+					value(class_model_id,sement_model_id,schoolyear,classid,need_assign,is_assigned,assign_model,cmis30id,discode)
+					values(:class_model_id,:sement_model_id,:schoolyear,:classid,1,1,1,:cmis30id,:discode)
+					]]></value>
+				</entry>
+				<!--获取市区报告册相关信息 -->
+				<entry key="IMasterReportExt.queryReportZoneDatas.query">
+					<value><![CDATA[
+					select 
+						t1.*,
+						case when t2.reportSchoolCount is null then 0 else t2.reportSchoolCount end as reportSchoolCount,
+						t1.schoolTotalCount-(case when t2.reportSchoolCount is null then 0 else t2.reportSchoolCount end) as noReportSchoolCount
+					from(
+					 					  select 
+					    bb.discode,
+					    sd.name,
+					    count(distinct bb.schoolcode) as schoolTotalCount,
+					    sum(case when sr.report_status=1300001 then 1 else 0 end) as reportStudentCount,
+					    sum(case when sr.checkstate=1800001 then 1 else 0 end) as checkStudentCount,
+					    sum(case when sr.checkstate=1800002 then 1 else 0 end) as errorCheckStudentCount
+					    from b_baseinfo bb
+			            join sys_dict sd on sd.dict_id=bb.discode
+			            join  b_campus bc on bb.cmis30id=bc.cmis30id 
+					  join e_edusys ee on ee.campusid=bc.campusid and ee.levelcode in (2012003,2012004)
+					  left join e_grade eg on eg.levelid=ee.levelid and eg.gradenum=3 and to_char(eg.graduateyear, 'yyyy')=:graduYear
+					  left join e_stuclass es on es.gradeid=eg.gradeid
+					  left join s_baseinfo sb on sb.cmis30id=bb.cmis30id and es.studentid=sb.studentid and  sb.inschoolstate='1002001'
+					  left join s_report sr on sb.studentid=sr.p_id and sr.waterid is not null and sr.report_status = 1300001
+					  where 1=1 
+           		      <#if discode?has_content>
+					  	and bb.discode=:discode
+					  </#if>
+					  group by bb.discode,sd.name)t1
+					  left join (
+					    select discode,name,count(schoolcode) as reportSchoolCount from (
+					        select 
+					          bb.discode,
+					          sd.name,
+					          bb.schoolcode
+					          from b_baseinfo bb
+					        join sys_dict sd on sd.dict_id=bb.discode
+					        join e_edusys ee on ee.cmis30id=bb.cmis30id and ee.levelcode in (2012003,2012004)
+					        left join e_grade eg on eg.levelid=ee.levelid and to_char(eg.graduateyear, 'yyyy')=:graduYear
+					        left join e_stuclass es on es.gradeid=eg.gradeid
+					        left join s_baseinfo sb on sb.cmis30id=bb.cmis30id and es.studentid=sb.studentid and sb.beadrollstate='1517001'
+					        left join s_report sr on sb.studentid=sr.p_id
+					        where 1=1 
+					        <#if discode?has_content>
+					        	and bb.discode=:discode
+					        </#if>
+					        group by bb.discode,sd.name,bb.schoolcode
+					        having sum(case when sr.report_status=1300001 then 1 else 0 end)>1
+					    )t group by discode,name)t2 on t1.discode=t2.discode
+					    order by t1.discode
+					]]></value>
+				</entry>
+				<!--获取市区报告册相关信息 (学校及区县)-->
+				<entry key="IMasterReportExt.queryReportZoneInfos.query">
+					<value><![CDATA[
+					select 
+					  bb.discode,
+					  sd.name,
+					  count(distinct bb.schoolcode) as schoolTotalCount
+					  from b_baseinfo bb
+					join sys_dict sd on sd.dict_id=bb.discode
+					join e_edusys ee on ee.cmis30id=bb.cmis30id and ee.levelcode in (2012003,2012004)
+					where 1=1
+					<#if discode?has_content>
+						and bb.discode=:discode
+					</#if>
+					group by bb.discode,sd.name
+					order by bb.discode
+					]]></value>
+				</entry>
+				<!--获取市区报告册相关信息 (上报学校情况)-->
+				<entry key="IMasterReportExt.queryReportSchoolInfos.query">
+					<value><![CDATA[
+					select discode,name,count(schoolcode) as reportSchoolCount from (
+					  select 
+					    bb.discode,
+					    sd.name,
+					    bb.schoolcode
+					    from b_baseinfo bb
+					  join sys_dict sd on sd.dict_id=bb.discode
+					  join e_edusys ee on ee.cmis30id=bb.cmis30id and ee.levelcode in (2012003,2012004)
+					  left join e_grade eg on eg.levelid=ee.levelid and to_char(eg.graduateyear, 'yyyy')=:graduYear
+					  left join e_stuclass es on es.gradeid=eg.gradeid
+					  left join s_baseinfo sb on sb.cmis30id=bb.cmis30id and es.studentid=sb.studentid and sb.beadrollstate='1517001'
+					  left join s_report sr on sb.studentid=sr.p_id
+					  where 1=1 
+						<#if discode?has_content>
+							and bb.discode=:discode
+						</#if>
+					  group by bb.discode,sd.name,bb.schoolcode
+					  having sum(case when sr.report_status=1300001 then 1 else 0 end)>1
+					)t group by discode,name order by discode
+					]]></value>
+				</entry>
+				<!--获取班主任评语统计数据-->
+				<entry key="IAppraisalStaticsExt.queryAssessStatics.query">
+					<value><![CDATA[
+					select 
+					  eg.gradenum,ec.classnum,sa.termid,count(sa.assessid) as count
+					from b_baseinfo bb
+					join b_campus bc on bc.cmis30id=bb.cmis30id and bc.used=1 and bc.campusid=:campusId 
+					join e_edusys ee on ee.campusid=bc.campusid and ee.levelid=:levelCode and ee.used=1 and ee.cmis30id=:cmis30Id  
+					join e_grade eg on eg.levelid=ee.levelid and eg.used=1 and eg.cmis30id=:cmis30Id 
+					join e_term et on et.schoolyear=eg.schoolyear and et.used=1
+					join e_class ec on ec.gradeid=eg.gradeid and ec.used=1 and ec.cmis30id=:cmis30Id 
+					join e_stuclass es on es.classid=ec.classid and es.used=1 and ec.cmis30id=:cmis30Id 
+					join s_baseinfo sb on sb.studentid=es.studentid and sb.cmis30id=:cmis30Id
+					left join s_assess sa on sa.studentid=sb.studentid and sa.cmis30id=:cmis30Id
+					where 1=1 and sa.termid is not null and sb.inschoolstate='1002001'
+					group by eg.gradenum,ec.classnum,sa.termid
+					order by eg.gradenum,ec.classnum
+					]]></value>
+				</entry>
+				<!--获取班主任评语统计数据-->
+				<entry key="IAppraisalStaticsExt.queryAssessStatics_sq.query">
+					<value><![CDATA[
+					select 
+					  bb.cmis30id,eg.gradenum,sa.termid,bc.campusid,count(distinct sa.studentid) as count
+					from b_baseinfo bb
+					join b_campus bc on bc.cmis30id=bb.cmis30id and bc.used=1 
+					join e_edusys ee on ee.campusid=bc.campusid and ee.levelcode=:levelCode and ee.used=1 and ee.cmis30id=:cmis30Id  
+					join e_grade eg on eg.levelid=ee.levelid and eg.used=1 and eg.cmis30id=:cmis30Id 
+					join e_term et on et.schoolyear=eg.schoolyear and et.used=1
+					join e_class ec on ec.gradeid=eg.gradeid and ec.used=1 and ec.cmis30id=:cmis30Id 
+					join e_stuclass es on es.classid=ec.classid and es.used=1 and ec.cmis30id=:cmis30Id 
+					join s_baseinfo sb on sb.studentid=es.studentid and sb.cmis30id=:cmis30Id
+					left join s_assess sa on sa.studentid=sb.studentid and sa.cmis30id=:cmis30Id
+					where 1=1 and sa.termid is not null and sb.inschoolstate='1002001'
+					group by bb.cmis30id,eg.gradenum,sa.termid,bc.campusid
+					order by eg.gradenum,ec.classnum
+					]]></value>
+				</entry>
+				<!-- <entry key="IAppraisalStaticsExt.queryAssessStatics.query">
+					<value><![CDATA[
+					select 
+						<#if userType?has_content>
+						  eg.gradenum,ec.classnum,sa.termid,count(distinct sa.studentid) as count
+						<#else>
+					      bb.cmis30id,eg.gradenum,sa.termid,count(distinct sa.studentid) as count
+					    </#if>
+					   from b_baseinfo bb
+					join e_grade eg on eg.cmis30id=bb.cmis30id and eg.used=1
+					join e_term et on et.schoolyear=eg.schoolyear and et.used=1
+					join e_edusys ee on ee.levelid=eg.levelid 
+						and ee.levelcode in (
+							<#if levelFlag?has_content>
+								2012002
+							<#else>
+								2012003,2012004
+							</#if>
+							)
+					join e_class ec on ec.gradeid=eg.gradeid and ec.used=1
+					join e_stuclass es on es.classid=ec.classid and es.used=1
+					join s_baseinfo sb on sb.studentid=es.studentid 
+					join s_assess sa on sa.studentid=sb.studentid
+					where 1=1 and sb.inschoolstate='1002001'
+					<#if cmis30Ids?has_content>
+						and bb.cmis30id in (<#list cmis30Ids as cmis30Id>${cmis30Id}<#if cmis30Id_has_next>,</#if></#list>)
+					</#if>
+					<#if userType?has_content>
+						group by eg.gradenum,ec.classnum,sa.termid
+						order by eg.gradenum,ec.classnum
+					<#else>
+						group by  bb.cmis30id,eg.gradenum,sa.termid
+						order by  bb.cmis30id,eg.gradenum
+					</#if>
+					]]></value>
+				</entry> -->
+				<!--获取学校年级每个班的eduId-->
+				<entry key="IAppraisalStaticsExt.querySchoolInfos.query">
+					<value><![CDATA[
+					select 
+					  bb.cmis30id||'-'||eg.gradenum||'-'||ec.classnum||'@'||wm_concat(sb.edu_id) as infos
+					from b_baseinfo bb
+					join b_campus bc on bc.cmis30id=bb.cmis30id and bc.used=1 and bc.campusid=:campusId
+					join e_edusys ee on ee.campusid=bc.campusid and ee.levelid=:levelCode and ee.used=1
+					join e_grade eg on eg.levelid=ee.levelid and eg.used=1
+					join e_term et on et.schoolyear=eg.schoolyear and et.used=1
+					join e_class ec on ec.gradeid=eg.gradeid and ec.used=1
+					join e_stuclass es on es.classid=ec.classid and es.used=1
+					join s_baseinfo sb on sb.studentid=es.studentid 
+					where 1=1
+					group by bb.cmis30id,eg.gradenum,ec.classnum
+					]]></value>
+				</entry>
+				<!--获取学校年级每个班的eduId-->
+				<entry key="IAppraisalStaticsExt.querySchoolInfos_new.query">
+					<value><![CDATA[
+					select 
+					   bb.cmis30id||'-'||eg.gradenum||'-'||ec.classnum||'-'||ec.classsname||'@'||wm_concat(sb.edu_id) as infos
+					from b_baseinfo bb
+					join b_campus bc on bc.cmis30id=bb.cmis30id and bc.used=1 and bc.campusid=:campusId
+					join e_edusys ee on ee.campusid=bc.campusid and ee.levelid=:levelCode and ee.used=1
+					join e_grade eg on eg.levelid=ee.levelid and eg.used=1
+					join e_term et on et.schoolyear=eg.schoolyear and et.used=1
+					join e_class ec on ec.gradeid=eg.gradeid and ec.used=1
+					left join e_stuclass es on es.classid=ec.classid and es.used=1
+					left join s_baseinfo sb on sb.studentid=es.studentid and sb.inschoolstate=1002001
+					where 1=1
+					group by bb.cmis30id,eg.gradenum,ec.classnum,ec.classsname
+					]]></value>
+				</entry>
+				<!--获取学校年级每个班的eduId-->
+				<entry key="IAppraisalStaticsExt.querySchoolInfos_sq.query">
+					<value><![CDATA[
+					select 
+					  bb.cmis30id||'-'||eg.gradenum||'-'||bc.campusid||'-'||ec.classnum||'@'||wm_concat(sb.edu_id) as infos
+					from b_baseinfo bb
+					join b_campus bc on bc.cmis30id=bb.cmis30id and bc.used=1 
+					join e_edusys ee on ee.campusid=bc.campusid and ee.used=1
+					<#if levelCode?has_content>
+						and ee.levelcode=2012002
+					<#else>
+						and ee.levelcode in (2012003,2012004)
+					</#if>
+					join e_grade eg on eg.levelid=ee.levelid and eg.used=1
+					join e_term et on et.schoolyear=eg.schoolyear and et.used=1
+					join e_class ec on ec.gradeid=eg.gradeid and ec.used=1
+					left join e_stuclass es on es.classid=ec.classid and es.used=1
+					left join s_baseinfo sb on sb.studentid=es.studentid and sb.inschoolstate=1002001
+					where 1=1
+					<#if cmis30Ids?has_content>
+						and bb.cmis30id in (<#list cmis30Ids as cmis30Id>${cmis30Id}<#if cmis30Id_has_next>,</#if></#list>)
+					</#if>
+					group by bb.cmis30id,eg.gradenum,bc.campusid,ec.classnum
+					]]></value>
+				</entry>
+				<!-- <entry key="IAppraisalStaticsExt.querySchoolInfos.query">
+					<value><![CDATA[
+					select 
+					  bb.cmis30id||'-'||eg.gradenum||'-'||ec.classnum||'@'||wm_concat(sb.edu_id) as infos
+					   from b_baseinfo bb
+					join e_grade eg on eg.cmis30id=bb.cmis30id and eg.used=1
+					join e_term et on et.schoolyear=eg.schoolyear and et.used=1
+					join e_edusys ee on ee.levelid=eg.levelid 
+						and ee.levelcode in (
+							<#if levelFlag?has_content>
+								2012002
+							<#else>
+								2012003,2012004
+							</#if>
+						)
+					join e_class ec on ec.gradeid=eg.gradeid and ec.used=1
+					join e_stuclass es on es.classid=ec.classid and es.used=1
+					join s_baseinfo sb on sb.studentid=es.studentid 
+					where 1=1
+					<#if cmis30Ids?has_content>
+						and bb.cmis30id in (<#list cmis30Ids as cmis30Id>${cmis30Id}<#if cmis30Id_has_next>,</#if></#list>)
+					</#if>
+					group by bb.cmis30id,eg.gradenum,ec.classnum
+					]]></value>
+				</entry> -->
+				<!--获取界别-->
+				<entry key="IAppraisalStaticsExt.queryJB.query">
+					<value><![CDATA[
+					<#if flag?has_content>
+						select eg.gradeid||'_'||to_char(eg.graduateyear ,'yyyy') as years from e_grade eg
+						join e_edusys ee on ee.levelid=eg.levelid and ee.levelcode=:levelCode and ee.campusid=:campuseId
+						<#if levelid?has_content>
+							and ee.levelid=:levelid
+						</#if>
+						<#if teacherId?has_content>
+							join e_class ec on ec.gradeid=eg.gradeid and ec.masterid=:teacherId
+						</#if>
+						join e_term et on et.schoolyear=eg.schoolyear and et.used=1
+						where eg.gradenum>0
+						order by to_number(to_char(eg.graduateyear ,'yyyy')) asc
+					<#else>
+						select schoolyear+1 as years from e_term where used=1
+					</#if>
+					]]></value>
+				</entry>
+					<!--获取班级-->
+				<entry key="IAppraisalStaticsExt.queryClass.query">
+					<value><![CDATA[
+					select ec.classid||'_'||to_number(ec.classnum)||'_'||ec.classsname as classInfo from e_class ec
+					where 1=1 and ec.used=1 and ec.gradeid=:gradeid
+					<#if teacherId?has_content>
+					  and ec.masterid=:teacherId
+					</#if>
+					order by to_number(ec.classnum)
+					]]></value>
+				</entry>
+					<!--获取学期-->
+				<entry key="IAppraisalStaticsExt.queryTermIds2.query">
+					<value><![CDATA[
+					select 
+					  termid||'@'||et.termname as termInfos
+					from e_term et
+					where et.schoolyear>(
+					    (select schoolyear from e_term where used=1)
+					    -
+					    <#if levelCode?has_content>
+					    	(select length from e_edusys where levelid=:levelId) 
+					    <#else>
+					    	3
+					    </#if>
+					  )
+					order by et.termid desc
+					]]></value>
+				</entry>
+					<!--获取学期-->
+				<entry key="IAppraisalStaticsExt.queryTermIds3.query">
+					<value><![CDATA[
+					select 
+					  termid||'@'||et.termname as termInfos
+					from e_term et
+					where et.schoolyear>(
+					    (select schoolyear from e_term where used=1)
+					    -
+					    <#if levelCode?has_content>
+					    	4
+					    <#else>
+					    	3
+					    </#if>
+					  )
+					order by et.termid desc
+					]]></value>
+				</entry>
+				<!--查询所有区县-->
+				<entry key="IAppraisalStaticsExt.queryDiscode.query">
+					<value><![CDATA[
+					select dict_id discode,name discodeName from sys_dict where dict_type='11'
+					]]></value>
+				</entry>
+			</map>	                                                            
+		</property>
+	</bean>
+</beans>

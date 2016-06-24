@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="utf-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd"
+	default-autowire="byName" default-lazy-init="true">
+
+	<bean id="propertyConfigurer"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+				<value>/WEB-INF/classes/sys-conf.properties</value>
+				<value>/WEB-INF/classes/db-conf.properties</value>
+			</list>
+		</property>
+		<property name="fileEncoding" value="GBK" />
+		<property name="placeholderPrefix" value="$[" />
+		<property name="placeholderSuffix" value="]" />
+	</bean>
+	<bean id="master"
+        class="org.apache.commons.dbcp.BasicDataSource">
+        <property name="driverClassName">
+        	<value>$[db.driver]</value>
+        </property>
+        <property name="url">
+         	<value>$[db.master.url]</value>
+        </property>
+        <property name="username">
+        	<value>$[db.master.username]</value>
+        </property>
+        <property name="password">
+        	<value>$[db.master.password]</value>
+        </property>
+        <property name="maxActive">
+			<value>500</value>
+		</property>
+		<property name="maxIdle">
+			<value>30</value>
+		</property>
+		<property name="maxWait">
+			<value>-1</value>
+		</property>
+		<property name="minIdle">
+			<value>5</value>
+		</property>
+		<property name="removeAbandonedTimeout">
+			<value>5</value>
+		</property>
+		<property name="testOnBorrow">
+			<value>true</value>
+		</property>
+		<property name="testWhileIdle">
+			<value>true</value>
+		</property>
+		<property name="testOnReturn">
+			<value>true</value>
+		</property>
+		<property name="removeAbandoned">
+			<value>true</value>
+		</property>
+		<property name="logAbandoned">
+			<value>true</value>
+		</property>
+		<property name="validationQuery">
+			<value>select 1 from dual</value>
+		</property>
+    </bean>
+   <bean id="slave1"
+        class="org.apache.commons.dbcp.BasicDataSource">
+        <property name="driverClassName">
+        	<value>$[db.driver]</value>
+        </property>
+        <property name="url">
+         	<value>$[db.slave1.url]</value>
+        </property>
+        <property name="username">
+        	<value>$[db.slave1.username]</value>
+        </property>
+        <property name="password">
+        	<value>$[db.slave1.password]</value>
+        </property>
+        <property name="maxActive">
+			<value>500</value>
+		</property>
+		<property name="maxIdle">
+			<value>30</value>
+		</property>
+		<property name="maxWait">
+			<value>-1</value>
+		</property>
+		<property name="minIdle">
+			<value>5</value>
+		</property>
+		<property name="removeAbandonedTimeout">
+			<value>5</value>
+		</property>
+		<property name="testOnBorrow">
+			<value>true</value>
+		</property>
+		<property name="testWhileIdle">
+			<value>true</value>
+		</property>
+		<property name="testOnReturn">
+			<value>true</value>
+		</property>
+		<property name="removeAbandoned">
+			<value>true</value>
+		</property>
+		<property name="logAbandoned">
+			<value>true</value>
+		</property>
+		<property name="validationQuery">
+			<value>select 1 from dual</value>
+		</property>
+    </bean>
+    <bean id="slave2"
+        class="org.apache.commons.dbcp.BasicDataSource">
+        <property name="driverClassName">
+        	<value>$[db.driver]</value>
+        </property>
+        <property name="url">
+         	<value>$[db.slave2.url]</value>
+        </property>
+        <property name="username">
+        	<value>$[db.slave2.username]</value>
+        </property>
+        <property name="password">
+        	<value>$[db.slave2.password]</value>
+        </property>
+        <property name="maxActive">
+			<value>500</value>
+		</property>
+		<property name="maxIdle">
+			<value>30</value>
+		</property>
+		<property name="maxWait">
+			<value>-1</value>
+		</property>
+		<property name="minIdle">
+			<value>5</value>
+		</property>
+		<property name="removeAbandonedTimeout">
+			<value>5</value>
+		</property>
+		<property name="testOnBorrow">
+			<value>true</value>
+		</property>
+		<property name="testWhileIdle">
+			<value>true</value>
+		</property>
+		<property name="testOnReturn">
+			<value>true</value>
+		</property>
+		<property name="removeAbandoned">
+			<value>true</value>
+		</property>
+		<property name="logAbandoned">
+			<value>true</value>
+		</property>
+		<property name="validationQuery">
+			<value>select 1 from dual</value>
+		</property>
+    </bean>
+    
+    <!-- <bean id="master" class="org.springframework.jndi.JndiObjectFactoryBean">    
+    		<property name="jndiName" value="java:comp/env/jdbc/master"></property>    
+	</bean>
+	<bean id="slave1" class="org.springframework.jndi.JndiObjectFactoryBean">    
+    		<property name="jndiName" value="java:comp/env/jdbc/slave1"></property>    
+	</bean>
+	<bean id="slave2" class="org.springframework.jndi.JndiObjectFactoryBean">    
+    		<property name="jndiName" value="java:comp/env/jdbc/slave2"></property>    
+	</bean> -->
+	
+   <bean id="dataSource" class="com.flyrish.hades.util.DynamicDataSource">
+        <property name="targetDataSources">  
+              <map key-type="java.lang.String">  
+                  <!--write  -->
+                 <entry key="master" value-ref="master"/>  
+                 <!--read-->
+                 <entry key="slave1" value-ref="slave1"/>
+                 <!--read-->
+                 <entry key="slave2" value-ref="slave2"/>  
+              </map>  
+        </property>  
+        <property name="defaultTargetDataSource" ref="master"/>  
+    </bean>
+    <!-- 配置数据源注解aop -->
+    <bean id="manyDataSourceAspect" class="com.flyrish.hades.util.DataSourceAspect" autowire="byName"/>
+    <aop:config>
+        <aop:aspect id="c" ref="manyDataSourceAspect">
+            <aop:pointcut id="tx" expression="execution(* com.flyrish.hades.service..*(..)) and !execution(* com.flyrish.hades.service..RedisServiceExtImpl*.*(..)) and !execution(* com.flyrish.hades.service..LatestEvaluationRecordExt*.*(..))"/>
+            <aop:before pointcut-ref="tx" method="before"/>
+        </aop:aspect>
+    </aop:config>
+    <!-- 事务配置 -->
+    <bean id="transactionManager"
+        class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+    <tx:advice id="txAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<tx:method name="get*" read-only="true"/>
+			<tx:method name="find*" read-only="true"/>
+			<tx:method name="read*" read-only="true"/>
+			<tx:method name="query*" read-only="true"/>
+			<tx:method name="*"/>
+		</tx:attributes>
+	</tx:advice>
+	<aop:config>
+		<aop:pointcut id="serviceMethods" expression="execution(* com.flyrish.hades.service..*(..)) and !execution(* com.flyrish.hades.service..RedisServiceExtImpl*.*(..)) and !execution(* com.flyrish.hades.service..LatestEvaluationRecordExt*.*(..)) and !execution(* com.flyrish.hades.service..ImportDataToRedisCacheExtImpl*.*(..))" />
+		<aop:advisor advice-ref="txAdvice" pointcut-ref="serviceMethods" />
+	</aop:config> 
+</beans>

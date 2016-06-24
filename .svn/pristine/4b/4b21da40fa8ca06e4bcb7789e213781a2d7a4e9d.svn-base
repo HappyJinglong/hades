@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd"
+	default-autowire="byName" default-lazy-init="true">
+	
+	<!-- query provider wrapper -->
+	<bean id="queryProvider" class="org.nestframework.commons.hibernate.ListMapQueryProvider" autowire="byName">
+		<property name="providers">
+			<list>
+				<ref bean="queryProviderMapping-zdq"/>
+				<ref bean="queryProviderMapping-whs"/>
+				<ref bean="queryProviderMapping-wx"/>
+				<ref bean="queryProviderMapping-xcs"/>
+				<ref bean="queryProviderMapping-xcs-stat"/>
+				<ref bean="queryProviderMapping-lym"/>
+				<ref bean="queryProviderMapping-wyh"/>
+				<ref bean="queryProviderMapping-mcb"/>
+				<ref bean="queryProviderMapping-drf"/>
+				<ref bean="queryProviderMapping-new"/>
+				<ref bean="queryProviderMapping-wyx"/>
+				<ref bean="queryProviderMapping-txl"/>
+			</list>
+		</property>
+	</bean>
+</beans>

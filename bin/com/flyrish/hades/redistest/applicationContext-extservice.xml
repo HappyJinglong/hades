@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd"
+	default-autowire="byName" default-lazy-init="true">
+	<import resource="redis-context.xml"/>
+	<import resource="queryProviderMapping-zdq.xml"/>
+	<import resource="datasource-context.xml"/>
+	<import resource="queryProviderMapping-wx.xml"/>
+	<import resource="queryProviderMapping-lym.xml"/>
+	<bean id="redisServiceExt"
+		class="com.flyrish.hades.service.ext.impl.RedisServiceExtImpl" autowire="byName">
+	</bean>
+	<bean id="loginServiceExt"
+		class="com.flyrish.hades.service.ext.impl.LoginServiceExtImpl" autowire="byName">
+	</bean>
+	<bean id="termServiceExt"
+		class="com.flyrish.hades.service.ext.impl.TermServiceExtImpl" autowire="byName">
+	</bean>
+	<bean id="userLoginServiceExt"
+		class="com.flyrish.hades.service.ext.impl.UserLoginServiceExt" autowire="byName">
+	</bean>
+	<bean id="informDoQueAndCacheExt1"
+		class="com.flyrish.hades.service.ext.impl.InformDoQueAndCacheExtImpl" autowire="byName">
+	</bean>
+	<bean id="latestEvaluationRecordExt"
+		class="com.flyrish.hades.service.ext.impl.LatestEvaluationRecordExtImpl" autowire="byName">
+	</bean>
+	<bean id="aattachFileExt"
+		class="com.flyrish.hades.service.ext.impl.AattachFileExtImpl" autowire="byName">
+	</bean>
+	<!-- whs -->
+	<bean id="userServiceExt"
+		class="com.flyrish.hades.service.ext.impl.OUserServiceExtImpl" autowire="byName">
+	</bean>
+	<bean id="loginUserInfoServiceExt"
+		class="com.flyrish.hades.service.ext.impl.LoginUserInfoServiceExtImpl" autowire="byName">
+	</bean>
+	<bean id="homePageManagerExt"
+		class="com.flyrish.hades.service.ext.impl.HomePageManagerExtImpl" autowire="byName">
+	</bean>
+	
+	<bean id="dataCheckExt"
+		class="com.flyrish.hades.service.ext.impl.DataCheckExtImpl" autowire="byName">
+	</bean>
+	<!-- DWR  bean -->
+	<bean id="showUserFuncDwr" class="com.flyrish.hades.webapp.action.dwr.ShowUserFuncDwr"></bean>
+	<bean id="adminRoleSelect" class="com.flyrish.hades.webapp.action.dwr.AdminRoleSelect"></bean>
+	<bean id="segmentSelectDwr" class="com.flyrish.hades.webapp.action.dwr.SegmentSelectDwr"></bean>
+	<bean id="seriesSelectDwr" class="com.flyrish.hades.webapp.action.dwr.SeriesSelectDwr"></bean>
+	<!-- zdq -->
+	<bean id="doWithFileServiceExt"
+		class="com.flyrish.hades.service.ext.impl.DoWithFileServiceExt" autowire="byName">
+	</bean>
+	<bean id="commonManagerExt"
+		class="com.flyrish.hades.service.ext.impl.CommonManagerExt" autowire="byName">
+	</bean>
+	<bean id="welcomeManagerExt"
+		class="com.flyrish.hades.service.ext.impl.WelcomeManagerExt" autowire="byName">
+		<property name="oldJdbc" value="true"></property>
+	</bean>
+	<bean id="operationAppraiseServiceExt"
+		class="com.flyrish.hades.service.ext.impl.OperationAppraiseServiceExtImpl" autowire="byName">
+	</bean>
+	<bean id="commonSaveExt"
+		class="com.flyrish.hades.service.ext.impl.CommonSaveExtImpl" autowire="byName">
+	</bean>
+	<bean id="commonTwoLevelSaveExt"
+		class="com.flyrish.hades.service.ext.impl.CommonTwoLevelSaveExtImpl" autowire="byName">
+	</bean>
+	<!-- wx -->
+	<bean id="selfAppManagerExt"
+		class="com.flyrish.hades.service.ext.impl.SelfAppManagerExtImpl" autowire="byName">
+	</bean>
+	<bean id="recordPackageManagerExt"
+		class="com.flyrish.hades.service.ext.impl.RecordPackageManagerExtImpl" autowire="byName">
+	</bean>
+	<bean id="learnprocessWorksServiceExt"
+		class="com.flyrish.hades.service.ext.impl.LearnprocessWorksServiceExtImpl" autowire="byName">
+	</bean>
+	<bean id="personalityServiceExt"
+		class="com.flyrish.hades.service.ext.impl.PersonalityServiceExtImpl" autowire="byName">
+	</bean>
+	<bean id="partInfoServiceExt"
+		class="com.flyrish.hades.service.ext.impl.PartInfoServiceExtImpl" autowire="byName">
+	</bean>
+	<bean id="practicesServiceExt"
+		class="com.flyrish.hades.service.ext.impl.PracticesServiceExtImpl" autowire="byName">
+	</bean>
+	<bean id="innerCourseExt"
+		class="com.flyrish.hades.service.ext.impl.InnerCourseExtImpl" autowire="byName">
+	</bean>
+	<bean id="sysSubjectServiceExt"
+		class="com.flyrish.hades.service.ext.impl.SysSubjectServiceExtImpl" autowire="byName">
+	</bean>
+	<bean id="highSchoolCacheExt"
+		class="com.flyrish.hades.service.ext.impl.HighSchoolCacheExtImpl" autowire="byName">
+	</bean>
+	<!-- xcs -->
+	<bean id="playAndHealthExt"
+		class="com.flyrish.hades.service.ext.impl.PlayAndHealthExtImpl" autowire="byName">
+	</bean>
+	<!-- xcs -->
+	<bean id="czplayAndHealthExt"
+		class="com.flyrish.hades.service.ext.impl.CzPlayAndHealthExtImpl" autowire="byName">
+	</bean>
+	<!-- xcs -->
+	<bean id="areaStatExt"
+		class="com.flyrish.hades.service.ext.impl.AreaStatExtImpl" autowire="byName">
+	</bean>
+	
+	
+	
+	
+		<!-- lym -->
+	<bean id="appraisalWritedStaticsExt"
+		class="com.flyrish.hades.service.ext.impl.AppraisalWritedStaticsExtImpl" autowire="byName">
+	</bean>
+	<bean id="masterAppriseExt"
+		class="com.flyrish.hades.service.ext.impl.MasterAppriseExt" autowire="byName">
+	</bean>
+	<bean id="schoolCourseExt"
+		class="com.flyrish.hades.service.ext.impl.SchoolCourseExt" autowire="byName">
+	</bean>
+	<bean id="baseInforManagerExt"
+		class="com.flyrish.hades.service.ext.impl.BaseInforManagerExt" autowire="byName">
+	</bean>
+	<bean id="subjectServiceExt"
+		class="com.flyrish.hades.service.ext.impl.SubjectServiceExtImpl" autowire="byName">
+	</bean>
+	    <!-- wyh -->
+	<bean id="appraisalChildExt"
+		class="com.flyrish.hades.service.ext.impl.AppraisalChildExtImpl" autowire="byName">
+	</bean>
+	<bean id="appriseMasterAppriseExt"
+		class="com.flyrish.hades.service.ext.impl.MasterAppriseExtImpl" autowire="byName">
+	</bean>
+	<bean id="informQueryExt"
+		class="com.flyrish.hades.service.ext.impl.InformQueryExtImpl" autowire="byName">
+	</bean>
+	<bean id="iScoreExt"
+		class="com.flyrish.hades.service.ext.impl.ScoreExtImpl" autowire="byName">
+	</bean>
+	<bean id="informDoQueAndCacheExt"
+		class="com.flyrish.hades.service.ext.impl.InformDoQueAndCacheExtImpl1" autowire="byName">
+	</bean>
+	<bean id="midSchoolDataInitCacheExt"
+		class="com.flyrish.hades.service.ext.impl.MidSchoolDataInitCacheExtImpl" autowire="byName">
+	</bean>
+	<!-- query provider wrapper -->
+	<bean id="queryProvider" class="org.nestframework.commons.hibernate.ListMapQueryProvider" autowire="byName">
+		<property name="providers">
+			<list>
+				<ref bean="queryProviderMapping-wx"/>
+				<ref bean="queryProviderMapping-lym"/>
+			</list>
+		</property>
+	</bean>
+	<bean id="constantBean"
+		class="com.flyrish.hades.common.ConstantBean" autowire="byName" lazy-init="false" init-method="init">
+		<property name="propertiesFile" value="sys-conf.properties"></property>
+		<property name="propertiesFileDB" value="db-conf.properties"></property>
+	</bean>  
+</beans>

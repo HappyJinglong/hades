@@ -1,0 +1,26 @@
+@charset "gb2312";
+/******************************************************************
+* ID: CMIS4 CSS
+* latest changed : 2012-06-27 gaoweizhong
+* Description:全局设置
+******************************************************************/
+/* CSS Document */
+
+/* 滚动条设置 */
+html { scrollbar-face-color: #e6e6e6; scrollbar-shadow-color: #ffffff; scrollbar-3dlight-color: #b8bac9; scrollbar-arrow-color: #0066FF; scrollbar-track-color: #b8bac9; scrollbar-darkshadow-color: #b8bac9; overflow-y:yes; }
+
+/* CSS重设*/
+body { color:#000; font-family: "宋体"; font-size:12px; text-align:left; padding:0px; margin:0px; margin-left:auto; margin-right:auto;  background-position:top; background-repeat: repeat-x; }
+table, td, tr, th { font-size:12px; padding:0px; margin: 0px; margin-left:auto; margin-right:auto; }
+h1, h2, h3, h4, h5, h6 { padding:0px; margin: 0px; text-align:left; }
+div,form,span,p,dl,dt,dd,img{margin:0;padding:0;border:0;}
+ul,ol,li{list-style:none；margin:0;padding:0;border:0;}
+img { border: none; blr:expression(this.onFocus=this.blur()); }
+textarea { overflow-y: scroll; overflow-x: scroll; }
+select,input{ margin-left:2px; }
+
+/* 公用超链 */
+a { blr:expression(this.onFocus=this.blur()); }
+a:link { color: #005b8c; text-decoration: none; }
+a:visited { color: #fff; text-decoration: none; }
+a:hover { color:#666; text-decoration: underline; }

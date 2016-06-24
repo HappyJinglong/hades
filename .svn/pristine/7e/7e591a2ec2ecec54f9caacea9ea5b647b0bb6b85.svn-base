@@ -1,0 +1,19 @@
+<!DOCTYPE dwr PUBLIC "-//GetAhead Limited//DTD Direct Web Remoting 2.0//EN" "http://getahead.org/dwr//dwr20.dtd">
+<dwr>
+	<allow>
+		<create creator="spring" javascript="ShowUserFuncDwr">
+			<param name="beanName" value="showUserFuncDwr"/>
+		</create>
+		<create creator="spring" javascript="AdminRoleSelect">
+			<param name="beanName" value="adminRoleSelect"/>
+		</create>
+		<create creator="spring" javascript="SegmentSelectDwr">
+			<param name="beanName" value="segmentSelectDwr"/>
+		</create>
+		<create creator="spring" javascript="SeriesSelectDwr">
+			<param name="beanName" value="seriesSelectDwr"/>
+		</create>
+		<convert converter="hibernate3" match="com.flyrish.hades.dto.*" />
+		<convert converter="bean" match="org.nestframework.core.UploadProcessListener$UploadStatus" />
+	</allow>
+</dwr>

@@ -1,0 +1,279 @@
+/* CSS Document */
+/*  body,table { margin: 0px;padding: 0px; font-family:"宋体",Arial; font-size:12px;} */
+/* body{ background:#edf8fc;
+
+SCROLLBAR-FACE-COLOR: #c2d3da ; 
+SCROLLBAR-HIGHLIGHT-COLOR: #c2d3da; 
+SCROLLBAR-SHADOW-COLOR: #618ea0; 
+SCROLLBAR-3DLIGHT-COLOR: #618ea0; 
+SCROLLBAR-ARROW-COLOR: #618ea0; 
+SCROLLBAR-TRACK-COLOR: #c2d3da; 
+SCROLLBAR-DARKSHADOW-COLOR: #c2d3da;
+} 
+ */
+.note td{
+	text-align:center;
+	vertical-align:bottom;
+	font-family:仿宋_GB2312;
+	font-size:14px;
+	color:#FF0000;
+	font-weight:normal;
+	font-style:normal;
+	text-decoration:none;
+	border-left-style:double;
+	border-left-width:1px;
+	border-left-color:#000000;
+	border-top-style:none;
+	border-top-width:1px;
+	border-top-color:#000000;
+	border-right-style:none;
+	border-right-width:1px;
+	border-right-color:#000000;
+	border-bottom-style:none;
+	border-bottom-width:1px;
+	border-bottom-color:#000000;
+	background-color:#FFFFFF;
+	word-break:keep-all;
+	}
+
+/*个人信息*/
+.xxcont{ margin:0px auto 0; width:90%; font-size:14px;border:1px #e0ebee solid; height:380px; background:#f9fdfe; padding:15px 10px;}
+.center_tab{margin:44px auto 0; height:auto; overflow:hidden; display:block;}
+.moral_title{  width:160px; height:21px; background:url(../images/moral/in_title_bg.gif) left bottom no-repeat; color:#FFFFFF; padding:9px 8px 1px; font-weight:bold; float:left; margin:0px 0 0px 1px;}
+.moral_icon{width:70%; height:20px; text-align:right;  float:right;}
+.moral_icon img{ display:block; margin:0 2px; float:right;}
+.heiauto{ height:auto; overflow:hidden; margin:0px auto; width:90%; border:1px #e0ebee solid; background:#f9fdfe; padding:15px 10px;}
+.input_textarea{margin:0 auto; background-color: #edf8fc;border: 1px solid #edf8fc;}
+.input_textarea_auto {margin:0 auto; width:100%; height:90px; background-color: #edf8fc;border: 1px solid #edf8fc;}
+.lmtab_box{ padding-top:24px; padding-left:18%; height:29px; margin:38px auto 0;}
+.xxk_title td{ height:40px;}
+.xxk_title_bg {background:url(../images/xxk_title_bg.gif) no-repeat left top; padding-left:15px; color:#0681eb; font-weight:bold;}
+.title_k{background:url(../images/xxk_title_bg.gif) no-repeat left top; text-align:center; padding:13px 0; width:179px; height:38px; color:#0681eb; font-weight:bold; margin:2px 0 -2px}
+
+.title_l_k{background:url(../images/xxk_title_l_bg.gif) no-repeat left top; text-align:center; padding:13px 0; width:280px; height:38px; color:#0681eb; font-weight:bold; margin:2px 0 -2px}
+
+.show_input{
+margin:0 auto;
+width:100%; 
+background-color: #edf8fc;
+border: 1px solid #edf8fc;
+SCROLLBAR-FACE-COLOR:#edf8fc;      
+SCROLLBAR-HIGHLIGHT-COLOR:#edf8fc;      
+SCROLLBAR-SHADOW-COLOR:#edf8fc;    
+SCROLLBAR-3DLIGHT-COLOR:#edf8fc;      
+SCROLLBAR-ARROW-COLOR:#edf8fc;      
+SCROLLBAR-TRACK-COLOR:#edf8fc;    
+SCROLLBAR-DARKSHADOW-COLOR:#edf8fc;    
+SCROLLBAR-base-color:#edf8fc
+}
+
+.edit_input{
+margin:0 auto;
+width:100%; 
+background-color: #f2f2f2;
+border: 1px solid #f2f2f2;
+SCROLLBAR-FACE-COLOR:#f2f2f2;      
+SCROLLBAR-HIGHLIGHT-COLOR:#f2f2f2;      
+SCROLLBAR-SHADOW-COLOR:#f2f2f2;    
+SCROLLBAR-3DLIGHT-COLOR:#f2f2f2;      
+SCROLLBAR-ARROW-COLOR:#f2f2f2;      
+SCROLLBAR-TRACK-COLOR:#f2f2f2;    
+SCROLLBAR-DARKSHADOW-COLOR:#f2f2f2;    
+SCROLLBAR-base-color:#f2f2f2
+}
+
+.show_textarea{
+margin:0 auto;
+width:100%; 
+height:40px;
+background-color: #edf8fc;
+border: 1px solid #edf8fc;
+SCROLLBAR-FACE-COLOR:#edf8fc;      
+SCROLLBAR-HIGHLIGHT-COLOR:#edf8fc;      
+SCROLLBAR-SHADOW-COLOR:#edf8fc;    
+SCROLLBAR-3DLIGHT-COLOR:#edf8fc;      
+SCROLLBAR-ARROW-COLOR:#edf8fc;      
+SCROLLBAR-TRACK-COLOR:#edf8fc;    
+SCROLLBAR-DARKSHADOW-COLOR:#edf8fc;    
+SCROLLBAR-base-color:#edf8fc
+}
+
+.edit_textarea{
+margin:0 auto;
+width:100%; 
+height:40px;
+background-color: #f2f2f2;
+border: 1px solid #f2f2f2;
+SCROLLBAR-FACE-COLOR:#f2f2f2;      
+SCROLLBAR-HIGHLIGHT-COLOR:#f2f2f2;      
+SCROLLBAR-SHADOW-COLOR:#f2f2f2;    
+SCROLLBAR-3DLIGHT-COLOR:#f2f2f2;      
+SCROLLBAR-ARROW-COLOR:#f2f2f2;      
+SCROLLBAR-TRACK-COLOR:#f2f2f2;    
+SCROLLBAR-DARKSHADOW-COLOR:#f2f2f2;    
+SCROLLBAR-base-color:#f2f2f2
+}
+
+.styleRedFont {color: #FF0000}
+
+.biaoge_form th{    padding:2px;
+    white-space:nowrap;
+    BACKGROUND-COLOR: #e5f0f2;
+    BORDER: #fff 1px solid;
+	FONT-SIZE: 12px;  
+	letter-spacing:1px;
+	color:#013663;
+	font-weight:normal;
+	height:30px;
+	font-weight:bold;}
+	
+.biaoge_form td{
+    padding:2px;
+	height:30px;
+	background:#f2f2f2;
+	color:#777777;
+    BORDER: #FFF 1px solid;}
+    
+.list_form th{    padding:2px;
+    white-space:nowrap;
+    BACKGROUND-COLOR: #e5f0f2;
+    BORDER: #fff 1px solid;
+	FONT-SIZE: 12px;  
+	letter-spacing:1px;
+	color:#013663;
+	font-weight:normal;
+	height:20px;
+	font-weight:bold;}
+	
+.list_form td{
+    padding:2px;
+	height:18px;
+	background:#f2f2f2;
+	color:#777777;
+    BORDER: #FFF 1px solid;}    
+    
+.biaoge_form img{ display:block; text-align:center}	
+	
+.in_color{
+	width:80px;
+	text-align:center;
+}		
+	
+.clear {
+font:0/0 sans-serif;
+
+overflow:hidden;
+clear:both;
+display:block
+}
+
+.content {
+text-align:left;
+vertical-align:top;
+font-weight:normal;
+font-style:normal;
+}
+
+.title {
+text-align:center;
+vertical-align:middle;
+font-size:16px;
+font-weight:bold;
+}
+
+
+.text_style{ font-weight: bold; color:#0467ab; text-align:left; line-height:22px;}
+.height20 a{ line-height:20px; padding-right:5px;}
+.height20 a:hover{ line-height:20px; padding-right:5px;}
+
+.mar_left{ padding:0 0 0 15%}
+.function_pic{ width:98%; margin:0 auto; display:block; height:auto; overflow:hidden;}
+.function_pic .input_doc{ background:url(../images/input_doc.gif) no-repeat; }
+.function_pic .input_img{ background:url(../images/input_img.gif) no-repeat;}
+.function_pic .delete_doc{ background:url(../images/delete_doc.gif) no-repeat;}
+.function_pic .input_works{ background:url(../images/addworks.gif) no-repeat; }
+.function_pic .delete_works{ background:url(../images/deleteworks.gif) no-repeat;}
+.function_pic .input_marks{ background:url(../images/addmarks.gif) no-repeat;}
+.function_pic .input_appraisal{ background:url(../images/addappraisal.gif) no-repeat;}
+.function_pic .delete_appraisal{ background:url(../images/del_appraisal.gif) no-repeat;}
+
+
+.function_pic .input_doc span,
+.function_pic .input_img span,
+.function_pic .input_works span,
+.function_pic .delete_works span,
+.function_pic .input_marks span,
+.function_pic .input_appraisal span,
+.function_pic .delete_doc span { margin:5px 0; display:block;}
+.function_pic .input_doc,
+.function_pic .input_img,
+.function_pic .input_works,
+.function_pic .delete_works,
+.function_pic .input_marks,
+.function_pic .input_appraisal,
+.function_pic .delete_appraisal,
+.function_pic .delete_doc { float:left; width:14%; padding:0 0 0 25%; height:25px; color:#008bbd; margin:0 5px}
+.function_pic .input_doc a,
+.function_pic .input_img a,
+.function_pic .input_works a,
+.function_pic .delete_works a,
+.function_pic .input_marks a,
+.function_pic .input_appraisal a,
+.function_pic .delete_appraisal a,
+.function_pic .delete_doc a {color:#008bbd;}
+.function_pic .input_doc a:hover,
+.function_pic .input_img a:hover,
+.function_pic .input_works a:hover,
+.function_pic .delete_works a:hover,
+.function_pic .input_marks a:hover,
+.function_pic .input_appraisal a:hover,
+.function_pic .delete_appraisal a:hover,
+.function_pic .delete_doc a:hover {color:#f96a00; text-decoration:none;}
+
+.input_new_img,.input_new_doc,.input_del_marks,.input_del_appraisal,.input_add_works,.input_add_marks,.input_add_appraisal{ width:18%; display:block; float:right; height:25px; padding:7px 0 0 0}
+.input_add_works{ background:url(../images/addworks.gif) left center no-repeat; }
+.input_add_marks{ background:url(../images/addmarks.gif) left center no-repeat;}
+.input_del_marks{ background:url(../images/del_marks.gif) left center no-repeat; }
+.input_add_appraisal{ background:url(../images/addappraisal.gif) left center no-repeat;}
+.input_del_appraisal{ background:url(../images/del_appraisal.gif) left center no-repeat;}
+.input_new_doc{ background:url(../images/input_doc.gif) no-repeat; }
+.input_new_img{ background:url(../images/input_img.gif) no-repeat;}
+.delete_new_works{ background:url(../images/deleteworks.gif) no-repeat;}
+.input_add_works span,
+.input_add_marks span,
+.input_del_marks span,
+.input_new_doc span,
+.input_new_img span,
+.delete_new_works span,
+.input_del_appraisal span,
+.input_add_appraisal span{ margin:5px 0; display:block;}
+.input_add_marks span,
+.input_add_works span,
+.input_del_marks span,
+.input_new_doc span,
+.input_new_img span,
+.delete_new_works span,
+.input_del_appraisal span,
+.input_add_appraisal span{ float:right; width:25%; padding:0 0 0 20%; height:25px; color:#008bbd; margin:0 5px}
+.input_add_marks span a,
+.input_add_works span a,
+.input_del_marks span a,
+.input_new_doc span a,
+.input_new_img span a,
+.delete_new_works span a,
+.input_del_appraisal span a,
+.input_add_appraisal span a{color:#008bbd;}
+.input_add_marks span a:hover,
+.input_add_works span a:hover,
+.input_del_marks span a:hover,
+.input_new_doc span a:hover,
+.input_new_img span a:hover,
+.delete_new_works span a:hover, 
+.input_del_appraisal span a:hover,
+.input_add_appraisal span a:hover{color:#f96a00; text-decoration:none;}
+
+
+
+
+
+

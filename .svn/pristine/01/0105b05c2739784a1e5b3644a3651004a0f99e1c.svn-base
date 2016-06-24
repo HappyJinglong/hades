@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:p="http://www.springframework.org/schema/p"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+       <bean id="jedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig">        
+		<property name="maxTotal" value="50000" />    <!-- 最大连接数 -->
+	    <property name="maxIdle" value="50" />      <!-- 最大空闲数 -->
+	    <property name="maxWaitMillis" value="5000" />    <!-- 最大等待时间ms -->
+	    <property name="testOnBorrow" value="true" />  
+	</bean>
+	
+	<bean id="jedisPool" class="com.flyrish.hades.jodis.RoundRobinJedisPool" lazy-init="false" init-method="init">        
+		<property name="zkAddr" value="$[zookeeper.address]"/>
+	    <property name="zkSessionTimeoutMs" value="3000" />
+	    <property name="zkPath" value="/zk/codis/db_test/proxy" />
+	    <property name="jedisPoolConfig" ref="jedisPoolConfig" />
+	</bean>
+</beans>

@@ -1,0 +1,21 @@
+@charset "gb2312";
+/******************************************************************
+* ID: CMIS4 CSS
+* latest changed : 2012-06-27 gaoweizhong
+* Description: TREEÊ½µ¥
+******************************************************************/
+/* CSS Document */
+
+
+/* TREE */
+
+body { background-color:#fbf5ef; background-position:bottom; background-repeat:no-repeat; overflow-x: hidden; }
+#tree { padding-left:6px; overflow-y:hidden; height:100%;overflow-x: hidden; }
+.open { width:195px; padding:5px; line-height:25px; padding-left:20px; }
+.dtree { font-family: Verdana, Geneva, Arial, Helvetica, sans-serif; color: #598908; white-space: nowrap;font-size:12px; }
+.dtree img { border: 0px; vertical-align: middle; }
+.dtree a { color: #fff; text-decoration: none; }
+.dtree a.node, .dtree a.nodeSel { white-space: nowrap; padding: 1px 2px 1px 2px; }
+.dtree a.node:hover, .dtree a.nodeSel:hover { background-color: #aedefa;  border:1px #aedefa solid; line-height:16px; color:#3495e4; font-weight:bold; text-decoration: none; }
+.dtree a.nodeSel { background-color: #73ac13; border:1px #73ac13 solid; line-height:16px; color:#FFFFFF; font-weight:bold; }
+.dtree .clip { overflow: hidden; }

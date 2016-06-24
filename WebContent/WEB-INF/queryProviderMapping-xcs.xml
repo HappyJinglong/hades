@@ -1,0 +1,452 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd"
+	default-autowire="byName" default-lazy-init="true">
+
+	<bean id="queryProviderMapping-xcs"
+		class="org.nestframework.commons.hibernate.QueryProviderMappingImpl">
+		<property name="queryMap">
+			<map>
+				<!--查询详细信息 --> 
+				
+				<entry key="PlayAndHealthExtImpl.findstudent.query">
+					<value><![CDATA[
+						       select x.termid,a.name,b.classid,a.studentid,a.edu_id
+                                      from  s_baseinfo a
+                                      inner    join  e_stuclass b on  a.studentid=b.studentid and b.used=1 and b.partid = mod(:cmis30id,20) and b.discode=:discode and b.cmis30id=:cmis30id
+                                      inner    join  e_grade e    on  b.gradeid=e.gradeid and e.used=1 and e.discode=:discode and e.cmis30id=:cmis30id
+                                      inner    join  e_term  x    on   x.schoolyear=e.schoolyear and x.used=1
+                                      where  a.studentid=:studentid and  a.partid = mod(:cmis30id,20) and a.discode=:discode and a.cmis30id=:cmis30id
+					]]></value>
+               
+				</entry>
+				
+				
+				<!-- 树的节点 -->
+				<entry key="PlayAndHealthExtImpl.findstudentTreeNode.query">
+                   <value><![CDATA[
+						select b.classid,e.gradename,d.classsname
+                                      from  s_baseinfo a
+                                      inner    join  e_stuclass b on  a.studentid=b.studentid and b.used=1 and b.partid = mod(:cmis30id,20) and b.discode=:discode and b.cmis30id=:cmis30id
+                                      inner    join  e_class d    on  d.classid=b.classid and d.used=1 and d.discode=:discode and d.cmis30id=:cmis30id
+                                      inner    join  e_grade e    on  b.gradeid=e.gradeid and e.used=1 and e.discode=:discode and e.cmis30id=:cmis30id
+                                      inner join e_term et on et.schoolyear=e.schoolyear and et.used=1
+                                      where  a.studentid=:studentid and  a.partid = mod(:cmis30id,20) and a.discode=:discode and a.cmis30id=:cmis30id
+					]]></value>
+				</entry>
+				<!--查询全班某项的评价 -->
+				<entry key="PlayAndHealthExtImpl.selectSelfAppraiseXie.query">
+			
+				<value><![CDATA[
+                             select a.studentid,a.name,a.photo,a.edu_id,sb.inschoolid, eap.appraser,eap.apprasial,eap.apprasialid,eap.signdate,eap.apprasialid,eap.appraseridentify    
+                                  from  s_baseinfo a
+                                 inner    join  e_stuclass b on  a.studentid=b.studentid and b.used=1 and b.partid = mod(:cmis30id,20)  and b.discode=:discode and b.cmis30id=:cmis30id and b.classid=:classid
+                                inner    join s_beadroll sb on sb.studentid=a.studentid and sb.partid = mod(:cmis30id,20)  and sb.discode=:discode and sb.cmis30id=:cmis30id
+					            left join a_apprasial eap on eap.edu_id= a.edu_id 
+					            and eap.appraisaltypeid =:appraisaltypeid
+					            and eap.semesterid = :semesterid
+					            and eap.appraiserrid=:appraiserrid
+                                where  a.edu_id!=:appraiserrid and a.inschoolstate='1002001' and  a.partid = mod(:cmis30id,20) and a.discode=:discode and a.cmis30id=:cmis30id
+					            order by sb.inschoolid,a.name,eap.apprasialid asc					
+					]]></value> 
+				</entry>
+				<!--查询全班某项的评价 是否有评价 -->
+    <entry key="PlayAndHealthExtImpl.selectSelfAppraiseXieShu.query">
+			
+				<value><![CDATA[
+                      select a.studentid,a.name,a.edu_id,sb.inschoolid, a.photo, count(eap.appraiserrid) as shu
+                     from  s_baseinfo a
+                     inner    join  e_stuclass b on  a.studentid=b.studentid and b.used=1 and b.partid = mod(:cmis30id,20)  and b.discode=:discode and b.cmis30id=:cmis30id and b.classid=:classid
+                     inner    join s_beadroll sb on sb.studentid=a.studentid and sb.partid = mod(:cmis30id,20)  and sb.discode=:discode and sb.cmis30id=:cmis30id
+                     left join a_apprasial eap on eap.edu_id= a.edu_id 
+                     and eap.appraisaltypeid =:appraisaltypeid
+                     and eap.semesterid = :semesterid
+                     and eap.appraiserrid=:appraiserrid
+                      where  a.edu_id!=:appraiserrid and a.inschoolstate='1002001' and  a.partid = mod(:cmis30id,20) and a.discode=:discode and a.cmis30id=:cmis30id
+					   Group By   a.studentid,a.name,a.edu_id,sb.inschoolid,a.photo
+                      order by sb.inschoolid,a.name  asc 						
+					]]></value> 
+				</entry>
+				
+				<!--初中查询全班某项的评价 是否有评价 -->
+             <entry key="CzPlayAndHealthExtImpl.selectClassStuder.query">
+				<value><![CDATA[
+                     select a.studentid,a.name,a.edu_id,sb.inschoolid,a.photo, count(eap.part_id) as shu
+                     from  s_baseinfo a
+                     inner    join  e_stuclass b on  a.studentid=b.studentid and b.used=1 and b.partid = mod(:cmis30id,20)  and b.discode=:discode and b.cmis30id=:cmis30id and b.classid=:classid
+                     inner    join s_beadroll sb on sb.studentid=a.studentid and sb.partid = mod(:cmis30id,20)  and sb.discode=:discode and sb.cmis30id=:cmis30id
+                     left join partinfo eap on eap.edu_id= a.edu_id 
+                     and eap.two_part_id =:two_part_id
+                     and eap.termid =:termid
+                     and eap.userid=:userid
+                      where  a.edu_id!=:userid and a.inschoolstate='1002001' and  a.partid = mod(:cmis30id,20) and a.discode=:discode and a.cmis30id=:cmis30id
+					  Group By   a.studentid,a.name,a.edu_id,sb.inschoolid ,a.photo
+                      order by sb.inschoolid,a.name  asc 					
+					]]></value> 
+				</entry>
+				
+				
+				
+				<!--全班同学 -->
+             <entry key="CzPlayAndHealthExtImpl.selectClassStuderCade.query">
+				<value><![CDATA[
+                     select a.studentid,a.name,a.edu_id,sb.inschoolid,a.photo
+                     from  s_baseinfo a
+                     inner    join  e_stuclass b on  a.studentid=b.studentid and b.used=1 and b.partid = mod(:cmis30id,20)  and b.discode=:discode and b.cmis30id=:cmis30id and b.classid=:classid
+                     inner    join s_beadroll sb on sb.studentid=a.studentid and sb.partid = mod(:cmis30id,20)  and sb.discode=:discode and sb.cmis30id=:cmis30id
+                      where  a.edu_id!=:userid and a.inschoolstate='1002001' and  a.partid = mod(:cmis30id,20) and a.discode=:discode and a.cmis30id=:cmis30id
+                       order by sb.inschoolid,a.name  asc 					
+					]]></value> 
+				</entry>
+				
+				
+				
+				
+				
+				
+				
+				<!--查询初中全班某项的评价 -->
+				<entry key="CzPlayAndHealthExtImpl.selectSelfAppraiseXie.query">
+				
+					<value><![CDATA[
+                           select a.edu_id, eap.part_id part_id, a.studentid studentid,a.photo, a.name name,eap.termid termid,eap.part_info part_info,eap.signer_name signer_name,eap.two_part_id two_part_id,eap.createDate  createDate, eap.write_man write_man
+                                      from  s_baseinfo a
+                                      inner    join  e_stuclass b on  a.studentid=b.studentid and b.used=1 and b.partid = mod(:cmis30id,20) and b.discode=:discode and b.cmis30id=:cmis30id and b.classid=:classid
+                                      inner    join s_beadroll sb on sb.studentid=a.studentid and sb.partid = mod(:cmis30id,20)  and sb.discode=:discode and sb.cmis30id=:cmis30id
+                                      left join partinfo eap on eap.edu_id=a.edu_id 
+                                      and eap.termid=:termid
+                                      and eap.write_man='同学'
+                                      and eap.userid=:userid
+                                      and eap.two_part_id=:two_par_id
+                                      where  a.studentid!=:studentid and a.inschoolstate='1002001'  and a.partid = mod(:cmis30id,20) and a.discode=:discode and a.cmis30id=:cmis30id
+                                      order by sb.inschoolid,a.name,eap.part_id asc					
+					]]></value> 
+				</entry>
+				
+				
+				
+				<!-- <value><![CDATA[
+                           select a.edu_id, eap.part_id part_id, a.studentid studentid,a.photo, a.name name,eap.termid termid,eap.part_info part_info,eap.signer_name signer_name,eap.two_part_id two_part_id,eap.createDate  createDate, eap.write_man write_man
+                                      from  s_baseinfo a
+                                      inner    join  e_stuclass b on  a.studentid=b.studentid and b.used=1 and b.partid = mod(:cmis30id,20) and b.discode=:discode and b.cmis30id=:cmis30id and b.classid=:classid
+                                      inner    join s_beadroll sb on sb.studentid=a.studentid and sb.partid = mod(:cmis30id,20)  and sb.discode=:discode and sb.cmis30id=:cmis30id
+                                      left join partinfo eap on eap.edu_id=a.edu_id and eap.discode=:discode and eap.cmis30id=:cmis30id and eap.partid=mod(:cmis30id,20)
+                                      and eap.termid=:termid
+                                      and eap.write_man='同学'
+                                      and eap.userid=:userid
+                                      and eap.two_part_id=:two_par_id
+                                      where  a.studentid!=:studentid and a.inschoolstate='1002001'  and a.partid = mod(:cmis30id,20) and a.discode=:discode and a.cmis30id=:cmis30id
+                                      order by sb.inschoolid,a.name,eap.part_id asc					
+					]]></value>  -->
+				<!--保存木人某项的评价 -->  
+				<entry key="PlayAndHealthExtImpl.insertSelfAppraisal.query">
+					<value><![CDATA[
+							  insert into a_apprasial(apprasialid,appraisaltypeid,appraiserrid,semesterid,
+						                                   studentid,appraseridentify,appraser,
+						                                   apprasial,signDate,edu_id,discode,cmis30id,EDITTIME)
+                                 values(s_A_APPRASIAL.NEXTVAL,:appraisaltypeid,:appraiserrid,:semesterid,
+                                         :studentid,:appraseridentify,
+                                         :appraser,:apprasial,:signDate,
+                                      (select edu_id from s_baseinfo where studentid=:studentid and discode=:discode and cmis30id=:cmis30id),
+                                      :discode, 
+                                      :cmis30id,sysdate) 
+					]]></value>
+				</entry>
+				<!--保存木人某项的评价 变更后的-->  
+				<entry key="PlayAndHealthExtImpl.insertSelfAppraisalbian.query">
+					<value><![CDATA[
+							  insert into a_apprasial(apprasialid,appraisaltypeid,appraiserrid,semesterid,
+						                                   studentid,appraseridentify,appraser,
+						                                   apprasial,signDate,edu_id,discode,cmis30id,EDITTIME)
+                                 values(s_A_APPRASIAL.NEXTVAL,:appraisaltypeid,:appraiserrid,:semesterid,
+                                         :studentid,:appraseridentify,
+                                         :appraser,:apprasial,:signDate,
+                                         :edu_id,
+                                      :discode, 
+                                      :cmis30id,sysdate) 
+					]]></value>
+				</entry>
+				<!--保存初中木人某项的评价 -->
+				<entry key="CzPlayAndHealthExtImpl.czinsertSelfAppraisal.query">
+					<value><![CDATA[
+					    insert into partinfo(part_id,termid,studentid,part_info,write_man,signer_name,two_part_id,discode,cmis30id,createdate,userid,edu_id,EDITTIME)values(s_partinfo.nextval,:termid,:studentid,:part_info,:write_man,:signer_name,:two_part_id,:discode,:cmis30id,:CreateDate,:userid,(select edu_id from s_baseinfo where studentid=:studentid and discode=:discode and cmis30id=:cmis30id),sysdate) 
+					]]></value>
+				</entry>
+				<!--保存初中木人某项的评价 缓存中-->
+				<entry key="CzPlayAndHealthExtImpl.czinsertSelfAppraisalCade.query">
+					<value><![CDATA[
+					    insert into partinfo(part_id,termid,studentid,part_info,write_man,signer_name,two_part_id,discode,cmis30id,createdate,userid,edu_id,EDITTIME)values(:part_id,:termid,:studentid,:part_info,:write_man,:signer_name,:two_part_id,:discode,:cmis30id,:CreateDate,:userid,(select edu_id from s_baseinfo where studentid=:studentid and discode=:discode and cmis30id=:cmis30id),sysdate) 
+					]]></value>
+				</entry>
+				<!--保存初中木人某项的评价 缓存中-->
+				<entry key="CzPlayAndHealthExtImpl.czinsertSelfAppraisalCade.query1">
+					<value><![CDATA[
+					    insert into partinfo(part_id,termid,studentid,part_info,write_man,signer_name,two_part_id,discode,cmis30id,createdate,userid,edu_id,EDITTIME)values(:part_id,:termid,:studentid,:part_info,:write_man,:signer_name,:two_part_id,:discode,:cmis30id,to_date(:CreateDate,'yyyy-MM-dd'),:userid,(select edu_id from s_baseinfo where studentid=:studentid and discode=:discode and cmis30id=:cmis30id),sysdate) 
+					]]></value>
+				</entry>
+				<!--修改的评价 -->
+				<entry key="PlayAndHealthExtImpl.updataAppraisal.update">
+					<value><![CDATA[
+							update  a_apprasial set apprasial=:apprasial,signDate=:signDate,EDITTIME=sysdate where apprasialid =:apprasialid
+					]]></value>
+				</entry>
+				<entry key="PlayAndHealthExtImpl.updataAppraisal.update1">
+					<value><![CDATA[
+							update  a_apprasial set apprasial=:apprasial,signDate=to_date(:signDate,'yyyy-MM-dd'),EDITTIME=sysdate where apprasialid =:apprasialid
+					]]></value>
+				</entry>
+				<!--修改的评价按栏目 --> 
+				<entry key="PlayAndHealthExtImpl.updataNewAppraisal.update">
+     			<value><![CDATA[
+							update  a_apprasial 
+							  set
+							<#if apprasial?has_content>
+										  apprasial=:apprasial,
+							 </#if>
+							 <#if signDate?has_content>
+										signDate=to_date(:signDate,'yyyy-MM-dd'),
+							 </#if>
+							   EDITTIME=sysdate
+                            where apprasialid =:apprasialid
+					]]></value>
+				</entry>
+				<!--修改时间 "apprasialid"signDate"-->
+				<entry key="PlayAndHealthExtImpl.updataTime.update">
+					<value><![CDATA[
+							update  a_apprasial set  signDate=:signDate,EDITTIME=sysdate  where apprasialid =:apprasialid
+					]]></value>
+				</entry>
+				<!--修改时间 "apprasialid"signDate" 缓存-->
+				<entry key="PlayAndHealthExtImpl.updataTime.update1">
+					<value><![CDATA[
+							update  a_apprasial set EDITTIME=sysdate, signDate=num_to_date(:signDate)  where apprasialid =:apprasialid
+					]]></value>
+				</entry>
+				<!--修改初中的评价 -->
+				<entry key="CzPlayAndHealthExtImpl.czupdataAppraisal.update">
+					<value><![CDATA[
+							update  partinfo set part_info=:part_info,EDITTIME=sysdate where part_id=:part_id
+					]]></value>
+				</entry>
+				<!--修改初中的评价时间 -->
+				<entry key="CzPlayAndHealthExtImpl.czupdataTime.update">
+					<value><![CDATA[
+							update  partinfo set CreateDate=:CreateDate,EDITTIME=sysdate where part_id=:part_id and cmis30id=:cmis30id and discode=:discode
+					]]></value>
+				</entry>
+				<!--修改初中的评价时间 -->
+				<entry key="CzPlayAndHealthExtImpl.czupdataTime.update1">
+					<value><![CDATA[
+							update  partinfo set CreateDate=to_date(:CreateDate,'yyyy-MM-dd'),EDITTIME=sysdate where part_id=:part_id and cmis30id=:cmis30id and discode=:discode
+					]]></value>
+				</entry>
+				<!--删除的评价 -->
+				<entry key="PlayAndHealthExtImpl.deleApprasial.update">
+					<value><![CDATA[
+							delete  from a_apprasial where apprasialid =:apprasialid 
+					]]></value>
+				</entry>
+				<!--删除的评价 -->
+				<entry key="CzPlayAndHealthExtImpl.CZdeleApprasial.update">
+					<value><![CDATA[
+							delete  from partinfo where part_id=:part_id 
+					]]></value>
+				</entry>
+				<!--查询班级所有学生 -->
+				<entry key="findClassStudent(Student student)">
+				
+					<value><![CDATA[
+						 	select sb.studentid studentid,sb.name name 
+                          from s_baseinfo sb
+                          inner join e_stuclass ets on sb.studentid=ets.studentid and ets.used=1 and ets.cmis30id=:cmis30id   and ets.discode=:discode and ets.partid=mod(:cmis30id,20)
+                          inner join e_class ecl on ecl.classid=ets.classid and ecl.used=1 and ecl.cmis30id=:cmis30id   and ecl.discode=:discode  and ecl.classid=:classid
+                          inner join s_beadroll t on sb.studentid=t.studentid and t.cmis30id=:cmis30id   and t.discode=:discode and t.partid=mod(:cmis30id,20)
+                       where 
+                        sb.inschoolstate='1002001'  
+                        and sb.studentid<>:studentid
+                        and sb.cmis30id=:cmis30id
+                        and sb.discode=:discode
+                        and sb.partid=mod(:cmis30id,20)
+                        order by t.inschoolid,sb.name
+					]]></value>
+				</entry>
+				<!--查询班级所有学生 修改版-->
+				<entry key="PlayAndHealthExtImpl.getStudentInfoAll.query">
+					<value><![CDATA[  
+						 	select sb.studentid studentid,sb.name name,sb.edu_id edu_id
+                          from s_baseinfo sb
+                          inner join e_stuclass ets on sb.studentid=ets.studentid and ets.used=1 and ets.cmis30id=:cmis30id   and ets.discode=:discode and ets.partid=mod(:cmis30id,20)
+                          inner join e_class ecl on ecl.classid=ets.classid and ecl.used=1 and ecl.cmis30id=:cmis30id   and ecl.discode=:discode  and ecl.classid=:classid
+                          inner join s_beadroll t on sb.studentid=t.studentid and t.cmis30id=:cmis30id   and t.discode=:discode and t.partid=mod(:cmis30id,20)
+                       where 
+                        sb.inschoolstate='1002001'  
+                        and sb.studentid<>:studentid
+                        and sb.cmis30id=:cmis30id
+                        and sb.discode=:discode
+                        and sb.partid=mod(:cmis30id,20)
+                        order by t.inschoolid,sb.name
+					]]></value>
+
+				</entry>
+				
+				
+				<!--查询学生各项评价 -->
+				<entry key="PlayAndHealthExtImpl.allAppraise.query"><!-- 修改 -->
+					<value><![CDATA[        
+						 select a.studentid,a.appraser,a.apprasial, a.apprasialid,a.signdate,b.name,a.appraisaltypeid,a.appraseridentify
+						 from  a_apprasial  a
+                         inner    join  s_baseinfo   b on  a.edu_id = b.edu_id and  a.discode = b.discode and  a.cmis30id = b.cmis30id and  b.partid = mod(:cmis30id,20) 
+                         where b.studentid=:studentid 
+                         and b.discode=:discode and b.cmis30id=:cmis30id and a.appraseridentify=2 and a.appraisaltypeid in (3020,8040,5020,6020,4020,7030)
+                         and  a.appraiserrid=:appraiserrid 
+                         and a.semesterid = :semesterid
+                         and b.inschoolstate=1002001
+                         and a.partid=mod(:cmis30id,20)
+                        order by  a.apprasialid asc
+					]]></value>
+				</entry>
+				<!--查询学生单个的评价 -->
+			<entry key="PlayAndHealthExtImpl.EereallAppraise.query"><!-- 修改 -->
+					<value><![CDATA[ 
+						 select a.apprasialid, a.edittime,  a.appraisaltypeid,  a.appraiserrid,  a.semesterid,  a.studentid, a.appraseridentify, a.appraser, a.apprasial, a.signdate, a.edu_id, a.discode, a.cmis30id,b.name
+						 from  a_apprasial  a
+                         inner    join  s_baseinfo   b on  a.edu_id = b.edu_id and  a.discode = b.discode and  a.cmis30id = b.cmis30id and  b.partid = mod(:cmis30id,20) 
+                         where b.studentid=:studentid 
+                         and b.discode=:discode and b.cmis30id=:cmis30id and a.appraseridentify=2 and a.appraisaltypeid=:appraisaltypeid
+                         and  a.appraiserrid=:appraiserrid 
+                         and a.semesterid = :semesterid
+                         and b.inschoolstate=1002001
+                         and a.partid=mod(:cmis30id,20)
+                        order by  a.apprasialid asc
+					]]></value>
+				</entry>
+				<!--查询学生项评价返回信息 -->
+				<entry key="PlayAndHealthExtImpl.findGzReturnTree.query">
+					<value><![CDATA[        
+						 select a.studentid,a.appraser,a.apprasial, a.apprasialid,a.signdate,b.name,a.appraisaltypeid,a.appraseridentify
+						 from  a_apprasial  a
+                                     inner    join  s_baseinfo   b on  a.edu_id = b.edu_id        and  a.discode = b.discode and  a.cmis30id = b.cmis30id and  b.partid = mod(:cmis30id,20) 
+                                     where   b.studentid=:studentid 
+                                     and b.discode=:discode and b.cmis30id=:cmis30id and a.appraseridentify=2 and a.appraisaltypeid=:appraisaltypeid
+                                     and  a.appraiserrid=:appraiserrid 
+                                     and a.semesterid = :semesterid
+                                      order by  a.apprasialid asc
+					]]></value>
+				</entry>
+				<!--查询学生单个人的某项评价回信息 --> 
+				<entry key="PlayAndHealthExtImpl.getStudentAppervere.query">
+					<value><![CDATA[        
+						  select a.apprasialid, a.appraisaltypeid,a.edu_id,
+						     a.semesterid, a.appraseridentify,  a.studentid, a.appraiserrid , a.appraser, a.apprasial,  a.signdate
+						     from  a_apprasial  a
+                             where a.edu_id=:edu_id and a.semesterid=:semesterid and a.appraisaltypeid=:appraisaltypeid and a.appraiserrid=:appraiserrid
+                              order by  a.apprasialid asc
+					]]></value>
+				</entry>
+				<!--查询初中学生各项评价and eap.signer_name=:signer_name -->  
+				<entry key="PlayAndHealthExtImpl.czAllAppraise.query">
+					<value><![CDATA[                     
+						       select eap.part_id part_id, eap.studentid studentid,eap.termid termid,eap.part_info part_info,eap.signer_name signer_name,eap.two_part_id two_part_id,eap.createDate createDate, eap.write_man write_man
+			      			 from  partinfo eap
+			      			    inner    join  s_baseinfo   b on  eap.edu_id = b.edu_id  and   b.discode=:discode and  b.cmis30id=:cmis30id and  b.partid = mod(:cmis30id,20) 
+					            where b.studentid=:studentid
+					            and eap.termid=:termid
+					            and eap.write_man='同学'
+					            and eap.userid=:userid
+					            and eap.two_part_id in(32,45,52,62,72,92)
+					            order by  eap.two_part_id,eap.part_id asc   
+					]]></value>
+
+				</entry>
+				<!--查询初中学生项评价返回用 -->  
+				<entry key="PlayAndHealthExtImpl.czfindreturn.query">
+					<value><![CDATA[                     
+						     select eap.part_id part_id, eap.studentid studentid,eap.termid termid,eap.part_info part_info,eap.signer_name signer_name,eap.two_part_id two_part_id,eap.createDate createDate, eap.write_man write_man
+			      			from  partinfo eap
+			      				  inner    join  s_baseinfo   b on  eap.edu_id = b.edu_id        and  eap.discode = b.discode and  eap.cmis30id = b.cmis30id and  b.partid = mod(:cmis30id,20) 
+					            where  eap.discode=:discode and eap.cmis30id=:cmis30id
+					            and b.studentid=:studentid
+					            and eap.termid=:termid
+					            and eap.write_man='同学'
+					            and eap.signer_name=:signer_name
+					            and eap.two_part_id=:two_part_id
+					             order by  eap.part_id asc
+					]]></value>
+				</entry>
+				<!--查询高中当前学期 -->  
+				<entry key="PlayAndHealthExtImpl.findStundentTermId.query">
+					<value><![CDATA[                     
+						   select distinct
+								case mod(et.termid,2) 
+								when 0 then eg.gradenum||2
+								when 1 then eg.gradenum||1
+								end semesterid
+								from e_grade eg
+								inner join e_class ecl on ecl.gradeid=eg.gradeid and ecl.used=1 and ecl.classid=:classid
+								inner join e_edusys ee on ee.levelid=eg.levelid and ee.levelcode in(2012003,2012004) and ee.used=1
+								inner join e_term et on et.schoolyear=eg.schoolyear and et.used=1
+								where  eg.used=1  
+					]]></value>
+				</entry>
+				<!--缓存-->   	
+				<entry key="PlayAndHealthExtImpl.findspeek.query">
+					<value><![CDATA[                     
+					    select a.appraisaltypeid,  a.appraser,a.edu_id,s.name  from a_apprasial a
+                        inner JOIN  s_baseinfo s on s.edu_id=a.edu_id and s.discode=:discode and  s.cmis30id=:cmis30id and s.partid = mod(:cmis30id,20) 
+                         where a.apprasialid=:apprasialid AND a.CMIS30ID=:cmis30id AND a.DISCODE=:discode and a.partid = mod(:cmis30id,20)
+					]]></value>
+				</entry>
+				<!--初中缓存-->   	
+				<entry key="PlayAndHealthExtImpl.czfindspeek.query">
+					<value><![CDATA[                     
+					      select a.two_part_id as appraisaltypeid,  a.signer_name as appraser,a.edu_id as edu_id,s.name as name   from partInfo a
+                        inner JOIN  s_baseinfo s on s.edu_id=a.edu_id and s.discode=:discode and  s.cmis30id=:cmis30id and s.partid = mod(:cmis30id,20) 
+                         where a.part_id=:part_id 
+					]]></value>
+				</entry>
+			
+				<!--学制长度-->   	
+				<entry key="CzPlayAndHealthExtImpl.findGreedLenth.query">
+					<value><![CDATA[                     
+					      select ee.length  from  e_edusys ee where ee.campusid=:campuseid and ee.levelid=:levelid and ee.used=1
+					
+					]]></value>
+				</entry>
+				<!--classid-> select b.classid
+                         from  s_baseinfo a
+                         inner    join  e_stuclass b on  a.studentid=b.studentid and b.used=1 and b.partid = mod(:cmis30id,20)  and b.discode=:discode and b.cmis30id=:cmis30id 
+                        where  a.edu_id=:edu_id  -->  	
+				<entry key="CzPlayAndHealthExtImpl.findclassLenth.query">
+					<value><![CDATA[                     
+					    
+					  select ecl.classid  from e_class ecl
+                            inner    join  e_stuclass b on b.classid =ecl.classid and  b.used=1 and b.partid = mod(:cmis30id,20)  and b.discode=:discode and b.cmis30id=:cmis30id 
+                             inner    join  s_baseinfo aa  on  aa.studentid=b.studentid  and aa.partid = mod(:cmis30id,20)  and aa.discode=:discode and aa.cmis30id=:cmis30id 
+                              inner join e_grade eg on eg.gradeid=ecl.gradeid and eg.used=1
+                             inner join e_term et on et.schoolyear=eg.schoolyear and et.used=1
+                             where  aa.edu_id=:edu_id  and ecl.used=1 
+					
+					]]></value>
+				</entry>
+				<!-- 高中新增缓存 -->
+				<entry key="PlayAndHealthExtImpl.findhuaninsertSelfAppraisal.query">
+					<value><![CDATA[                     
+					     insert into a_apprasial(apprasialid,appraisaltypeid,appraiserrid,semesterid,
+						                                   studentid,appraseridentify,appraser,
+						                                   apprasial,signDate,edu_id,discode,cmis30id,EDITTIME)
+                                 values(:apprasialid,:appraisaltypeid,:appraiserrid,:semesterid,
+                                         :studentid,:appraseridentify,
+                                         :appraser,:apprasial,to_date(:signDate,'yyyy-MM-dd'),
+                                      (select edu_id from s_baseinfo where studentid=:studentid and discode=:discode and cmis30id=:cmis30id),
+                                      :discode, 
+                                      :cmis30id,sysdate)
+					
+					
+					]]></value>
+				</entry>
+			</map>	                                                            
+		</property>
+	</bean>
+</beans>

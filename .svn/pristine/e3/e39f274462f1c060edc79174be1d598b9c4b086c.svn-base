@@ -1,0 +1,100 @@
+@charset "utf-8";
+/* CSS Document */
+body{color:#fff;font-family:"微软雅黑";font-size:13px;}
+.wrap{margin:0 auto;min-width:1200px;}
+
+/* header */
+header{height:39px;width:100%;background:url(../image/bg_header.png) repeat-x;min-width:960px;position:relative;z-index:100;}
+header h1{padding:10px 10px 0 5px;float:left;}
+header h1 img{width:334px;height:20px}
+header .school_header{padding:15px 0 0 15px;float:left;background:url(../image/line_header.png) no-repeat;}
+header .school_header strong{color:#c2c0c5;font-size:14px;}
+header .school_header a{color:#c2c0c5;}
+header .school_header a img{height:14px;width:12px;margin:2px 0 0 18px;}
+header .set_header{float:right;padding-top:15px;background:url(../image/line_header.png) no-repeat;height:24px;width:302px;padding-right:15px;}
+header .set_header li{float:left;padding-left:15px;}
+header .set_header li a{color:#fff;transition:.5s;}
+header .set_header li a:hover{color:#ffbd76;}
+header .set_header li .xiu,header .set_header li .power{padding-top:2px;padding-left:2px;}
+header #things{position:relative;}
+header #things a{color:#fff;}
+header #note{height:264px;width:450px;position:absolute;top:22px;right:-150px;z-index:9999;display:none;}
+header #note dl{padding-top:8px;}
+header #note dl dt{height:39px;line-height:39px;text-align:right;padding-right:10px;}
+header #note dl dt a,header #note dl dd a{transition:.5s}
+header #note dl dt a:hover{color:#ffbd76}
+header #note dl dd a:hover{color:#4885de}
+header #note dl dd{height:35px;line-height:35px;}
+header #note dl dd img{margin:14px 0 0 8px;}
+
+header #note dl dd a{color:#8d8d8d;}
+/* end header */
+
+/* content */
+nav{min-width:1200px;font-size:14px;}
+.content{width:100%;position:absolute;top:40px;bottom:40px;background:#eee;}
+.content nav{
+	height:26px;
+	background:url(../image/bg_nav.png) repeat-x;
+	border-radius:6px 6px 0 0;
+	padding:12px 10px 0 10px;
+	position:relative;
+	z-index:99;
+}
+.content .main_div{
+	width:100%;
+	position:absolute;
+	top:38px;
+	left:0;
+	right:0;
+	bottom:0;
+	height:expression(eval(document.body.clientHeight));
+	
+	*height:expression(eval(document.documentElement.clientHeight-126));
+	visibility:inherit;
+	
+	
+}
+
+#iframepage{width:100%;}
+
+
+
+.menu{margin-top:2px;}
+.san{margin-top:7px;}
+.often{margin:2px 0 0 4px}
+.left_menu{float:left;position:relative;}
+.left_menu #alls{position:absolute;left:0px;z-index:998;width:700px;background:#7b7880;padding:10px;top:25px;border-radius:6px;display:none;line-height:24px;}
+.left_menu #alls td{width:20%;}
+.left_menu #alls td{height:6px;}
+.left_menu #alls .odd{border-bottom:1px solid #999;}
+.left_menu #alls a{float:left;color:#fff}
+.left_menu #alls a:hover{color:#ffde25;}
+.left_menu #alls img{height:12px;width:14px;vertical-align:middle;}
+
+
+.left_menu a{color:#c2c0c5;padding:0 4px;transition:.5s;}
+.left_menu .mu:hover .san{transform:rotate(180deg)}
+.left_menu a:hover{color:#fff;}
+.right_menu{float:right;padding-right:15px;}
+.right_menu div{float:left;padding-left:15px;position:relative;}
+/*.right_menu div ul{position:absolute;top:20px;width:194px;height:150px;background:#fff;z-index:99px;}
+.right_menu div ul li{height:30px;line-height:30px;}
+.right_menu div ul li:hover{cursor:pointer;}*/
+.right_menu div a{color:#c2c0c5;}
+.right_menu div span{color:#c2c0c5;}
+.right_menu div a span{color:#fff;}
+.right_menu div img{padding:2px 5px 0 0;}
+
+
+/* end content */
+
+/* footer */
+footer{background:url(../image/bg_header.png) repeat-x;height:39px;position:absolute;bottom:0;width:100%;margin-top:10px;line-height:39px;}
+footer h5{font-weight:normal;padding:0 15px;}
+.left_h5{float:left;}
+.right_h5{float:right}
+
+
+
+/* end footer */

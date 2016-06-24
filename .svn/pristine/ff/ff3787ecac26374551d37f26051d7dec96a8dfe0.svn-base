@@ -1,0 +1,14 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ include file="/common/taglibs.jsp" %> 
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link type="text/css" rel="stylesheet" href="${ctx}/css/style.css" />
+<title>首页</title>
+</head>
+<frame>
+	<frameset cols="250px,*">
+		<frame name="left" frameborder="0" noresize="0" src="${ctx }/selfappraise/gzself_tree.jsp">
+		<frame name="main"  id="mainFrame"  frameborder="0"  noresize="0" src="${ctx }/selfappraise/SelfAppAction.a?choicenum=1001">
+	</frameset><noframes></noframes>
+</html>

@@ -1,0 +1,180 @@
+/* body,table {
+margin: 0px;padding: 0px; font-family:"Î¢ÈíÑÅºÚ",Arial; font-size:13px;
+}
+ */
+div,form,img,ul,ol,li,dl,dt,dd,table,iframe{padding-left:0px; border-left-width:0px; padding-top:0px; border-top-width:0px; padding-right:0px; border-right-width:0px;padding-bottom:0px; border-bottom-width:0px; margin:0px;}
+
+H1,H2,H3,H4,H5,H6 {PADDING-RIGHT: 0px; PADDING-LEFT: 0px; PADDING-BOTTOM: 0px; MARGIN: 0px; PADDING-TOP: 0px;}
+
+TABLE,TD,TR,TH {FONT-SIZE: 12px;}
+
+.clear {clear: both; font-size:1px; visibility:hidden; width:1px;}
+
+a:link{color:#0574d4; text-decoration:none;}
+
+a:hover{color:#ff8e00; text-decoration:underline;}
+
+a:visited{color:#0574d4; text-decoration:none;}
+
+a:active{color:#ff8e00; text-decoration:underline;}
+
+.content {
+text-align:left;
+vertical-align:top;
+font-weight:normal;
+font-style:normal;
+}
+
+.title {
+text-align:center;
+vertical-align:middle;
+font-size:16px;
+font-weight:bold;
+}
+
+.input_btn {
+	background-color: #BFD7E8;
+	height: 22px;
+	padding-right: 6px;
+	padding-left: 6px;
+	line-height:20px;
+	vertical-align:middle;
+	overflow:visible;
+	border-top-width: 1px;
+	border-right-width: 1px;
+	border-bottom-width: 1px;
+	border-left-width: 1px;
+	border-top-style: solid;
+	border-right-style: solid;
+	border-bottom-style: solid;
+	border-left-style: solid;
+	border-right-color: #84CAF0;
+	border-top-color: #FFFFFF;
+	border-left-color: #FFFFFF;
+	border-bottom-color: #84CAF0;
+}
+
+.font_bluelight {
+	color: #0574d4;
+}
+
+.font_white {
+	color: #FFF;
+}
+
+.input_textfield{
+	background-color: #FFFFFF;
+	margin: 1px;
+	padding: 1px;
+	border: 1px solid #666666;
+	color: #000000;
+	font-family: Georgia, "Times New Roman", Times, serif;
+	FONT-SIZE: 12px; 
+}
+.select1 {
+	FONT-SIZE: 12px; 
+	BORDER-TOP-WIDTH: 1px; 
+	BORDER-LEFT-WIDTH: 1px; 
+	BORDER-BOTTOM-WIDTH: 1px; 
+	BORDER-RIGHT-WIDTH: 1px
+}
+.inputbutton_style1 {
+	border: 1px solid #333333;
+}
+.inputbutton_style2 {
+	height: 18px;
+	border: 1 solid #999999;
+	background-color: #FFF5CE;
+	color: #0033CC;
+}
+.inputbutton_style3 {
+	height: 18px;
+	border: 1 solid #F7B53C;
+	background-color: #FFF5CE;
+	color: #FF0000;
+}
+.font_cn_10_blue_bold{
+	color: #0447ac;
+	font-size: 10pt;
+	font-weight: bold;
+}
+.font_en_10_blue_bold{
+	color: #0066CC;
+	font-size: 9pt;
+	font-weight: bold;
+	FONT-FAMILY: Arial, Helvetica, sans-serif;
+}
+.font_en_8 {font-size: 8pt
+}
+.font_en_8red {
+	font-size: 8pt;
+	color: #FF0000;
+}
+.font_cn_10_black_bold{
+	color: #000000;
+	font-size: 12pt;
+	font-weight: bold;
+}
+.font_cn_10_white_bold{
+	color: #FFFFFF;
+	font-size: 10pt;
+	font-weight: bold;
+}
+.font_cn_10_white{
+	color: #FFFFFF;
+	font-size: 9pt;
+}
+.font_cn_9_black_bold{
+	color: #000000;
+	font-size: 9pt;
+	font-weight: bold;
+}
+.font_cn_10_lightblue{
+	color: #81C2F8;
+	font-size: 10pt;
+}
+.font_cn_9_darkblue{
+	color: #404040;
+	font-size: 12px;
+	font-weight: normal;
+	font-variant: normal;
+}
+.font_cn_9_green{
+	color: #009900;
+	font-size: 12px;
+	font-weight: normal;
+	font-variant: normal;
+	filter: Alpha(Opacity=50%);
+}
+.font_cn_9_blue{
+	color: #0051A2;
+	font-size: 9pt;
+}
+.font_cn_9_gary{
+	color: #999999;
+	font-size: 9pt;
+}
+.font_cn_9_red{
+	color: red;
+	font-size: 9pt;
+}
+.font_cn_9_org{
+	color: #9D7968;
+	font-size: 9pt;
+}
+.font_en_9_black_bold{
+	color: #000000;
+	font-size: 9pt;
+	FONT-FAMILY: Arial, Helvetica, sans-serif;
+	font-weight: bold;
+}
+.font_en_9_black{
+	color: #000000;
+	font-size: 9pt;
+	font-family: Geneva, Arial, Helvetica, san-serif;
+}
+.font_number_9_black{
+	color: #000000;
+	font-size: 9pt;
+	font-family: Georgia, "Times New Roman", Times, serif;
+}

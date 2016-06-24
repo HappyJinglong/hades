@@ -1,0 +1,445 @@
+@charset "gb2312";
+/******************************************************************
+* ID: CMIS4 CSS
+* latest changed : 2012-06-27 gaoweizhong
+* Description:样式库
+******************************************************************/
+/* CSS Document */
+
+/* 浮动 */
+.fl{ float: left; clear:both; } /* 左浮动 */
+.fr{ float: right; clear:both; } /* 右浮动 */
+
+/* 文本只读 */
+.rdonly { readonly:expression(this.readOnly=true) }
+
+/* 隐藏边框 */
+.nobdr{ border:none; } 
+
+/* 间隔线 */
+.spl1{  margin:0px; padding:1px; }
+.spl2{  margin:0px; padding:2px; }
+.spl3{  margin:0px; padding:3px; }
+.spl4{  margin:0px; padding:4px; }
+.spl5{  margin:0px; padding:5px; }
+.spl6{  margin:0px; padding:6px; }
+.spl7{  margin:0px; padding:7px; }
+.spl8{  margin:0px; padding:8px; }
+
+/* 换行与不换行 */
+.nowrap { white-spacenowrap; }/* 不换行 */
+.breakword { word-wrap: break-word; word-break: normal; overflow:hidden; } /* 自动换行 */
+.breakall{ white-space:normal; word-break:break-all; }/* 强制英文断行 */
+
+/* 溢出滚动条、溢出没有滚动条(未验证） */
+.overflow { overflow: scroll; }/* 溢出滚动条 */
+.overflow_y { overflow-y: scroll;!important}
+.overflow_x { overflow-x: scroll;!important }
+.overflow_vib { overflow: visible; }/* 可见 */
+.overflow_hid { overflow: hidden; }/* 隐藏 */
+.overflow_aut { overflow: auto; }/* 自动 */
+
+/* fontCn size 9px to 36px */
+.cn10 { font-size: 10px;}
+.cn12 { font-size: 12px;}
+.cn14 { font-size: 14px;}
+.cn16 { font-size: 16px;}
+.cn20 { font-size: 20px;}
+.cn24 { font-size: 24px;}
+.cn28 { font-size: 28px;}
+.cn32 { font-size: 32px;}
+.cn36 { font-size: 36px;}
+
+/* fontEn(number) size 9px to 36px */
+.en { font-family: Arial, Helvetica, sans-serif; }
+.en9 { font-size: 9px; font-family: Arial, Helvetica, sans-serif; }
+.en10 { font-size: 10px; font-family: Arial, Helvetica, sans-serif; }
+.en11 { font-size: 11px; font-family: Arial, Helvetica, sans-serif; }
+.en12 { font-size: 12px; font-family: Arial, Helvetica, sans-serif; }
+.en13 { font-size: 13px; font-family: Arial, Helvetica, sans-serif; }
+.en14 { font-size: 14px; font-family: Arial, Helvetica, sans-serif; }
+.en16 { font-size: 16px; font-family: Arial, Helvetica, sans-serif; }
+.en18 { font-size: 18px; font-family: Arial, Helvetica, sans-serif; }
+.en20 { font-size: 20px; font-family: Arial, Helvetica, sans-serif; }
+.en24 { font-size: 24px; font-family: Arial, Helvetica, sans-serif; }
+.en28 { font-size: 28px; font-family: Arial, Helvetica, sans-serif; }
+.en32 { font-size: 32px; font-family: Arial, Helvetica, sans-serif; }
+.en36 { font-size: 36px; font-family: Arial, Helvetica, sans-serif; }
+
+/* fontWeight 中文黑体 */
+.f_hei { font-family: "MS Hei"; }
+
+/* fontWeight is 字体加粗 */
+.bold { font-weight: bold; }
+
+/* fontColour Gary 黑白灰 */
+.f_black { color: #000;}
+.f_white{ color: #FFF;}
+.f_gary { color: #808080;}
+.f_garydark { color: #595858;}  
+.f_garydarker { color: #2c2b2c;}
+.f_garylight { color: #b7b6b7;}
+.f_garylighter { color: #f0efef;}
+
+/* fontColour Blue 蓝 */
+.f_blue { color: #0000ff;}
+.f_bluedark { color: #0201a4;}  
+.f_bluedarker { color: #01014e;}
+.f_bluelight {color: #8D8DFE;}
+.f_bluelighter {color: #D2D1FE;}
+
+/* fontColour RoyalBlue 皇家蓝 */
+.f_royalblue { color: #4169e1;}
+.f_royalbluedark { color: #2d4493;}  
+.f_royalbluedarker { color: #152046;}
+.f_royalbluelight { color: #92a7ef;}
+.f_royalbluelighter { color: #e8ecfc;}
+
+/* fontColour SteelBlue 钢蓝 */
+.f_steelblue { color: #4682b4;}
+.f_steelbluedark { color: #2d5779;}  
+.f_steelbluedarker { color: #172b3c;}
+.f_steelbluelight { color: #91b6d3;}
+.f_steelbluelighter { color: #e8f0f5;}
+
+/* fontColour DogerBlue 道奇蓝 */
+.f_dogerblue { color: #1e90ff;}
+.f_dogerbluedark { color: #135575;}  
+.f_dogerbluedarker { color: #092b3c;}
+.f_dogerbluelight { color: #7fb8d5;}
+.f_dogerbluelighter { color: #e3f0f5;}
+
+/* fontColour Cyan 青 */
+.f_cyan { color: #00ffff;}
+.f_cyandark { color: #02b0ae;}  
+.f_cyandarker { color: #015353;}
+.f_cyanlight { color: #77fefd;}
+.f_cyanlighter { color: #e0ffff;}
+
+/* fontColour Green 绿 */
+.f_green { color: #008000;}
+.f_greendark { color: #036703;}  
+.f_greendarker { color: #013201;}
+.f_greenlight { color: #77bb77;}
+.f_greenlighter { color: #e0f0e0;}
+
+/* fontColour lime 青柠 */
+.f_lime { color: #00ff00;}
+.f_limedark { color: #03a502;}
+.f_limedarker { color: #025401;}
+.f_limelight { color: #76ff77;}
+.f_limelighter { color: #dfffdf;}
+
+/* fontColour Yellowgreen 黄绿 */
+.f_yellowgreen { color: #9acd32;}
+.f_yellowgreendark { color: #698a23;}
+.f_yellowgreendarker { color: #334411;}
+.f_yellowgreenlight { color: #cae491;}
+.f_yellowgreenlighter { color: #f2f9e6;}
+
+/* fontColour yellow 黄 */
+.f_yellow { color: #ffff00;}
+.f_yellowdark { color: #aeb003;}
+.f_yellowdarker { color: #606100;}
+.f_yellowlight { color: #fdff77;}
+.f_yellowlighter { color: #feffd8;}
+
+/* fontColour Orange 橙 */
+.f_orange { color: #ff8400;}
+.f_orangedark { color: #ae7303;}
+.f_orangedarker { color: #593a02;}
+.f_orangelight { color: #fdcf76;}
+.f_orangelighter { color: #fff3df;}
+
+/* fontColour Chocolate 巧克力 */
+.f_chocolate { color: #d2691e;}
+.f_chocolatedark { color: #8e4713;}
+.f_chocolatedarker { color: #462309;}
+.f_chocolatelight { color: #e8ae84;}
+.f_chocolatelighter { color: #f9eadf ;}
+
+/* fontColour Red 红 */
+.f_red { color: #ff0000;}
+.f_reddark { color: #f15900;}
+.f_reddarker { color: #580102;}
+.f_redlight { color: #fd6a6c;}
+.f_redlighter { color: #ffdbdb;}
+
+/* fontColour Deeppink 深粉 */
+.f_deeppink { color: #ff1493;}
+.f_deeppinkdark { color: #a80f63;}
+.f_deeppinkdarker { color: #590834;}
+.f_deeppinklight { color: #fd80c5;}
+.f_deeppinklighter { color: #ffdef0;}
+
+/* fontColour Purple 紫 */
+.f_purple { color: #800080;}
+.f_purpledark { color: #530153;}
+.f_purpledarker { color: #320031;}
+.f_purplelight { color: #bc76bc;}
+.f_purplelighter { color: #eee0fc;}
+
+/* fontColour Violet 紫罗兰 */
+.f_violet { color: #ee82ee;}
+.f_violetdark { color: #5e1c98;}
+.f_violetdarker { color: #310f50;}
+.f_violetlight { color: #c18bf0;}
+.f_violetlighter { color: #efe1fb;}
+
+/* fontColour SlateBlue 板岩蓝灰 */
+.f_slateblue { color: #7c6aec;}
+.f_slatebluedark { color: #53479e;}
+.f_slatebluedarker { color: #2c2553;}
+.f_slatebluelight { color: #b8aef4;}
+.f_slatebluelighter { color: #eceafd;}
+
+/* 超链接样式库-单纯 */
+a.linkblue:link { color: #3366ff; text-decoration: none; }
+a.linkblue:visited { color: #3399ff; text-decoration: none; }
+a.linkblue:hover { color: #ff9900; text-decoration: underline; }
+
+a.linkblack:link { color: #000; text-decoration: none; }
+a.linkblack:visited { color: #333; text-decoration: none; }
+a.linkblack:hover { color: #ccc; text-decoration: underline; }
+
+a.linkwhite:link { color: #fff; text-decoration: none; }
+a.linkwhite:visited { color: #fff; text-decoration: none; }
+a.linkwhite:hover { color: #ffa800; text-decoration: underline; }
+
+a.linkwhite2:link { color: #fff; text-decoration: none; }
+a.linkwhite2:visited { color: #fff; text-decoration: none; }
+a.linkwhite2:hover { color: #fff000; text-decoration: underline; }
+
+a.linkwhite3:link { color: #ff0018; text-decoration: none; }
+a.linkwhite3:visited { color: #ff0018; text-decoration: none; }
+a.linkwhite3:hover { color: #FFF; text-decoration: underline; }
+
+a.linkgray:link { color: #666; text-decoration: none; }
+a.linkgray:visited { color: #999; text-decoration: none; }
+a.linkgray:hover { color: #0066ff; text-decoration: underline; }
+
+a.linkred:link { color: #ff0000; text-decoration: none; }
+a.linkred:visited { color: #ff6600; text-decoration: none; }
+a.linkred:hover { color: #cc0000; text-decoration: underline; }
+
+a.linkorange:link { color: #f15900; text-decoration: none; }
+a.linkorange:visited { color: #f15900; text-decoration: none; }
+a.linkorange:hover { color: #ff4711; text-decoration: underline; }
+
+a.linkbrown:link { color: #990000; text-decoration: none; }
+a.linkbrown:visited { color: #993333; text-decoration: none; }
+a.linkbrown:hover { color: #ff0000; text-decoration: underline; }
+
+a.linkgreen:link { color: #ffffff; text-decoration: none; }
+a.linkgreen:visited { color: #ffffff; text-decoration: none; }
+a.linkgreen:hover { color: #ff8900; text-decoration: underline; }
+
+/* 超链接样式库-背景色 */
+a.linkbluebg:link { color: #3366ff; text-decoration: underline; padding:2px 4px 2px 4px; }
+a.linkbluebg:visited { color: #3399ff; text-decoration: underline; padding:2px 4px 2px 4px; }
+a.linkbluebg:hover { color: #fff; background-color:#3366ff; text-decoration: none; padding:2px 4px 2px 4px; }
+
+a.linkblackbg:link { color: #000; text-decoration: underline; padding:2px 4px 2px 4px; }
+a.linkblackbg:visited { color: #333; text-decoration: underline; padding:2px 4px 2px 4px; }
+a.linkblackbg:hover { color: #fff; background-color:#444; text-decoration: none; padding:2px 4px 2px 4px; }
+
+a.linkwhitebg:link { color: #fff; text-decoration: underline; padding:2px 4px 2px 4px; }
+a.linkwhitebg:visited { color: #ccc; text-decoration: underline; padding:2px 4px 2px 4px; }
+a.linkwhitebg:hover { color: #fff; background-color:#e2e2e2; text-decoration: none; padding:2px 4px 2px 4px; }
+
+a.linkgraybg:link { color: #666; text-decoration: underline; padding:2px 4px 2px 4px; }
+a.linkgraybg:visited { color: #999; text-decoration: underline; padding:2px 4px 2px 4px; }
+a.linkgraybg:hover { color: #0066ff; background-color:#e2e2e2; text-decoration: none; padding:2px 4px 2px 4px; }
+
+a.linkredbg:link { color: #ff0000; text-decoration: underline; padding:2px 4px 2px 4px; }
+a.linkredbg:visited { color: #ff6600; text-decoration: underline; padding:2px 4px 2px 4px; }
+a.linkredbg:hover { color: #fff; background-color:#ff0000; text-decoration: none; padding:2px 4px 2px 4px; }
+
+a.linkorangebg:link { color: #ff9900; text-decoration: underline; padding:2px 4px 2px 4px; }
+a.linkorangebg:visited { color: #ffcc00; text-decoration: underline; padding:2px 4px 2px 4px; }
+a.linkorangebg:hover { color: #fff; background-color:#ff9900; text-decoration: none; padding:2px 4px 2px 4px; }
+
+a.linkbrownbg:link { color: #990000; text-decoration: underline; padding:2px 4px 2px 4px; }
+a.linkbrownbg:visited { color: #993333; text-decoration: underline; padding:2px 4px 2px 4px; }
+a.linkbrownbg:hover { color: #fff; background-color:#990000; text-decoration: none; padding:2px 4px 2px 4px; }
+
+a.linkgreenbg:link { color: #339900; text-decoration: underline; padding:2px 4px 2px 4px; }
+a.linkgreenbg:visited { color: #33cc00; text-decoration: underline; padding:2px 4px 2px 4px; }
+a.linkgreenbg:hover { color: #fff; background-color:#339900; text-decoration: unone; padding:2px 4px 2px 4px; }
+
+/* 超链接样式库-边框色 */
+a.linkbluebdr:link { color: #3366ff; text-decoration: underline; padding:2px 4px 1px 4px; }
+a.linkbluebdr:visited { color: #3399ff; text-decoration: underline; padding:2px 4px 1px 4px; }
+a.linkbluebdr:hover { color: #1263c6; background-color:#f0f7ff; text-decoration: none; padding:2px 3px 2px 3px; border:#9dbdf1 solid 1px}
+
+a.linkblackbdr:link { color: #000; text-decoration: underline; padding:2px 4px 1px 4px; }
+a.linkblackbdr:visited { color: #333; text-decoration: underline; padding:2px 4px 1px 4px; }
+a.linkblackbdr:hover { color: #000; background-color:#c2c5ca; text-decoration: none; padding:2px 3px 2px 3px; border:#444 solid 1px}
+
+a.linkwhitebdr:link { color: #fff; text-decoration: underline; padding:2px 4px 1px 4px; }
+a.linkwhitebdr:visited { color: #ccc; text-decoration: underline; padding:2px 4px 1px 4px; }
+a.linkwhitebdr:hover { color: #444; background-color:#eff8fd; text-decoration: none; padding:2px 3px 2px 3px; border:#d4d0c8 solid 1px}
+
+a.linkgraybdr:link { color: #666; text-decoration: underline; padding:2px 4px 1px 4px; }
+a.linkgraybdr:visited { color: #999; text-decoration: underline; padding:2px 4px 1px 4px; }
+a.linkgraybdr:hover { color: #444; background-color:#f3f0e9; text-decoration: none; padding:2px 3px 2px 3px; border:#898f8c solid 1px}
+
+a.linkredbdr:link { color: #ff0000; text-decoration: underline; padding:2px 4px 1px 4px; }
+a.linkredbdr:visited { color: #ff6600; text-decoration: underline; padding:2px 4px 1px 4px; }
+a.linkredbdr:hover { color: #ff0000; background-color:#ffefe9; text-decoration: none; padding:2px 3px 2px 3px; border:#ff0000 solid 1px}
+
+a.linkorangebdr:link { color: #ff9900; text-decoration: underline; padding:2px 4px 1px 4px; }
+a.linkorangebdr:visited { color: #ffcc00; text-decoration: underline; padding:2px 4px 1px 4px; }
+a.linkorangebdr:hover { color: #ce590b; background-color:#fde8ae; text-decoration: none; padding:2px 3px 2px 3px; border:#f09014 solid 1px}
+
+a.linkbrownbdr:link { color: #990000; text-decoration: underline; padding:2px 4px 1px 4px; }
+a.linkbrownbdr:visited { color: #993333; text-decoration: underline; padding:2px 4px 1px 4px; }
+a.linkbrownbdr:hover { color: #4e2d05; background-color:#f5e8ca; text-decoration: none; padding:2px 3px 2px 3px; border:#b3793a solid 1px}
+
+a.linkgreenbdr:link { color: #3425f0d; text-decoration: underline; padding:2px 4px 1px 4px; }
+a.linkgreenbdr:visited { color: #33cc00; text-decoration: underline; padding:2px 4px 1px 4px; }
+a.linkgreenbdr:hover { color: #577227; background-color:#f3fbd1; text-decoration: none; padding:2px 3px 2px 3px; border:#7bc120 solid 1px}
+
+/* 按钮样式库-纯色 */
+.btn_color1 { color: #0E70DC; background-color: #f7f6f5; padding:3px 10px 1px 10px; border:1px; border-style:solid; border-color:#fff #cfcfcf #cfcfcf #fff; overflow:visible; }
+.btn_color2 { color: #8d8d8d; background-color: #f1f0ed; padding:3px 10px 1px 10px; border:1px; border-style:solid; border-color:#fff #b1b1b1 #b1b1b1 #fff; overflow:visible; }
+.btn_color3 { color: #333333; background-color: #eee8dc; padding:3px 10px 1px 10px; border:1px; border-style:solid; border-color: #fefcf6 #66716b #66716b #fefcf6; overflow:visible; }
+.btn_color4 { color: #333333; background-color: #f4eed4; padding:3px 10px 1px 10px; border:1px; border-style:solid; border-color: #fefcf6 #b99b40 #b99b40 #fefcf6; overflow:visible; }
+.btn_color5 { color: #cc3300; background-color: #fff5ce; padding:3px 10px 1px 10px; border:1px; border-style:solid; border-color: #eea828; overflow:visible; }
+.btn_color6 { color: #592800; background-color: #f8ec98; padding:3px 10px 1px 10px; border:1px; border-style:solid; border-color: #ceb70d; overflow:visible; }
+.btn_color7 { color: #9b4600; background-color: #fed838; padding:3px 10px 1px 10px; border:1px; border-style:solid; border-color: #faf1b0 #d7823a #d7823a #faf1b0; overflow:visible; }
+.btn_color7b { color: #fff; background-image:url(../images/btn_pay1.gif); width:272px; height:42px; padding:3px 10px 1px 10px; border:0px; border:none; font-size:14px; font-weight:bold; }
+.btn_color7c { color: #fff; background-image:url(../images/btn_pay2.gif); width:155px; height:42px; padding:3px 10px 1px 10px; border:0px; border:none; font-size:14px; font-weight:bold; }
+.btn_color8 { color: #000; background-color: #febf01; padding:3px 10px 1px 10px; border:1px; border-style:solid; border-color: #be8f00; overflow:visible; }
+.btn_color9 { color: #2e1500; background-color: #ff9e00; padding:3px 10px 1px 10px; border:1px; border-style:solid; border-color: #ff9e00; overflow:visible; }
+.btn_color10 { color: #fff; background-color: #ff7400; padding:3px 10px 1px 10px; border:1px; border-style:ridge; border-color: #faf1b0 #a34a00 #a34a00 #faf1b0; overflow:visible; }
+.btn_color11 { color: #3071c1; background-color: #f0f7ff; padding:3px 10px 1px 10px; border:1px; border-style:solid; border-color: #aac4df; overflow:visible; }
+.btn_color12 { color: #002c53; background-color: #ddebff; padding:3px 10px 1px 10px; border:1px; border-style:solid; border-color: #f0f7ff #71a2bf #71a2bf #f0f7ff; overflow:visible; }
+.btn_color13 { color: #1b1b1b; background-color: #d2edfb; padding:3px 10px 1px 10px; border:1px; border-style:solid; border-color:#8fb9d0; overflow:visible; }
+.btn_color14 { color: #333; background-color: #ccdce7; padding:3px 10px 1px 10px; border:1px; border-style:solid; border-color:#6c899c; overflow:visible; }
+.btn_color15 { color: #093863; background-color: #b5dcf6; padding:3px 10px 1px 10px; border:1px; border-style:solid; border-color:#d2edfb #356999 #356999 #d2edfb; overflow:visible; }
+.btn_color16 { color: #0a6bc6; background-color: #c6e7fb; padding:3px 10px 1px 10px; border:1px; border-style:solid; border-color: #d2edfb #7f7f7f #66716b #d2edfb; overflow:visible; }
+.btn_color17 { color: #084070; background-color: #96def4; padding:3px 10px 1px 10px; border:1px; border-style:solid; border-color:#089dcb; overflow:visible; }
+.btn_color18 { color: #fff; background-color: #71c8ee; padding:3px 10px 1px 10px; border:1px; border-style:solid; border-color: #71c8ee; overflow:visible; }
+.btn_color19 { color: #fff; background-color: #4898ea; padding:3px 10px 1px 10px; border:1px; border-style:solid; border-color:#226dac; overflow:visible; }
+.btn_color20 { color: #fff; background-color: #226dac; padding:3px 10px 1px 10px; border:1px; border-style:solid; border-color: #226dac; overflow:visible; }
+.btn_color21 { color: #57694a; background-color: #d7ded0; padding:3px 10px 1px 10px; border:1px; border-style:solid; border-color: #a6b49d; overflow:visible; }
+.btn_color22 { color: #35412c; background-color: #e5e9ce; padding:3px 10px 1px 10px; border:1px; border-style:solid; border-color: #bdc1a3; overflow:visible; }
+.btn_color23 { color: #3d3a38; background-color: #d4cda5; padding:3px 10px 1px 10px; border:1px; border-style:solid; border-color:#eeeac2 #524536 #524536 #eeeac2; overflow:visible; }
+.btn_color24 { color: #4e2d05; background-color: #d4b88a; padding:3px 10px 1px 10px; border:1px; border-style:solid; border-color: #9b6f2a; overflow:visible; }
+.btn_color25 { color: #fff; background-color: #8a6a44; padding:3px 10px 1px 10px; border:1px; border-style:solid; border-color:#8a6a44; overflow:visible; }
+.btn_color26 { color: #fff; background-color: #7f8593; padding:3px 10px 1px 10px; border:1px; border-style:solid; border-color: #535969; overflow:visible; }
+.btn_color27 { color: #8fc539; background-color: #fff; padding:3px 10px 1px 10px; border:1px; border-style:solid; border-color:#88b709; overflow:visible; }
+.btn_color28 { color: #333; background-color: #ecf9bb; padding:3px 10px 1px 10px; border:1px; border-style:solid; border-color: #9fc120; overflow:visible; }
+.btn_color29 { color: #fff; background-color: #8fc539; padding:3px 10px 1px 10px; border:1px; border-style:solid; border-color:#e4f3ae #4a641d #4a641d #e4f3ae; overflow:visible; }
+.btn_color30 { color: #fff; background-color: #499201; padding:3px 10px 1px 10px; border:1px; border-style:solid; border-color: #4b7802; overflow:visible; }
+
+/* 按钮样式库-背景图x轴平铺 */
+.btn_bg1 { color: #478bd0; background-image: url(../images/csssprite_bg.png); background-position:0px 0px; padding:3px 10px 1px 10px; border: 1px solid #FFFFFF; vertical-align:middle; overflow:visible; }
+.btn_bg2 { color: #666666; background-image: url(../images/csssprite_bg.png); background-position:0px -24px; padding:3px 10px 1px 10px; border:1px ridge #fff; vertical-align:middle; overflow:visible; }
+.btn_bg3 { color: #5a5e4d; background-image: url(../images/csssprite_bg.png); background-position:0px -48px; padding:3px 10px 1px 10px; border: 1px solid #FFFFFF; vertical-align:middle; overflow:visible; }
+.btn_bg4 { color: #3a4028; background-image: url(../images/csssprite_bg.png); background-position:0px -72px; padding:3px 10px 1px 10px; border:1px ridge #fff; vertical-align:middle; overflow:visible; }
+.btn_bg5 { color: #6d716b; background-image: url(../images/csssprite_bg.png); background-position:0px -96px; padding:3px 10px 1px 10px; border: 1px solid #FFFFFF; vertical-align:middle; overflow:visible; }
+.btn_bg6 { color: #222; background-image: url(../images/csssprite_bg.png); background-position:0px -120px; padding:3px 10px 1px 10px; border:1px; border-style: ridge; border-color: #fff; vertical-align:middle; overflow:visible; }
+.btn_bg7 { color: #584822; background-image: url(../images/csssprite_bg.png); background-position:0px -144px; padding:3px 10px 1px 10px; border: 1px solid #FFFFFF; vertical-align:middle; overflow:visible; }
+.btn_bg8 { color: #222; background-image: url(../images/csssprite_bg.png); background-position:0px -168px; padding:3px 10px 1px 10px; border:1px; border-style: ridge; border-color: #fff; vertical-align:middle; overflow:visible; }
+.btn_bg9 { color: #333; background-image: url(../images/csssprite_bg.png); background-position:0px -192px; padding:3px 10px 1px 10px; border:1px; border-style: ridge; border-color: #fff; vertical-align:middle; overflow:visible; }
+.btn_bg10 { color: #000; background-image: url(../images/csssprite_bg.png); background-position:0px -216px; padding:3px 10px 1px 10px; border:1px; border-style: ridge; border-color: #fff; vertical-align:middle; overflow:visible; }
+.btn_bg11 { color: #5b6980; background-image: url(../images/csssprite_bg.png); background-position:0px -240px; padding:3px 10px 1px 10px; border: 1px solid #FFFFFF; vertical-align:middle; overflow:visible; }
+.btn_bg12 { color: #2f3e57; background-image: url(../images/csssprite_bg.png); background-position:0px -264px; padding:3px 10px 1px 10px; border:1px; border-style: ridge; border-color: #fff; vertical-align:middle; overflow:visible; }
+.btn_bg13 { color: #477db2; background-image: url(../images/csssprite_bg.png); background-position:0px -288px; padding:3px 10px 1px 10px; border: 1px solid #FFFFFF; vertical-align:middle; overflow:visible; }
+.btn_bg14 { color: #64717d; background-image: url(../images/csssprite_bg.png); background-position:0px -312px; padding:3px 10px 1px 10px; border:1px; border-style: ridge; border-color: #fff; vertical-align:middle; overflow:visible; }
+.btn_bg15 { color: #2e6eae; background-image: url(../images/csssprite_bg.png); background-position:0px -336px; padding:3px 10px 1px 10px; border: 1px solid #FFFFFF; vertical-align:middle; overflow:visible; }
+.btn_bg16 { color: #1b4d90; background-image: url(../images/csssprite_bg.png); background-position:-146px 0px; padding:3px 10px 1px 10px; border: 1px solid #FFFFFF; vertical-align:middle; overflow:visible; }
+.btn_bg17 { color: #fff; background-image: url(../images/csssprite_bg.png); background-position:-146px -24px; padding:3px 10px 1px 10px; border:1px; border-style: ridge; border-color: #fff; vertical-align:middle; overflow:visible; }
+.btn_bg18 { color: #fff; background-image: url(../images/csssprite_bg.png); background-position:-146px -48px; padding:3px 10px 1px 10px; border:1px; border-style: ridge; border-color: #fff; vertical-align:middle; overflow:visible; }
+.btn_bg19 { { color: #fff; background-image: url(../images/csssprite_bg.png); background-position:-146px -72px; text-align:center; height:25px; width:82px; padding-top:2px; border:0px; overflow:visible; margin-left:0px; margin-right:0px; }
+.btn_bg19b { { color: #fff; background-image: url(../images/csssprite_bg.png); background-position:-146px -101px; text-align:center; height:25px; width:82px; padding-top:2px; border:0px; overflow:visible; margin-left:0px; margin-right:0px; }
+.btn_bg19c { { color: #fff; background-image: url(../images/csssprite_bg.png); background-position:-146px -130px; text-align:center; height:25px; width:140px; padding-top:2px; border:0px; overflow:visible; margin-left:0px; margin-right:0px; }
+.btn_bg19d { { color: #fff; background-image: url(../images/csssprite_bg.png); background-position:-146px -159px; text-align:center; height:25px; width:154px; padding-top:2px; border:0px; overflow:visible; margin-left:0px; margin-right:0px; }
+.btn_bg20 { color: #fff; background-image: url(../images/csssprite_bg.png); background-position:-146px -96px; padding:3px 10px 1px 10px; border:1px; border-style: ridge; border-color: #fff; vertical-align:middle; overflow:visible; }
+.btn_bg21 { color: #6aa4df; background-image: url(../images/csssprite_bg.png); background-position:-146px -120px; padding:3px 10px 1px 10px; border: 1px solid #FFFFFF; vertical-align:middle; overflow:visible; }
+.btn_bg22 { color: #444; background-image: url(../images/csssprite_bg.png); background-position:-146px -144px; padding:3px 10px 1px 10px; border: 1px solid #FFFFFF; vertical-align:middle; overflow:visible; }
+.btn_bg23 { color: #246fa3; background-image: url(../images/csssprite_bg.png); background-position:-146px -168px; padding:3px 10px 1px 10px; border: 1px solid #FFFFFF; vertical-align:middle; overflow:visible; }
+.btn_bg24 { color: #000000; background-image: url(../images/csssprite_bg.png); background-position:-146px -192px; padding:3px 10px 1px 10px; border: 1px solid #FFFFFF; vertical-align:middle; overflow:visible; }
+.btn_bg25 { color: #fff; background-image: url(../images/csssprite_bg.png); background-position:-146px -216px; padding:3px 10px 1px 10px; border: 1px solid #FFFFFF; vertical-align:middle; overflow:visible; }
+.btn_bg26 { color: #fff; background-image: url(../images/csssprite_bg.png); background-position:-146px -240px; padding:3px 10px 1px 10px; border:1px; border-style: ridge; border-color: #fff; vertical-align:middle; overflow:visible; }
+.btn_bg27 { color: #5e7133; background-image: url(../images/csssprite_bg.png); background-position:-146px -264px; padding:3px 10px 1px 10px; border: 1px solid #FFFFFF; vertical-align:middle; overflow:visible; }
+.btn_bg28 { color: #222; background-image: url(../images/csssprite_bg.png); background-position:-146px -288px; padding:3px 10px 1px 10px; border:1px; border-style: ridge; border-color: #fff; vertical-align:middle; overflow:visible; }
+.btn_bg29 { color: #333; background-image: url(../images/csssprite_bg.png); background-position:-146px -312px; padding:3px 10px 1px 10px; border: 1px solid #FFFFFF; vertical-align:middle; overflow:visible; }
+.btn_bg30 { color: #fff; background-image: url(../images/csssprite_bg.png); background-position:-146px -336px; padding:3px 10px 1px 10px; border:1px; border-style: ridge; border-color: #fff; vertical-align:middle; overflow:visible; }
+
+/* 按钮样式库-背景图固定尺寸 */
+.btn_img1 { color: #579cd1; background-image: url(../images/csssprite_bg.png); background-position:0px -361px; text-align:center; height:25px; width:70px; padding-top:2px; border:0px; overflow:visible; }
+.btn_img2 { color: #7a7a7a; background-image: url(../images/csssprite_bg.png); background-position:0px -387px; text-align:center; height:25px; width:70px; padding-top:2px; border:0px; overflow:visible; }
+.btn_img3 { color: #7a7a7a; background-image: url(../images/csssprite_bg.png); background-position:0px -412px; text-align:center; height:25px; width:70px; padding-top:2px; border:0px; overflow:visible; }
+.btn_img4 { color: #333; background-image: url(../images/csssprite_bg.png); background-position:0px -437px; text-align:center; height:26px; width:70px; padding-top:2px; border:0px; overflow:visible; }
+.btn_img5 { color: #555; background-image: url(../images/csssprite_bg.png); background-position:0px -464px; text-align:center; height:26px; width:70px; padding-top:2px; border:0px; overflow:visible; }
+.btn_img6 { color: #333; background-image: url(../images/csssprite_bg.png); background-position:0px -490px; text-align:center; height:25px; width:70px; padding-top:2px; border:0px; overflow:visible; }
+.btn_img7 { color: #555; background-image: url(../images/csssprite_bg.png); background-position:0px -516px; text-align:center; height:25px; width:70px; padding-top:2px; border:0px; overflow:visible; }
+.btn_img8 { color: #4085c6; background-image: url(../images/csssprite_bg.png); background-position:0px -541px; text-align:center; height:26px; width:70px; padding-top:2px; border:0px; overflow:visible; }
+.btn_img9 { color: #125ba0; background-image: url(../images/csssprite_bg.png); background-position:0px -568px; text-align:center; height:25px; width:70px; padding-top:2px; border:0px; overflow:visible; }
+.btn_img10 { color: #fff; background-image: url(../images/csssprite_bg.png); background-position:0px -594px; text-align:center; height:25px; width:70px; padding-top:2px; border:0px; overflow:visible; }
+.btn_img11 { color: #73abf0; background-image: url(../images/csssprite_bg.png); background-position:0px -620px; text-align:center; height:25px; width:70px; padding-top:2px; border:0px; overflow:visible; }
+.btn_img12 { color: #4081d0; background-image: url(../images/csssprite_bg.png); background-position:0px -646px; text-align:center; height:25px; width:70px; padding-top:2px; border:0px; overflow:visible; }
+.btn_img13 { color: #346bb0; background-image: url(../images/csssprite_bg.png); background-position:0px -672px; text-align:center; height:25px; width:70px; padding-top:2px; border:0px; overflow:visible; }
+.btn_img14 { color: #647992; background-image: url(../images/csssprite_bg.png); background-position:0px -698px; text-align:center; height:25px; width:70px; padding-top:2px; border:0px; overflow:visible; }
+.btn_img15 { color: #3475ad; background-image: url(../images/csssprite_bg.png); background-position:0px -724px; text-align:center; height:30px; width:70px; padding-top:2px; border:0px; overflow:visible; font-size:14px; }
+.btn_img16 { color: #5ca2e9; background-image: url(../images/csssprite_bg.png); background-position:-145px -361px; text-align:center; height:25px; width:70px; padding-top:2px; border:0px; overflow:visible; }
+.btn_img17 { color: #3475ad; background-image: url(../images/csssprite_bg.png); background-position:-145px -387px; text-align:center; height:25px; width:70px; padding-top:2px; border:0px; overflow:visible; }
+.btn_img18 { color: #3E402F; background-image: url(../images/csssprite_bg.png); background-position:-145px -412px; text-align:center; height:25px; width:70px; padding-top:2px; border:0px; overflow:visible; }
+.btn_img19 { color: #3475ad; background-image: url(../images/csssprite_bg.png); background-position:-145px -438px; text-align:center; height:25px; width:70px; padding-top:2px; border:0px; overflow:visible; }
+.btn_img20 { color: #2167a9; background-image: url(../images/csssprite_bg.png); background-position:-145px -465px; text-align:center; height:25px; width:70px; padding-top:2px; border:0px; overflow:visible; }
+.btn_img21 { color: #3475ad; background-image: url(../images/csssprite_bg.png); background-position:-145px -490px; text-align:center; height:25px; width:70px; padding-top:2px; border:0px; overflow:visible; }
+.btn_img22 { color: #fff; background-image: url(../images/csssprite_bg.png); background-position:-145px -516px; text-align:center; height:25px; width:70px; padding-top:2px; border:0px; overflow:visible; }
+.btn_img23 { color: #3475ad; background-image: url(../images/csssprite_bg.png); background-position:-145px -542px; text-align:center; height:25px; width:70px; padding-top:2px; border:0px; overflow:visible; }
+.btn_img24 { color: #545741; background-image: url(../images/csssprite_bg.png); background-position:-145px -568px; text-align:center; height:25px; width:70px; padding-top:2px; border:0px; overflow:visible; }
+.btn_img25 { color: #3475ad; background-image: url(../images/csssprite_bg.png); background-position:-145px -594px; text-align:center; height:25px; width:70px; padding-top:2px; border:0px; overflow:visible; }
+.btn_img26 { color: #b05403; background-image: url(../images/csssprite_bg.png); background-position:-145px -620px; text-align:center; height:25px; width:70px; padding-top:2px; border:0px; overflow:visible; }
+.btn_img27 { color: #fff; background-image: url(../images/csssprite_bg.png); background-position:-145px -646px; text-align:center; height:25px; width:70px; padding-top:2px; border:0px; overflow:visible; }
+.btn_img28 { color: #fff; background-image: url(../images/csssprite_bg.png); background-position:-145px -672px; text-align:center; height:25px; width:70px; padding-top:2px; border:0px; overflow:visible; }
+.btn_img29 { color: #fff; background-image: url(../images/csssprite_bg.png); background-position:-145px -698px; text-align:center; height:25px; width:70px; padding-top:2px; border:0px; overflow:visible; }
+.btn_img30 { color: #fff; background-image: url(../images/csssprite_bg.png); background-position:-145px -724px; text-align:center; height:25px; width:70px; padding-top:2px; border:0px; overflow:visible; }
+
+/* 文本输入框样式库 */
+.input_color1 { color: #333; background-color: #fff; text-align: left; padding:3px 1px 2px 3px; border: 1px solid #d2d2d2; }
+.input_color2 { color: #7e7e7e; background-color: #fff; text-align: left; padding:5px 1px 3px 3px; border: 1px solid #bebebe; font-size:14px; }
+.input_color3 { color: #333; background-color: #fafafa; text-align: left; padding:3px 1px 2px 3px; border: 2px solid #777; }
+.input_color4 { color: #666; background-color: #FFF; text-align: left; padding:3px 1px 2px 2px; border-top: 1px #808080; border-right: 1px #e3dccf; border-bottom: 1px #e3dccf; border-left: 1px #808080; border-style: solid; }
+.input_color5 { color: #3b352e; background-color: #fff; text-align: left; padding:3px 1px 2px 2px; border: 1px solid #8b7c6b; margin-left:2px; }
+.input_color6 { color: #756131; background-color: #fff; text-align: left; padding:3px 1px 2px 2px; border: 1px solid #ded4b9; }
+.input_color7 { color: #3b352e; background-color: #f8f5e7; text-align: left; padding:3px 1px 2px 2px; border: 1px solid #cebf99; }
+.input_color8 { color: #4f3900; background-color: #faf8f2; text-align: left; padding:3px 1px 2px 2px; border: 2px solid #a49260;}
+.input_color9 { color: #756131; background-color: #fffce7; text-align: left; padding:3px 1px 2px 2px; border: 1px solid #dfd77b; }
+.input_color10 { color: #333; background-color: #fffce7; text-align: left; padding:3px 1px 2px 2px; border: 1px solid #c0ab1f; }
+.input_color11 { color: #444; background-color: #FFF; text-align: left; padding:3px 1px 2px 2px; border-top: 1px #fff; border-right: 1px #fff; border-bottom: 1px #444; border-left: 1px #fff; border-style: solid; }
+.input_color12 { color: #2f80df; background-color: #FFF; text-align: left; padding:3px 1px 2px 2px; border-top: 1px #fff; border-right: 1px #fff; border-bottom: 1px #2f80df; border-left: 1px #fff; border-style: solid; }
+.input_color13 { color: #2f80df; background-color: #f2faff; text-align: left; padding:3px 1px 2px 2px; border-top: 1px #fff; border-right: 1px #fff; border-bottom: 1px #6fa4e3; border-left: 1px #fff; border-style: solid; }
+.input_color14 { color: #444; background-color: #fafafa; text-align: left; padding:3px 1px 2px 2px; border: 1px dashed #777; }
+.input_color15 { color: #2366dd; background-color: #f2faff; text-align: left; padding:3px 1px 2px 2px; border: 1px dashed #428adf; }
+.input_color16 { color: #4c89d5; background-color: #f6f9ff; text-align: left; padding:3px 1px 2px 2px; border: 1px solid #8dbbdd; }
+.input_color17 { color: #666; background-color: #f8fbff; text-align: left; padding:3px 1px 2px 2px; border-top: 1px #559bda; border-right: 1px #bdcee5; border-bottom: 1px #bdcee5; border-left: 1px #559bda; border-style: solid; }
+.input_color18 { color: #2265b9; background-color: #f2faff; text-align: left; padding:3px 1px 2px 2px; border: 1px solid #8dbbdd; }
+.input_color19 { color: #0f4a94; background-color: #f2faff; text-align: left; padding:3px 1px 2px 2px; border: 1px solid #286bbf; }
+.input_color20 { color: #033573; background-color: #f2faff; text-align: left; padding:3px 1px 2px 2px; border: 2px solid #286bbf; }
+.input_color21 { color: #222; background-color: #f8fdf0; text-align: left; padding:3px 1px 2px 2px; border: 1px dashed #94cc4c; }
+.input_color22 { color: #5d9615; background-color: #fff; text-align: left; padding:3px 1px 2px 2px; border: 1px solid #94cc4c; }
+.input_color23 { color: #222; background-color: #f8fdf0; text-align: left; padding:3px 1px 2px 2px; border: 1px solid #94cc4c; }
+.input_color24 { color: #5a7f25; background-color: #fff; text-align: left; padding:3px 1px 2px 2px; border: 2px solid #548f00; }
+.input_color25 { color: #444; background-color: #ffffe6; text-align: left; padding:3px 1px 2px 2px; border: 1px dashed #ffcc00; }
+.input_color26 { color: #d95e04; background-color: #ffffb5; text-align: left; padding:3px 1px 2px 2px; border: 1px solid #ffcc00; }
+.input_color27 { color: #c23b00; background-color: #ffffb5; text-align: left; padding:3px 1px 2px 2px; border: 2px solid #ff7e00; }
+.input_color28 { color: #222; background-color: #ffefe9; text-align: left; padding:3px 1px 2px 2px; border: 1px dashed #ff4f4f; }
+.input_color29 { color: #d30000; background-color: #ffefe9; text-align: left; padding:3px 1px 2px 2px; border: 1px solid #ff4f4f; }
+.input_color30 { color: #ff0000; background-color: #ffefe9; text-align: left; padding:3px 1px 2px 2px; border: 2px solid #ff0000; }
+
+/* 文本输入框样式库-背景图x轴平铺 */
+.input_bg1 { color: #2a628f; background-image:url(../images/csssprite_bg.png); background-position:0px -772px; text-align: left; padding:5px 1px 2px 3px; border: 1px solid #888; }
+.input_bg2 { color: #444; background-image:url(../images/csssprite_bg.png); background-position:0px -839px; text-align: left; padding:5px 1px 2px 3px; border-top: 1px #777; border-right: 1px #e3dccf; border-bottom: 1px #e3dccf; border-left: 1px #777; border-style: solid; }
+.input_bg3 { color: #444; background-image:url(../images/csssprite_bg.png); background-position:0px -883px; text-align: left; padding:5px 1px 2px 3px; border-top: 1px #777; border-right: 1px #d9d5bf; border-bottom: 1px #d9d5bf; border-left: 1px #777; border-style: solid; }
+.input_bg4 { color: #444; background-image:url(../images/csssprite_bg.png); background-position:0px -905px; text-align: left; padding:5px 1px 2px 3px; border-top: 1px #808080; border-right: 1px #e3dccf; border-bottom: 1px #e3dccf; border-left: 1px #808080; border-style: solid; }
+.input_bg5 { color: #444; background-image:url(../images/csssprite_bg.png); background-position:0px -861px; text-align: left; padding:5px 1px 2px 3px; border-top: 1px #808080; border-right: 1px #e3dccf; border-bottom: 1px #e3dccf; border-left: 1px #808080; border-style: solid; }
+.input_bg6 { color: #444; background-image:url(../images/csssprite_bg.png); background-position:0px -750px; text-align: left; padding:5px 1px 2px 3px; border-top: 1px #666; border-right: 1px #e3dccf; border-bottom: 1px #e3dccf; border-left: 1px #666; border-style: solid; }
+.input_bg7 { color: #444; background-image:url(../images/csssprite_bg.png); background-position:0px -794px; text-align: left; padding:5px 1px 2px 3px; border-top: 1px #808080; border-right: 1px #e3dccf; border-bottom: 1px #e3dccf; border-left: 1px #808080; border-style: solid; }
+.input_bg8 { color: #444; background-image:url(../images/csssprite_bg.png); background-position:0px -817px; text-align: left; padding:5px 1px 2px 3px; border-top: 1px #808080; border-right: 1px #e3dccf; border-bottom: 1px #e3dccf; border-left: 1px #808080; border-style: solid; }
+

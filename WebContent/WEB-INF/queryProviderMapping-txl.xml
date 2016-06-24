@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd"
+	default-autowire="byName" default-lazy-init="true">
+
+	<bean id="queryProviderMapping-txl"
+		class="org.nestframework.commons.hibernate.QueryProviderMappingImpl">
+		<property name="queryMap">
+			<map>
+				<!-- 查询体质体检数据  -->
+				<entry key="IMonitorStaticticsExt.getHeathData.count">
+					<value><![CDATA[
+						SELECT COUNT(*) AS count
+						FROM
+						  ( SELECT DISTINCT sb.studentid
+						  FROM s_baseinfo sb
+						  JOIN e_stuclass es
+						  ON sb.studentid = es.studentid
+						  JOIN sh_healthstandard shs
+						  ON shs.CMIS30ID    = :cmis30id
+						  AND shs.PARTID     = mod(:cmis30id,20)
+						  AND shs.discode    = :discode
+						  AND shs.schoolyear = :schoolyear
+						  JOIN e_grade eg
+						  ON eg.gradeid  = :gradeid
+						  JOIN e_class ec
+						  ON ec.classid    = :classid
+						  WHERE eg.gradeid = es.gradeid
+						  AND sb.studentid = shs.studentid
+						  AND eg.gradeid   = ec.gradeid
+						  AND es.classid   = ec.classid
+						  AND sb.CMIS30ID  = :cmis30id
+						  AND sb.discode   = :discode
+						  AND sb.PARTID    = mod(:cmis30id,20)
+						  )
+					]]></value>
+				</entry>
+				<!-- 查询某学校的所有高中班级  -->
+				<entry key="IViewAppraiseExt.getClassList.query">
+					<value><![CDATA[
+						SELECT ec.classid,
+						  ec.classsname
+						FROM e_class ec
+						JOIN e_grade eg
+						ON eg.gradeid                        = ec.gradeid
+						AND eg.CMIS30ID                      = :cmis30id
+						AND eg.DISCODE                       = :discode
+						AND TO_CHAR(eg.GRADUATEYEAR, 'yyyy') = :year
+						JOIN e_edusys ee
+						ON ee.levelid     = eg.LEVELID
+						AND (ee.levelcode  = :levelcode or ee.levelcode  = :levelcode1)
+						AND ee.CMIS30ID   = :cmis30id
+						JOIN e_term et
+						ON et.schoolyear = eg.schoolyear
+						AND et.used      = 1
+						WHERE ec.used    = 1
+						AND ec.cmis30id  = :cmis30id
+						AND ec.discode   = :discode
+						ORDER BY eg.gradenum ASC,
+						  ec.classnum ASC
+					]]></value>
+				</entry>
+				<!-- 查询学生  -->
+				<entry key="IViewAppraiseExt.getStudentByPager.query">
+					<value><![CDATA[
+						SELECT *
+						FROM
+						  (SELECT rownum AS rowNumber,
+						    sb.name,
+						    sb.edu_id,
+						    sb.studentno,
+						    sb.studentid,
+						    ee.levelid,
+						    ee.levelcode
+						  FROM s_baseinfo sb
+						  JOIN e_stuclass es
+						  ON es.used       = 1
+						  AND es.studentid = sb.studentid
+						  AND es.cmis30id  = :cmis30id
+						  AND es.discode   = :discode
+						  <#if classid?has_content>
+						  AND es.classid  = :classid
+						  </#if>
+						  JOIN e_grade eg
+						  ON eg.cmis30id                       = :cmis30id
+						  AND eg.discode                       = :discode
+						  AND eg.gradeid                       = es.gradeid
+						  AND TO_CHAR(eg.graduateyear, 'yyyy') = :year
+						  JOIN e_edusys ee
+						  ON ee.levelid     = eg.levelid
+						  AND ee.cmis30id   = :cmis30id
+						  AND (ee.levelcode  = :levelcode or ee.levelcode  = :levelcode1)
+						  AND ee.discode    = :discode
+						  WHERE sb.cmis30id = :cmis30id
+						  AND sb.discode    = :discode
+						  AND sb.partid     = mod(:cmis30id, 20)
+						  AND sb.inschoolstate=1002001 
+						  ) b
+						WHERE b.rowNumber = :index
+					]]></value>
+				</entry>
+				<!-- 查询学生总数  -->
+				<entry key="IViewAppraiseExt.getStudentTotal.query">
+					<value><![CDATA[
+						SELECT count(sb.edu_id) as total
+						  FROM s_baseinfo sb
+						  JOIN e_stuclass es
+						  ON es.used       = 1
+						  AND es.studentid = sb.studentid
+						  AND es.cmis30id  = :cmis30id
+						  AND es.discode   = :discode
+						  <#if classid?has_content>
+						  AND es.classid  = :classid
+						  </#if>
+						  JOIN e_grade eg
+						  ON eg.cmis30id                       = :cmis30id
+						  AND eg.discode                       = :discode
+						  AND eg.gradeid                       = es.gradeid
+						  AND TO_CHAR(eg.graduateyear, 'yyyy') = :year
+						  JOIN e_edusys ee
+						  ON ee.levelid     = eg.levelid
+						  AND ee.cmis30id   = :cmis30id
+						  AND (ee.levelcode  = :levelcode or ee.levelcode  = :levelcode1)
+						  AND ee.discode    = :discode
+						  WHERE sb.cmis30id = :cmis30id
+						  AND sb.discode    = :discode
+						  AND sb.partid     = mod(:cmis30id, 20)
+						  AND sb.inschoolstate=1002001 
+					]]></value>
+				</entry>
+				<!-- 查询学校  -->
+				<entry key="IViewAppraiseExt.querySchool.query">
+					<value><![CDATA[
+						SELECT DISTINCT bb.CMIS30ID,
+						  bb.SCHOOLNAME
+						FROM b_baseinfo bb
+						JOIN E_EDUSYS ee
+						ON ee.CMIS30ID   = bb.cmis30id
+						AND ee.discode   = :discode
+						AND (ee.levelcode  = :levelcode or ee.levelcode  = :levelcode1)
+						WHERE bb.discode = :discode
+					]]></value>
+				</entry>
+				<!-- 查询区县高中学校  -->
+				<entry key="BookReportExt.queryAllSchoolByDiscode.query">
+					<value><![CDATA[
+						SELECT DISTINCT bb.schoolcode,
+						  bb.schoolname,
+						  bb.cmis30id,
+						  et.schoolyear + 1 AS jiebie
+						FROM b_baseinfo bb
+						JOIN e_edusys ee
+						ON bb.cmis30id    = ee.cmis30id
+						AND ee.levelcode IN (2012003,2012004)
+						AND ee.discode    = :discode
+						JOIN e_grade eg
+						ON eg.levelid  = ee.levelid
+						AND eg.discode = :discode
+						JOIN e_term et
+						ON et.schoolyear = eg.schoolyear
+						AND et.used      =1
+						WHERE bb.discode = :discode
+					]]></value>
+				</entry>
+			</map>	                                                            
+		</property>
+	</bean>
+</beans>

@@ -1,0 +1,475 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd 
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+		">
+
+	<!--filterChainProxy  会按顺序调用filter,使这些filter能享用Spring ioc的功能-->
+	<bean id="filterChainProxy"
+		class="org.acegisecurity.util.FilterChainProxy">
+		<property name="filterInvocationDefinitionSource">
+			<value>
+				<!-- 定义了URL比较前先转为小写 -->
+				CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON  
+				<!-- 定义了使用Apache ant的匹配模式 --> 
+				PATTERN_TYPE_APACHE_ANT 
+				/**=httpSessionContextIntegrationFilter,logoutFilter,formAuthenticationProcessingFilter,anonymousProcessingFilter,exceptionTranslationFilter,filterSecurityInterceptor
+			</value>
+		</property>
+	</bean>
+
+	<bean id="exceptionTranslationFilter"
+		class="org.acegisecurity.ui.ExceptionTranslationFilter">
+		<property name="authenticationEntryPoint"
+			ref="formLoginAuthenticationEntryPoint" />
+	</bean>
+
+	<!-- Define filter to handle FORM authentication -->
+	<!-- 认证处理的过滤器 -->
+	 <bean id="formAuthenticationProcessingFilter" class="com.flyrish.hades.util.UserAuthenticationProcessingFilter">
+		<property name="filterProcessesUrl">
+			<value>/j_acegi_security_check</value>
+		</property>
+		 <property name="authenticationFailureUrl">
+			<value>/login.jsp?error=user_pwd_error</value>
+		</property>
+		<property name="defaultTargetUrl">
+			<value>/system/IndexAction.a</value>
+			<!-- <value>/login.html</value> -->
+		</property>
+		<property name="alwaysUseDefaultTargetUrl" value="true"/>
+		 <!-- 认证管理器 --> 
+		<property name="authenticationManager"
+			ref="authenticationManager" />
+		<property name="exceptionMappings">
+			<value>
+				org.acegisecurity.AuthenticationException=/login.jsp?error=user_pwd_error
+				com.flyrish.hades.exception.UserNameException=/login.jsp?error=user_pwd_error
+				com.flyrish.hades.exception.UsernameNotFoundException=/login.jsp?error=user_pwd_error
+				com.flyrish.hades.exception.SchoolNotFoundException=/login.jsp?error=user_notfoundschool_error
+				com.flyrish.hades.exception.LoginIsUserdException=/login.jsp?error=is_not_userd_error
+				com.flyrish.hades.exception.BadRandomCodeException=/login.jsp?error=check_code_error
+				com.flyrish.hades.exception.StudentInfoException=/login.jsp?error=student_info_error 
+				com.flyrish.hades.exception.TeacherInfoException=/login.jsp?error=teacher_info_error
+				com.flyrish.hades.exception.FamliyUserNotSupportException=/login.jsp?error=parent_info_error 
+				com.flyrish.hades.exception.HasNotFoundHigOrMidException=/login.jsp?error=notfoundHigOrMid_error
+				com.flyrish.hades.exception.CannotGetJdbcConnectionException=/login.jsp?error=db_error
+				com.flyrish.hades.exception.RemoteAuthenticationServerErrorException=/login.jsp?error=remote_server_error
+			</value>
+		</property>
+		<property name="userServiceExt" ref="userServiceExt"></property>
+		<property name="redisServiceExt" ref="redisServiceExt"></property>
+		<property name="latestEvaluationRecordExt" ref="latestEvaluationRecordExt"></property>
+		<property name="constantBean" ref="constantBean"></property>
+	</bean>
+
+	<!-- Define realm for FORM login-->
+	<!-- 认证登录的入口 -->
+	<bean id="formLoginAuthenticationEntryPoint"
+		class="org.acegisecurity.ui.webapp.AuthenticationProcessingFilterEntryPoint">
+		<property name="loginFormUrl">
+			<value>/login.jsp</value>
+		</property>
+		<property name="forceHttps">
+			<value>false</value>
+		</property>
+	</bean>
+
+	<!-- 登出 -->
+	<bean id="logoutFilter"
+		class="org.acegisecurity.ui.logout.LogoutFilter">
+		<constructor-arg value="/login.jsp?logout=true" />
+		<constructor-arg>
+			<list>
+				<bean
+					class="org.acegisecurity.ui.logout.SecurityContextLogoutHandler" />
+				<bean
+					class="org.nestframework.commons.acegi.SessionlogoutHandler" />
+			</list>
+		</constructor-arg>
+	</bean>
+
+	<!-- 认证管理者 -->
+	<bean id="authenticationManager"
+		class="org.acegisecurity.providers.ProviderManager">
+		<property name="providers">
+			<list>
+				<ref bean="daoAuthenticationProviderExt" />
+				<ref bean="anonymousAuthenticationProvider"/>
+			</list>
+		</property>
+	</bean>
+
+	 <bean id="anonymousAuthenticationProvider"
+          class="org.acegisecurity.providers.anonymous.AnonymousAuthenticationProvider">
+        <property name="key" value="foobar"/>
+    </bean>
+    <bean id="anonymousProcessingFilter"
+          class="org.acegisecurity.providers.anonymous.AnonymousProcessingFilter">
+        <property name="key" value="foobar"/>
+        <property name="userAttribute"
+                  value="anonymousUser,ROLE_ANONYMOUS"/>
+    </bean>
+	<!-- 认证提供者 -->
+	<bean id="daoAuthenticationProviderExt"
+		class="com.flyrish.hades.util.DaoAuthenticationProvider">
+		<property name="userDetailsService" ref="userDetailsServiceJdbcExt" />
+	</bean>
+	<!--
+	<bean id="md5PasswordEncoder"
+		class="org.acegisecurity.providers.encoding.Md5PasswordEncoder">
+	</bean>
+	-->
+	
+
+	<!-- 每次request前 HttpSessionContextIntegrationFilter从Session中获取Authentication对象，在request完后
+       	   又把Authentication对象保存到Session中供下次request使用,此filter必须其他Acegi filter前使用
+         org.acegisecurity.context.HttpSessionContextIntegrationFilter -->
+         
+	<bean id="httpSessionContextIntegrationFilter"
+		class="org.acegisecurity.context.HttpSessionContextIntegrationFilter">
+		<property name="context">
+			<value>
+				org.acegisecurity.captcha.CaptchaSecurityContextImpl
+			</value>
+		</property>
+	</bean>
+
+	<!-- Start Security interceptor config -->
+	<!-- Define authentication manager, decision manager and secure URL patterns -->
+	
+	<!-- filterSecurityInterceptor在执行转向url前检查objectDefinitionSource中设定的用户权限信息 -->
+	<bean id="filterSecurityInterceptor"
+		class="org.acegisecurity.intercept.web.FilterSecurityInterceptor">
+		
+		<!-- authenticationManager认证管理器 -->
+		<property name="authenticationManager" ref="authenticationManager" />
+			
+		<!-- accessDecisionManager决策管理器 -->
+		<property name="accessDecisionManager" ref="accessDecisionManager" />
+		
+		<!--首先，objectDefinitionSource中定义了访问URL需要的属性信息(这里的属性信息仅仅是标志，告诉accessDecisionManager要用哪些voter来投票)
+         	然后，authenticationManager调用自己的provider来对用户的认证信息进行校验。
+         	最后，有投票者根据用户持有认证和访问url需要的属性，调用自己的voter来投票，决定是否允许访问 -->
+		<property name="objectDefinitionSource">
+			<value>
+				CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
+				PATTERN_TYPE_APACHE_ANT
+				/index.jsp=ROLE_103
+				/upload/uploadaction.a**=ROLE_ANONYMOUS,ROLE_103
+				/fileupload/fileuploadaction.a**=ROLE_ANONYMOUS,ROLE_103
+				/homepage/homepageaction.a**=ROLE_103
+				/system/indexaction.a**=ROLE_103
+				/inform/informaction.a**=ROLE_103
+				/inform/addinformaction.a**=ROLE_1503001,ROLE_1503002,ROLE_1502003,ROLE_1502005,ROLE_1502006
+				/dwr**=ROLE_ANONYMOUS,ROLE_103
+				/appraisalwritedstatics/appraisalwritedqxaction.a**=ROLE_1503001,ROLE_1503002
+				/export/shoolfillcount.a**=ROLE_1503001,ROLE_1503002,ROLE_1502003,ROLE_1502005,ROLE_1502006
+				/totalappraisalstatics/totalappraisalstaticsaction.a**=ROLE_1502003,ROLE_1502005
+				/needs/cityneedappraisesaction.a**=ROLE_1503001
+				/export/requirdcountexport.a**=ROLE_1503001,ROLE_1503002,ROLE_1502003
+				/needs/discodeneedappraisesaction.a**=ROLE_1503002
+				/needs/highneedappraisesaction.a**=ROLE_1502003,ROLE_1502005
+				/total/citytotaldatasnumaction.a**=ROLE_1503001
+				/export/totalcountexportaction.a**=ROLE_1503001,ROLE_1503002,ROLE_1502003,ROLE_1502005
+				/total/totaldatasnumaction.a**=ROLE_1503002
+				/appraisalwritedstatics/appraisalwritedjwaction.a**=ROLE_1502003,ROLE_1502005
+				/export/writedstaticsexportaction.a**=ROLE_1502003,ROLE_1502005
+				/monitorstatictics/monitorstaticticsaction.a**=ROLE_1502003,ROLE_1502005,ROLE_1502006
+				/learnprocessstatics/learnprocessstaticsaction.a**=ROLE_1503001,ROLE_1503002,ROLE_1502003,ROLE_1502005
+				/export/coursecountexport.a**=ROLE_1503001,ROLE_1503002,ROLE_1502003,ROLE_1502005
+				/viewappraise/viewappraiseaction.a**=ROLE_1503001,ROLE_1503002
+				/masterreport/reportaction.a**=ROLE_1503001,ROLE_1503002
+				/bookreport/qubookreportaction.a**=ROLE_1503001,ROLE_1503002
+				/bookreport/bookreportaction.a**=ROLE_1503001,ROLE_1502003,ROLE_1502005
+				/reportserver**=ROLE_1502003,ROLE_1502005
+				/jwreportbook/jwreportbookaction.a**=ROLE_1502003,ROLE_1502005
+				/reportbook/reportbookaction.a**=ROLE_1502006
+				/masterreport/reportexportaction.a**=ROLE_1502006
+				/fileupload/cityandcountryaction.a**=ROLE_1503004,ROLE_1503001,ROLE_1503002
+				/xspjtjmxb/studentappdetailaction.a**=ROLE_1502003,ROLE_1502005,ROLE_1502006
+				/export/seniorstuapprasialcount.a**=ROLE_1502003,ROLE_1502005,ROLE_1502006
+				/score/specialimportscoreaction.a**=ROLE_1502003,ROLE_1502005,ROLE_1502006
+				/score/xz.a**=ROLE_1502003,ROLE_1502005,ROLE_1502006
+				/innercourse/innercourse.a**=ROLE_1502003,ROLE_1502005
+				/schoolcourse/schoolcourseaction.a**=ROLE_1502003,ROLE_1502005
+				/schoolcourse/importexcelaction.a**=ROLE_1502003,ROLE_1502005
+				/schoolcourse/coureshirestudentaction.a**=ROLE_1502003,ROLE_1502005
+				/score/scoreaction.a**=ROLE_1502003,ROLE_1502005,ROLE_1502007,ROLE_1502006,ROLE_1502030,ROLE_1502032
+				/score/importscoreaction.a**=ROLE_1502003,ROLE_1502005,ROLE_1502007,ROLE_1502006,ROLE_1502032
+				/score/tyhkscoreimportaction.a**=ROLE_1502003,ROLE_1502005
+				/score/hkscoreimportaction.a**=ROLE_1502003,ROLE_1502005
+				/delscore/dowithscore.a**=ROLE_1502003,ROLE_1502005
+				/middlemaster/studentapprisedaction.a**=ROLE_1502006,ROLE_1502007
+				/middlemaster/treenodeaction.a**=ROLE_1502006
+				/master/studentapprisedaction.a**=ROLE_1502006,ROLE_1502007
+				/master/treenodeaction.a**=ROLE_1502006
+				/master/masteraprisedataaction.a**=ROLE_1502006
+				/appraise/queryappraiseaction.a**=ROLE_1502006,ROLE_1502007,ROLE_1502031,ROLE_1502030
+				/export/juniorappraisalexport.a**=ROLE_1502006,ROLE_1502007,ROLE_1502030,ROLE_1502031
+				/middlemaster/querycommentaction.a**=ROLE_1502006,ROLE_1502007
+				/export/juniorexportbysection.a**=ROLE_1502006,ROLE_1502007
+				/master/masterappriseaction.a**=ROLE_1502006,ROLE_1502007
+				/master/querycommenttreenodeaction.a**=ROLE_1502006,ROLE_1502007
+				/appraise/saveappraiseaction.a**=ROLE_1502006,ROLE_1502030
+				/export/seniorappraisalexport.a**=ROLE_1502006,ROLE_1502007,ROLE_1502030,ROLE_1502031
+				/master/querycommentaction.a**=ROLE_1502006
+				/master/queryappraiseaction.a**=ROLE_1502006
+				/export/seniorexportbysection.a**=ROLE_1502006
+				/appraiseclaim/appraiseclaimaction.a**=ROLE_1502006,ROLE_1502030,ROLE_1502031
+				/teacher/masterappriseaction.a**=ROLE_1502007
+				/teacher/studentapprisedaction.a**=ROLE_1502007
+				/teacher/treenodeaction.a**=ROLE_1502007
+				/highschoolteacher/masterappriseaction.a**=ROLE_1502007
+				/highschoolteacher/studentapprisedaction.a**=ROLE_1502007
+				/highschoolteacher/treenodeaction.a**=ROLE_1502007
+				/middlemaster/masterappriseaction.a**=ROLE_1502007
+				/middlemaster/queryappraiseaction.a**=ROLE_1502007
+				/selfappraise/zwpjatcion.a**=ROLE_1502030
+				/selfappraise/jumptree.a**=ROLE_1502030
+				/selfappraise/jump.a**=ROLE_1502030
+				/partinfo/partinfoaction.a**=ROLE_1502030
+				/selfappraise/frame_zongheshijiancz.html**=ROLE_1502030
+				/selfappraise/toloadaction.a**=ROLE_1502030
+				/selfappraise/selfappaction.a**=ROLE_1502030
+				/selfappraise/frame_zongheshijian.html**=ROLE_1502030
+				/student/appraiseschoolfellowaction.a**=ROLE_1502030
+				/student/cztreeshow.a**=ROLE_1502030
+				/student/cztreenodexieaction.a**=ROLE_1502030
+				/student/czztreeactio.a**=ROLE_1502030
+				/student/czplayandhealthxinaction.a**=ROLE_1502030
+				/student/treenodexieaction.a**=ROLE_1502030
+				/student/gztreeshowaction.a**=ROLE_1502030
+				/student/ztreeaction.a**=ROLE_1502030
+				/student/playandhealthxinaction.a**=ROLE_1502030
+				/datacheck/datacheckaction.a**=ROLE_1502030
+				/appraisechild/appraisalchildaction.a**=ROLE_1502031
+			</value>
+		</property>
+	</bean>
+	 
+	<bean id="userDetailsServiceJdbcExt"
+		class="com.flyrish.hades.service.ext.impl.JdbcUserDetailsServiceExtImpl">
+		<property name="dataSource" ref="dataSource" />
+		<property name="constantBean" ref="constantBean"/>
+		<property name="redisServiceExt" ref="redisServiceExt"/>
+		 <!-- ???!!!!!!!!!! -->
+		<property name="authoritiesByUsernameQuery">
+			<value>
+				select distinct us.username,us.pwd,us.used,103 rolename
+				from o_userrole ou 
+				join o_user us on us.userid = ou.userid and us.userid=? and us.systemtype=? and us.username = ? and us.pwd = ? and (us.systemtype=2 or us.systemtype=3)
+				join o_role ro on ro.roleid = ou.roleid 
+				join h_o_rolefunc rf on rf.roleid = ro.roleid
+				join h_o_func ofu on ofu.funcid = rf.funcid and ofu.used = 1
+			</value>
+		</property>
+		<property name="authoritiesByUsernameQueryNotOuser">
+			<value>
+				select distinct 103 rolename
+				from o_userrole ou 
+				join o_role ro on ro.roleid = ou.roleid 
+				join h_o_rolefunc rf on rf.roleid = ro.roleid
+				join h_o_func ofu on ofu.funcid = rf.funcid and ofu.used = 1
+				where ou.userid=?
+			</value>
+		</property>
+		<property name="authoritiesByUsernameAndPwd">
+			<value>
+				select count(1) from o_user where userid=? and pwd=? and used=1
+			</value>
+		</property>
+		<property name="levelCodeCountqueryUsername">
+			<value>
+				select count(1) from b_baseinfo bb
+				inner join b_campus bc on bc.cmis30id=bb.cmis30id
+				inner join e_edusys ee on ee.campusid=bc.campusid and ee.used=1 and ee.levelcode in(2012002,2012003,2012004)
+				where bb.schoolcode=?
+			</value>
+		</property>
+		<property name="authoritiesByUsernameByUnitIdQuery">
+			<value>
+				select distinct us.username,us.pwd,us.used,103 rolename 
+				from o_userrole ou join o_user us on us.userid = ou.userid and us.username = ? and us.pwd = ? and us.unitid = ? 
+				join o_role ro on ro.roleid = ou.roleid 
+				join h_o_rolefunc rf on rf.roleid = ro.roleid
+				join h_o_func ofu on ofu.funcid = rf.funcid and ofu.used = 1
+			</value>
+		</property>
+		<property name="queryRoleTypeByUsernameAndCmis30id">
+			<value>
+				select distinct orol.roletype from o_role orol
+				inner join o_userrole oro on oro.roleid=orol.roleid
+				inner join o_user ou on ou.userid=oro.userid and ou.userid=? and ou.systemtype=? and ou.used=1 and ou.username=? and ou.unitid=?
+				where orol.roletype in(1502003,1502005,1502006,1502007,1502032)
+			</value>
+		</property>
+		<property name="queryRoleTypeByUsername">
+			<value>
+				select distinct orol.roletype from o_role orol
+				inner join o_userrole oro on oro.roleid=orol.roleid
+				inner join o_user ou on ou.userid=oro.userid and ou.used=1 and ou.userid=? and ou.systemtype=? and ou.username=?
+				where orol.roletype in(1502003,1502005,1502006,1502007,1502032)
+			</value>
+		</property>
+		<property name="queryLevelCodeCountsByTeacherEduid">
+			<value>
+				select count(1) from o_role orol
+						inner join o_userrole oro on oro.roleid=orol.roleid and oro.userid=?
+						inner join o_rolecampus ol on ol.userroleid=oro.userroleid
+            			inner join e_edusys ee on ee.campusid=ol.campusid and ee.levelcode in(2012002,2012003,2012004) and ee.used=1
+						where orol.roletype in(1502003,1502005,1502006,1502007,1502032)
+			</value>
+		</property>
+		<property name="queryLevelCodeCountsByCmis30id">
+			<value>
+				select count(1) from o_role orol
+						inner join o_userrole oro on oro.roleid=orol.roleid
+						inner join o_rolecampus ol on ol.userroleid=oro.userroleid
+            			inner join e_edusys ee on ee.campusid=ol.campusid and ee.levelcode in(2012002,2012003,2012004) and ee.used=1
+						inner join o_user ou on ou.userid=oro.userid and ou.used=1 and ou.username=? and (ou.systemtype=2 or ou.systemtype=3) and ou.unitid=?
+						where orol.roletype in(1502003,1502005,1502006,1502007,1502032)
+			</value>
+		</property>
+		<property name="queryLevelCodeCountsByTeacherEduidForClassMaster">
+			<value>
+				select count(1) from t_baseinfo tb
+				inner join e_class ecl on ecl.masterid=tb.teacherid and ecl.used=1
+				inner join e_grade eg on eg.gradeid=ecl.gradeid and eg.used=1
+				inner join e_term et on et.schoolyear=eg.schoolyear and et.used=1
+				inner join e_edusys ee on ee.levelid=eg.levelid and ee.levelcode in(2012002,2012003,2012004)
+				where tb.edu_id=?
+			</value>
+		</property>
+		<property name="queryLevelCodeCountsByTeacherEduidAndCmis30idForClassMaster">
+			<value>
+				select count(1) from t_baseinfo tb
+				inner join e_class ecl on ecl.masterid=tb.teacherid and ecl.used=1 and ecl.cmis30id=?
+				inner join e_grade eg on eg.gradeid=ecl.gradeid and eg.used=1 and eg.cmis30id=?
+				inner join e_term et on et.schoolyear=eg.schoolyear and et.used=1
+				inner join e_edusys ee on ee.levelid=eg.levelid and ee.levelcode in(2012002,2012003,2012004) and ee.cmis30id=?
+				where tb.edu_id=? and tb.cmis30id=?
+			</value>
+		</property>
+		<property name="queryLevelCodeCountsByTeacherEduidForCouserMaster">
+			<value>
+				select count(1) from t_baseinfo tb
+				inner join e_classcourse ecla on ecla.teacherid=tb.teacherid
+				inner join e_subject es on es.subjectid=ecla.subjectid and es.used=1
+				inner join e_class ecl on ecl.classid=ecla.classid and ecl.used=1
+				inner join e_grade eg on eg.gradeid=ecl.gradeid and eg.used=1
+				inner join e_term et on et.schoolyear=eg.schoolyear and et.used=1
+				inner join e_edusys ee on ee.levelid=eg.levelid and ee.levelcode='2012002'
+				where tb.edu_id=?
+			</value>
+		</property>
+		<property name="queryCountsByTeacherEduidForCouserMaster">
+			<value>
+				select count(1) from t_baseinfo tb
+				inner join k_class_model ecla on ecla.teacherid=tb.teacherid and ecla.schoolyear is null
+				inner join e_class ecl on ecl.classid=ecla.classid and ecl.used=1
+				inner join e_grade eg on eg.gradeid=ecl.gradeid and eg.used=1
+				inner join e_term et on et.schoolyear=eg.schoolyear and et.used=1
+				inner join e_edusys ee on ee.levelid=eg.levelid and ee.levelcode in(2012003,2012004) and ee.used=1
+				where tb.edu_id=?
+			</value>
+		</property>
+		<property name="querySchoolCourseByTeacherEduidForCouserMaster">
+			<value>
+				select count(1) from t_baseinfo tb
+				inner join k_segment_course ecla on ecla.declare_teacher=tb.teacherid
+				inner join k_study_segment ks on ks.segment_id=ecla.segment_id
+				inner join e_term et on et.schoolyear=ks.schoolyear and et.used=1
+				where tb.edu_id=?
+			</value>
+		</property>
+		<property name="queryCountsByTeacherEduidForCouserTeacher">
+			<value>
+					select count(1) from k_segment_course kse
+					inner join k_study_segment kss on kss.segment_id=kse.segment_id
+					inner join t_baseinfo tb on tb.cmis30id=kss.cmis30id and tb.teacherid=kse.declare_teacher and tb.employeeid=?
+					inner join e_term et on et.schoolyear=kss.schoolyear and et.used=1
+			</value>
+		</property>
+		<property name="queryCountsByTeacherEduidForCouserTeacherForCmis30id">
+			<value>
+				 select count(1) from k_segment_course kse
+					inner join k_study_segment kss on kss.segment_id=kse.segment_id
+					inner join t_baseinfo tb on tb.cmis30id=kss.cmis30id and tb.teacherid=kse.declare_teacher and tb.employeeid=? and tb.cmis30id=?
+					inner join e_term et on et.schoolyear=kss.schoolyear and et.used=1
+			</value>
+		</property>
+		<property name="querySchoolCourseByTeacherEduidForCmis30idCouserMaster">
+			<value>
+				select count(1) from t_baseinfo tb
+				inner join k_segment_course ecla on ecla.declare_teacher=tb.teacherid
+				inner join k_study_segment ks on ks.segment_id=ecla.segment_id and ks.cmis30id=?
+				inner join e_term et on et.schoolyear=ks.schoolyear and et.used=1
+				where tb.edu_id=? and tb.cmis30id=?
+			</value>
+		</property>
+		<property name="queryLevelCodeCountsByTeacherEduidAndCmis30idForCouserMaster">
+			<value>
+				select count(1) from t_baseinfo tb
+				inner join e_classcourse ecla on ecla.teacherid=tb.teacherid
+				inner join e_subject es on es.subjectid=ecla.subjectid and es.used=1
+				inner join e_class ecl on ecl.classid=ecla.classid and ecl.used=1 and ecl.cmis30id=?
+				inner join e_grade eg on eg.gradeid=ecl.gradeid and eg.used=1 and eg.cmis30id=?
+				inner join e_term et on et.schoolyear=eg.schoolyear and et.used=1
+				inner join e_edusys ee on ee.levelid=eg.levelid and ee.levelcode='2012002' and ee.cmis30id=?
+				where tb.edu_id=? and tb.cmis30id=?
+			</value>
+		</property>
+		<property name="queryTeacherEduidAndCmis30idForCouserMaster">
+			<value>
+				select count(1) from t_baseinfo tb
+				inner join k_class_model ecla on ecla.teacherid=tb.teacherid and ecla.schoolyear is null
+				inner join e_class ecl on ecl.classid=ecla.classid and ecl.used=1 and ecl.cmis30id=?
+				inner join e_grade eg on eg.gradeid=ecl.gradeid and eg.used=1 and eg.cmis30id=?
+				inner join e_term et on et.schoolyear=eg.schoolyear and et.used=1
+				inner join e_edusys ee on ee.levelid=eg.levelid and ee.levelcode in(2012003,2012004) and ee.cmis30id=? and ee.used=1
+				where tb.edu_id=? and tb.cmis30id=?
+			</value>
+		</property>
+		<property name="queryStudentInfoByEduId">
+			<value>
+				select edu_id,sb.studentid,sb.cmis30id,sb.name from s_baseinfo sb
+				inner join e_stuclass est on sb.studentid=est.studentid and est.used=1
+				inner join e_grade eg on eg.gradeid=est.gradeid and eg.used=1
+				inner join e_term et on et.schoolyear=eg.schoolyear and et.used=1
+				inner join e_edusys ee on ee.levelid=eg.levelid and ee.levelcode in('2012002','2012003','2012004') and ee.used=1
+				where edu_id=? and inschoolstate='1002001'
+			</value>
+		</property>
+		<property name="rolePrefix">
+			<value>ROLE_</value>
+		</property>
+	</bean>
+	
+
+	
+	<!-- 投票通过策略管理器   用于管理投票通过策略 -->
+	<!--该accessDecisionManager决策管理器为filterSecurityInterceptor中 accessDecisionManager的ref  -->
+	<!-- decisionVoters 投票者 -->
+	<bean id="accessDecisionManager"
+		class="org.acegisecurity.vote.AffirmativeBased">
+		<property name="decisionVoters">
+			<list>
+				<ref bean="roleVoter" />
+			</list>
+		</property>
+	</bean>
+
+	<!-- 必须是以rolePrefix设定的value开头的才会进行投票,否则为弃权 -->
+	<bean id="roleVoter" class="org.acegisecurity.vote.RoleVoter">
+		<property name="rolePrefix">
+			<value>ROLE_</value>
+		</property>
+	</bean>
+
+</beans>

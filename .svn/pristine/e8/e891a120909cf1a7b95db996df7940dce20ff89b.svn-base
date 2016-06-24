@@ -1,0 +1,687 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd"
+	default-autowire="byName" default-lazy-init="true">
+
+	<bean id="queryProviderMapping-wyh"
+		class="org.nestframework.commons.hibernate.QueryProviderMappingImpl">
+		<property name="queryMap">
+			<map>
+			    <!-- 根据教育id获取初中或高中学生监护人的信息 -->
+				<entry key="AppraisalChildExtImpl.getStudentInfo.get">
+				     <value><![CDATA[
+                           select name from s_familymemberinfo where studentid=:studentid and isguardian=1  
+                                  <#if cmis30id?has_content>
+				                    and CMIS30ID=:cmis30id
+				                    </#if> 
+				                    <#if discode?has_content >
+				                    and DISCODE=:discode
+				                    </#if>
+				                    <#if cmis30id?has_content> 
+				                    and PARTID=mod(:cmis30id,20)
+				                    </#if>
+                                    order by relationcode
+				     ]]></value>
+				</entry>
+				<!-- 增加高中家长评价 :-->
+				<entry key="AppraisalChildExtImpl.InsertAppraisalChild.add1">
+				     <value><![CDATA[
+				            insert into a_apprasial(apprasialid,studentid,appraseridentify,appraiserrid,appraisaltypeid,semesterid,appraser,apprasial,signdate,edu_id,CMIS30ID,DISCODE,EDITTIME)
+				            values(:insertId,:studentid,:appraseridentify,:appraiserid,:appraisaltypeid,:semesterid,:appraser,:apprasial,:signdate,:edu_id,:cmis30id,:discode,sysdate)
+				     ]]></value>
+				</entry>
+				<!-- 增加高中家长评价走数据缓存 :-->
+				<entry key="AppraisalChildExtImpl.InsertAppraisalChildCade.add1">
+				     <value><![CDATA[
+				            insert into a_apprasial(apprasialid,studentid,appraseridentify,appraiserrid,appraisaltypeid,semesterid,appraser,apprasial,signdate,edu_id,CMIS30ID,DISCODE,EDITTIME)
+				            values(:insertId,:studentid,:appraseridentify,:appraiserid,:appraisaltypeid,:semesterid,:appraser,:apprasial,to_date(:signdate,'yyyy-MM-dd'),:edu_id,:cmis30id,:discode,sysdate)
+				     ]]></value>
+				</entry>
+				<!-- 增加初中家长评价 :,-->
+				<entry key="AppraisalChildExtImpl.InsertAppraisalChild.add2">
+				     <value><![CDATA[
+				            insert into partinfo(part_id,termid,write_man,userid,signer_name,two_part_id,studentid,part_info,edu_id,createdate,CMIS30ID,DISCODE,EDITTIME)values
+                              (:insertId,:semesterid,:appraseridentify,:appraiserid,:appraser,:appraisaltypeid,:studentid,:apprasial,:edu_id,:signdate,:cmis30id,:discode,sysdate)
+				     ]]></value>
+				</entry>
+				<!-- 增加初中家长评价 :走缓存-->
+				<entry key="AppraisalChildExtImpl.InsertAppraisalChildCade.add2">
+				     <value><![CDATA[
+				            insert into partinfo(part_id,termid,write_man,userid,signer_name,two_part_id,studentid,part_info,edu_id,createdate,CMIS30ID,DISCODE,EDITTIME)values
+                              (:insertId,:semesterid,:appraseridentify,:appraiserid,:appraser,:appraisaltypeid,:studentid,:apprasial,:edu_id,to_date(:signdate,'yyyy-MM-dd'),:cmis30id,:discode,sysdate)
+				     ]]></value>
+				</entry>
+				<!--更新高中评价  -->
+				<entry key="AppraisalChildExtImpl.UpdateAppraisalChildList.update1">
+				     <value><![CDATA[
+				            update a_apprasial set apprasial=:apprasial,signdate=:signdate,EDITTIME=sysdate where 
+				                  apprasialid=:apprasialid
+				     ]]></value>
+				</entry>
+				<!--更新高中评价 缓存 -->
+				<entry key="AppraisalChildExtImpl.UpdateAppraisalChildList.update3">
+				     <value><![CDATA[
+				            update a_apprasial set apprasial=:apprasial,signdate=to_date(:signdate,'yyyy-MM-dd'),EDITTIME=sysdate where 
+				                  apprasialid=:apprasialid
+				     ]]></value>
+				</entry>
+				<!--更新初中评价  -->
+				<entry key="AppraisalChildExtImpl.UpdateAppraisalChildList.update2">
+				     <value><![CDATA[
+				            update partinfo set part_info=:apprasial,createdate=:signdate,EDITTIME=sysdate where 
+				            part_id=:apprasialid   
+				     ]]></value>
+				</entry>
+				<!--更新初中评价  -->
+				<entry key="AppraisalChildExtImpl.UpdateAppraisalChildList.update4">
+				     <value><![CDATA[
+				            update partinfo set part_info=:apprasial,createdate=to_date(:signdate,'yyyy-MM-dd'),EDITTIME=sysdate where 
+				            part_id=:apprasialid   
+				     ]]></value>
+				</entry>
+				<!--根据教育id,学期，评价人类型获取高中家长评论信息 -->
+				<entry key="AppraisalChildExtImpl.getAppraisalChildList.get1">
+				     <value><![CDATA[
+				            select apprasialid,appraser,appraisaltypeid,apprasial,signdate from a_apprasial where edu_id=:edu_id and semesterid=:semesterid and appraseridentify=:appraseridentify
+				                    <#if cmis30id?has_content>
+				                    and CMIS30ID=:cmis30id
+				                    </#if> 
+				                    <#if discode?has_content >
+				                    and DISCODE=:discode
+				                    </#if>
+				                    <#if cmis30id?has_content> 
+				                    and PARTID=mod(:cmis30id,20)
+				                    </#if>
+				                    order by apprasialid asc
+				     ]]></value>
+				</entry>
+				<!--根据教育id,学期,评价人类型获取初中家长评论信息 -->
+				<entry key="AppraisalChildExtImpl.getAppraisalChildList.get2">
+				     <value><![CDATA[
+				            select part_id,signer_name,two_part_id,part_info,createdate from partinfo where edu_id=:edu_id and termid=:semesterid and write_man=:appraseridentify 
+				     ]]></value> 
+				</entry>
+				<!-- 根据评论标识号删除高中家长评论 -->
+				<entry key="AppraisalChildExtImpl.DeleteAppraisalChild.delete1">
+				     <value><![CDATA[
+				           delete from a_apprasial where apprasialid=:apprasialid
+				     ]]></value>
+				</entry>
+				<!--根据教育id,评价人类型,学期,评价类型号(栏目号)获取高中评论信息 -->
+				<entry key="AppraisalChildExtImpl.getApprasialChildTypeid.get1">
+				     <value><![CDATA[
+				            select apprasialid,appraser,appraisaltypeid,apprasial,signdate from a_apprasial where edu_id=:edu_id and 
+				                    semesterid=:semesterid and appraisaltypeid=:apprasialtypeid and appraseridentify=:appraseridentify
+				                    <#if cmis30id?has_content>
+				                    and CMIS30ID=:cmis30id
+				                    </#if> 
+				                    <#if discode?has_content >
+				                    and DISCODE=:discode
+				                    </#if>
+				                    <#if cmis30id?has_content> 
+				                    and PARTID=mod(:cmis30id,20)
+				                    </#if>
+				                    order by apprasialid asc
+				     ]]></value>
+				</entry>
+				<!--根据教育id,评价人类型,学期,评价类型号(栏目号)获取初中评论信息 -->
+				<entry key="AppraisalChildExtImpl.getApprasialChildTypeid.get2">
+				     <value><![CDATA[
+				            select part_id,signer_name,two_part_id,part_info,createdate from partinfo where edu_id=:edu_id and 
+				                   termid=:semesterid and write_man=:appraseridentify and two_part_id=:apprasialtypeid 
+				                   order by part_id asc
+				     ]]></value>
+				</entry>
+				<!-- 根据评论标识号删除初中家长评论 -->
+				<entry key="AppraisalChildExtImpl.DeleteAppraisalChild.delete2">
+				     <value><![CDATA[
+				           delete from partinfo where part_id=:apprasialid
+				     ]]></value>
+				</entry>
+				<!-- 教务老师和德育老师查询学校的学段-->
+				<entry key="InformQueryExtImpl.schoolQuerylevel.query">
+				     <value><![CDATA[
+				           select distinct 
+                             ee.levelcode from b_baseinfo bb 
+                             inner join b_campus bc on bb.cmis30id = bc.cmis30id and bc.used=1
+                             inner join e_edusys ee on bc.campusid = ee.campusid and ee.used=1 
+                             where ee.levelcode in (2012002,2012003,2012004) and 
+                             bb.cmis30id=:cmis30id and bb.discode=:discode and bc.campusid=:campusid order by ee.levelcode
+				     ]]></value>
+				</entry>
+				<!-- 班主任所在班级的学段-->
+				<entry key="InformQueryExtImpl.masterQuerylevel.query">
+				     <value><![CDATA[
+				           select distinct ed.levelcode from e_class ee 
+				                  inner join e_grade eg on ee.gradeid=eg.gradeid and ee.used=1 and eg.used=1
+                                  inner join e_edusys ed on eg.levelid=ed.levelid and ed.used=1 
+                                  where ee.masterid=:personid order by ed.levelcode 
+				     ]]></value>
+				</entry>
+				<!-- 增加通告-->
+				<entry key="InformQueryExtImpl.insertInform.add">
+				     <value><![CDATA[
+				           insert into h_o_inform(inform_id,motif,text,filepath,filename,end_date,issue_date,issue,issue_userid,issue_discode,obj_role,obj_levelcode,is_all,campusid) 
+				                    values(s_h_o_inform.nextval,:theme,:informContent,:filepath,:filename,:endtime,:starttime,:issue,:userid,:discode,:receiverObj,:objlevel,:isAll,:campusid)
+				     ]]></value>
+				</entry>
+				<!-- 查询通告-->
+				<entry key="InformQueryExtImpl.informQuery.query">
+				     <value><![CDATA[
+				         <#if oderbyC?has_content>
+				          select hoi.inform_id,hoi.is_all,hoi.issue_userid,hoi.issue_discode,hoi.campusid,hoi.motif,hoi.text,hoi.filepath,hoi.filename,hoi.end_date,hoi.issue_date,hoi.issue,hoi.obj_role,hoi.obj_levelcode,nvl2(ho.inform_id,0,-1)  as flag,
+				              case hoi.issue when 0 then '未发布' 
+                              else '已发布' end issuename 
+                              from h_o_inform hoi
+                               left join h_o_infromread ho on hoi.inform_id = ho.inform_id and ho.userid=:userid1
+                              where 1=1
+				              <#if publishState?has_content> 
+				                  and hoi.issue=:publishState
+				              </#if>
+				              <#if endtime?has_content> 
+				                 and hoi.end_date>=to_date(:endtime,'yyyy-MM-dd HH24-mi-ss')
+				              </#if>
+				              <#if isAll?has_content>
+				                  and hoi.is_all=:isAll
+				              </#if>
+				              <#if campusid?has_content&&discode?has_content&&userid?has_content>
+				                  and (hoi.campusid=:campusid or hoi.is_all='1' or hoi.issue_discode=:discode or hoi.issue_userid=:userid)
+				              <#elseif campusid?has_content&&discode?has_content>
+				                  and (hoi.campusid=:campusid or hoi.is_all='1' or hoi.issue_discode=:discode)
+				              <#elseif discode?has_content>  
+				                  and (hoi.issue_discode=:discode or hoi.is_all='1')
+				              <#elseif userid?has_content>
+				                  and hoi.issue_userid=:userid
+				              </#if>
+				               <#if theme?has_content>
+				                  and hoi.motif like %:theme%
+				              </#if>
+				              <#if receiverObj?has_content>
+				                  and hoi.obj_role like %:receiverObj%
+				              </#if>
+				               <#if objlevel?has_content>
+				                  and hoi.obj_levelcode like %:objlevel%
+				              </#if>
+				              <#if informIds?has_content>
+				                  and hoi.inform_id in (<#list informIds as id>${id}<#if id_has_next>,</#if></#list>)
+				              </#if>
+                              order by flag,hoi.issue_date desc,hoi.inform_id desc	         
+                           <#else> 
+                                
+                              select inform_id,motif,is_all,campusid,issue_userid,text,issue_discode,filepath,filename,end_date,issue_date,issue,obj_role,obj_levelcode,inform_id as flag,
+                              case issue when 0 then '未发布' 
+                              else '已发布' end issuename 
+                              from h_o_inform where 1=1
+                              <#if informid?has_content> 
+				                  and inform_id=:informid
+				              </#if>
+				              <#if publishState?has_content> 
+				                  and issue=:publishState
+				              </#if>
+				              <#if endDate?has_content> 
+				                 and issue_date<=to_date(:endDate,'yyyy-MM-dd HH24-mi-ss')
+				              </#if>
+				              <#if startDate?has_content> 
+				                 and issue_date>=to_date(:startDate,'yyyy-MM-dd HH24-mi-ss')
+				              </#if>
+				              <#if theme?has_content>
+				                  and motif like %:theme%
+				              </#if>
+				              <#if userid?has_content>
+				                  and issue_userid=:userid
+				              </#if>
+                              order by issue asc,to_char(issue_date,'yyyy-MM-dd') desc,end_date desc	 	
+                        </#if>	           
+				     ]]></value>
+				</entry>
+				<!-- 查询通告条数-->
+				<entry key="InformQueryExtImpl.informQuery.count">
+				     <value><![CDATA[
+				      <#if oderbyC?has_content>
+				        select  count(1)
+                              from h_o_inform hoi
+                               left join h_o_infromread ho on hoi.inform_id = ho.inform_id and ho.userid=:userid1
+                              where 1=1
+				              <#if publishState?has_content> 
+				                  and hoi.issue=:publishState
+				              </#if>
+				              <#if endtime?has_content> 
+				                 and hoi.end_date>=to_date(:endtime,'yyyy-MM-dd HH24-mi-ss')
+				              </#if>
+				              <#if isAll?has_content>
+				                  and hoi.is_all=:isAll
+				              </#if>
+				              <#if campusid?has_content&&discode?has_content&&userid?has_content>
+				                  and (hoi.campusid=:campusid or hoi.is_all='1' or hoi.issue_discode=:discode or hoi.issue_userid=:userid)
+				              <#elseif campusid?has_content&&discode?has_content>
+				                  and (hoi.campusid=:campusid or hoi.is_all='1' or hoi.issue_discode=:discode)
+				              <#elseif discode?has_content>  
+				                  and (hoi.issue_discode=:discode or hoi.is_all='1')
+				              </#if>
+				               <#if theme?has_content>
+				                  and hoi.motif like %:theme%
+				              </#if>
+				              <#if receiverObj?has_content>
+				                  and hoi.obj_role like %:receiverObj%
+				              </#if>
+				               <#if objlevel?has_content>
+				                  and hoi.obj_levelcode like %:objlevel%
+				              </#if>
+                           <#else> 
+				     
+				         select count(1) from h_o_inform where issue_userid=:userid
+				            <#if informid?has_content> 
+				                  and inform_id=:informid
+				              </#if>
+				              <#if publishState?has_content> 
+				                  and issue=:publishState
+				              </#if>
+				              <#if endDate?has_content> 
+				                 and issue_date<=to_date(:endDate,'yyyy-MM-dd HH24-mi-ss')
+				              </#if>
+				              <#if startDate?has_content> 
+				                 and issue_date>=to_date(:startDate,'yyyy-MM-dd HH24-mi-ss')
+				              </#if>
+				               <#if theme?has_content>
+				                  and motif like %:theme%
+				              </#if>
+				          </#if>
+				     ]]></value>
+				</entry>
+				<!-- 删除通告-->
+				<entry key="InformQueryExtImpl.deleteInform.delete">
+				     <value><![CDATA[
+				           delete from h_o_inform where inform_id in (<#list informIds as id>${id}<#if id_has_next>,</#if></#list>)
+				     ]]></value>
+				</entry>
+				<!-- 更新通告发布状态-->
+				<entry key="InformQueryExtImpl.publicInform.update">
+				     <value><![CDATA[
+				           update h_o_inform set issue=:publishState,issue_date=sysdate where inform_id in (<#list informIds as id>${id}<#if id_has_next>,</#if></#list>)
+				     ]]></value>
+				</entry>
+				<!-- 更新通告内容-->
+				<entry key="InformQueryExtImpl.updateInform.update">
+				     <value><![CDATA[
+				           update h_o_inform set issue_date=:startDate,filepath=:filepath,motif=:theme,text=:informContent,filename=:filename,end_date=:endtime
+				               , obj_role=:receiverObj,obj_levelcode=:objlevel where inform_id =:informid
+				     ]]></value>
+				</entry>
+				<!-- 更新通告内容-->
+				<entry key="InformQueryExtImpl.updateInform.update2">
+				     <value><![CDATA[
+				           update h_o_inform set issue_date=:startDate,motif=:theme,text=:informContent,end_date=:endtime
+				               , obj_role=:receiverObj,obj_levelcode=:objlevel where inform_id =:informid
+				     ]]></value>
+				</entry>
+				<!-- 更新通告内容-->
+				<entry key="InformQueryExtImpl.setHoiRead.select">
+				     <value><![CDATA[
+				           select * from h_o_infromread
+				     ]]></value>
+				</entry>
+               <!-- 根据classid获取班主任的userid-->
+				<entry key="InformQueryExtImpl.queryUserid.get">
+				     <value><![CDATA[
+				          select ou.userid from e_class ec
+                               inner join o_user ou on ec.masterid = ou.personid and ec.used=1 and ou.systemtype=2
+                               where classid=:classid 
+                               <#if cmis30id?has_content>
+				                    and CMIS30ID=:cmis30id
+				               </#if> 
+				               <#if discode?has_content >
+				                    and DISCODE=:discode
+				               </#if>
+				     ]]></value>
+				</entry>
+				<!-- 更新已读内容-->
+				<entry key="InformQueryExtImpl.insertRead.insert">
+				     <value><![CDATA[
+				           insert into h_o_infromread(informreadid,inform_id,userid) values(s_h_o_infromread.nextval,:informid,:userid)
+				     ]]></value>
+				</entry>
+				<!--查询已读内容-->
+				<entry key="InformQueryExtImpl.beforeInsertRead.select">
+				     <value><![CDATA[
+				           select count(1) as readcount from h_o_infromread where inform_id=:informid and userid=:userid
+				     ]]></value>
+				</entry>
+				<!-- 查询a_appraisal内容-->
+				<entry key="InformQueryExtImpl.queryAppraise.query">
+				     <value><![CDATA[
+				        select * from(
+				          select case aa.appraseridentify when 1 then '本人'
+                            when 2 then '同学'
+                            when 3 then '任课老师'
+                            when 4 then '班主任'
+                            when 5 then '家长' end identifyname
+                            ,app.appraisaltype,sb.name,to_char(aa.edittime,'yyyy-MM-dd HH24-mi-ss') as edittime from a_apprasial  aa
+                            inner join a_appraisaltype  app on substr(aa.appraisaltypeid,0,2)=app.appraisaltypeid
+                            inner join s_baseinfo sb on aa.edu_id=sb.edu_id  and sb.inschoolstate='1002001'
+                            inner join e_stuclass est on sb.studentid=est.studentid and est.used=1
+                            inner join e_grade eg on eg.gradeid=est.gradeid and eg.used=1
+                            inner join e_term et on et.schoolyear=eg.schoolyear and et.used=1
+                            where aa.edittime is not null
+                            <#if appraserrid1?has_content&&eduid?has_content>
+                               and (aa.appraiserrid=:appraserrid1 or aa.edu_id=:eduid)
+                               <#elseif appraserrid?has_content>
+                                 and aa.appraiserrid=:appraserrid
+                               <#elseif eduid?has_content>
+                                    and aa.edu_id=:eduid
+                            </#if>
+                            <#if cmis30id?has_content>
+				             and aa.CMIS30ID=:cmis30id
+				             </#if>
+				             <#if appraseridentify?has_content>
+				                and aa.appraseridentify=:appraseridentify
+				             </#if> 
+				             <#if discode?has_content >
+				             and aa.DISCODE=:discode
+				             </#if>
+				             <#if cmis30id?has_content> 
+				             and aa.PARTID=mod(:cmis30id,20)
+				             </#if>
+                            order by aa.edittime desc) where rownum<26
+				     ]]></value>
+				</entry>
+				<!-- 查询记录袋内容-->
+				<entry key="InformQueryExtImpl.queryRecordpackage.query">
+				     <value><![CDATA[
+				        select * from(
+				          select case aa.appraseridentify when 1 then '本人'
+                              when 2 then '同学'
+                              when 3 then '任课老师'
+                              when 4 then '班主任'
+                              when 5 then '家长' end identifyname
+                              ,app.appraisaltype,sb.name,to_char(aa.edittime,'yyyy-MM-dd HH24-mi-ss') as edittime from a_recordpackage  aa
+                              inner join a_appraisaltype  app on substr(aa.appraisaltypeid,0,2)=app.appraisaltypeid 
+                              inner join s_baseinfo sb on aa.edu_id=sb.edu_id  and sb.inschoolstate='1002001' 
+                              inner join e_stuclass est on sb.studentid=est.studentid and est.used=1
+                              inner join e_grade eg on eg.gradeid=est.gradeid and eg.used=1
+                              inner join e_term et on et.schoolyear=eg.schoolyear and et.used=1
+                              where aa.edu_id=:eduid and aa.edittime is not null
+                               <#if cmis30id?has_content>
+				             and aa.CMIS30ID=:cmis30id
+				             </#if> 
+				             <#if discode?has_content >
+				             and aa.DISCODE=:discode
+				             </#if>
+				             <#if cmis30id?has_content> 
+				             and aa.PARTID=mod(:cmis30id,20)
+				             </#if>
+                               order by aa.edittime desc) where rownum<26
+				     ]]></value>
+				</entry>
+				<!-- 查询综合实践活动内容-->
+				<entry key="InformQueryExtImpl.queryPractices.query1">
+				     <value><![CDATA[
+				        select * from(
+				         select '本人' as identifyname,
+                            app.appraisaltype,sb.name,to_char(aa.edittime,'yyyy-MM-dd HH24-mi-ss') as edittime from a_practices  aa
+                            inner join a_appraisaltype  app on substr(aa.appraisaltypeid,0,2)=app.appraisaltypeid 
+                            inner join s_baseinfo sb on aa.edu_id=sb.edu_id  and sb.inschoolstate='1002001' 
+                            inner join e_stuclass est on sb.studentid=est.studentid and est.used=1
+                            inner join e_grade eg on eg.gradeid=est.gradeid and eg.used=1
+                            inner join e_term et on et.schoolyear=eg.schoolyear and et.used=1
+                            where aa.edu_id=:eduid and aa.edittime is not null
+                            <#if cmis30id?has_content>
+				             and aa.CMIS30ID=:cmis30id
+				             </#if> 
+				             <#if discode?has_content >
+				             and aa.DISCODE=:discode
+				             </#if>
+				             <#if cmis30id?has_content> 
+				             and aa.PARTID=mod(:cmis30id,20)
+				             </#if>
+                            order by aa.edittime desc) where rownum<26   
+				     ]]></value>
+				</entry>
+				<!-- 查询个性发展基本情况内容-->
+				<entry key="InformQueryExtImpl.queryApersonality.query">
+				     <value><![CDATA[
+				     select * from(
+				           select
+                            '本人' as identifyname,
+                            '个性发展' as appraisaltype,sb.name,to_char(aa.edittime,'yyyy-MM-dd HH24-mi-ss') as edittime from a_personality  aa
+                            inner join s_baseinfo sb on aa.edu_id=sb.edu_id  and sb.inschoolstate='1002001'
+                            inner join e_stuclass est on sb.studentid=est.studentid and est.used=1
+                            inner join e_grade eg on eg.gradeid=est.gradeid and eg.used=1
+                            inner join e_term et on et.schoolyear=eg.schoolyear and et.used=1
+                            where aa.edu_id=:eduid and aa.edittime is not null
+                            <#if cmis30id?has_content>
+				             and aa.CMIS30ID=:cmis30id
+				             </#if> 
+				             <#if discode?has_content >
+				             and aa.DISCODE=:discode
+				             </#if>
+				             <#if cmis30id?has_content> 
+				             and aa.PARTID=mod(:cmis30id,20)
+				             </#if>
+                             order by aa.edittime desc) where rownum<26
+				     ]]></value>
+				</entry>
+				<!-- 查询学科学习过程记录内容-->
+				<entry key="InformQueryExtImpl.queryAlearnprocessWorks.query">
+				     <value><![CDATA[
+				     select * from (
+				           select  '本人' as identifyname
+                                ,'学业成就' as appraisaltype,to_char(aa.edittime,'yyyy-MM-dd HH24-mi-ss') as edittime,sb.name from a_learnprocess_works  aa
+                                inner join s_baseinfo sb on aa.edu_id=sb.edu_id  and sb.inschoolstate='1002001'
+                                inner join e_stuclass est on sb.studentid=est.studentid and est.used=1
+                                inner join e_grade eg on eg.gradeid=est.gradeid and eg.used=1
+                                inner join e_term et on et.schoolyear=eg.schoolyear and et.used=1
+                                where aa.edu_id=:eduid and aa.edittime is not null
+                                 <#if cmis30id?has_content>
+				                 and aa.CMIS30ID=:cmis30id
+                                 </#if> 
+				                 <#if discode?has_content >
+				                 and aa.DISCODE=:discode
+				                 </#if>
+				                 <#if cmis30id?has_content> 
+				                 and aa.PARTID=mod(:cmis30id,20)
+				                 </#if>
+                                order by aa.edittime desc) where rownum<26
+				     ]]></value>
+				</entry>
+				<!-- 查询课程评语内容-->
+				<entry key="InformQueryExtImpl.queryLearnprocessAppraisal.query1">
+				     <value><![CDATA[
+				     select * from(
+				          select
+                            '任课老师' as identifyname,
+                            '课程评语' as appraisaltype,sb.name,to_char(aa.edittime,'yyyy-MM-dd HH24-mi-ss') as edittime from a_learnprocess_appraisal  aa
+                            inner join s_baseinfo sb on aa.edu_id=sb.edu_id  and sb.inschoolstate='1002001'
+                            inner join e_stuclass est on sb.studentid=est.studentid and est.used=1
+                            inner join e_grade eg on eg.gradeid=est.gradeid and eg.used=1
+                            inner join e_term et on et.schoolyear=eg.schoolyear and et.used=1
+                            where aa.edittime is not null
+                             <#if appraiserrid?has_content>
+                                  and aa.appraiserrid=:appraserrid
+                                <#elseif eduid?has_content>
+                                  and  aa.edu_id=:eduid
+                             </#if>
+                            <#if cmis30id?has_content>
+				                 and aa.CMIS30ID=:cmis30id
+                                 </#if> 
+				                 <#if discode?has_content >
+				                 and aa.DISCODE=:discode
+				                 </#if>
+				                 <#if cmis30id?has_content> 
+				                 and aa.PARTID=mod(:cmis30id,20)
+				                 </#if>
+                            order by aa.edittime desc) where rownum<26
+				     ]]></value>
+				</entry>
+				<!-- 查询初高中班主任评语内容-->
+				<entry key="InformQueryExtImpl.queryAssess.query">
+				     <value><![CDATA[
+				       select * from (
+				           select
+                            '班主任' as identifyname,
+                            '班主任评语' as appraisaltype,sb.name,to_char(aa.signdate,'yyyy-MM-dd HH24-mi-ss') as signdate from s_assess  aa
+                            inner join s_baseinfo sb on aa.studentid=sb.studentid  and sb.inschoolstate='1002001'
+                            inner join e_stuclass est on sb.studentid=est.studentid and est.used=1
+                            inner join e_grade eg on eg.gradeid=est.gradeid and eg.used=1
+                            inner join e_term et on et.schoolyear=eg.schoolyear and et.used=1
+                            where aa.signdate is not null
+                            <#if studentid?has_content>
+                                 and aa.studentid=:studentid 
+                            </#if>
+                            <#if studentids?has_content>
+                               and aa.studentid in (<#list studentids as id>${id}<#if id_has_next>,</#if></#list>)
+                            </#if>
+                            <#if cmis30id?has_content>
+				                 and aa.CMIS30ID=:cmis30id
+                            </#if> 
+				            <#if discode?has_content>
+				                 and aa.DISCODE=:discode
+				            </#if>
+				            <#if cmis30id?has_content> 
+				                 and aa.PARTID=mod(:cmis30id,20)
+				            </#if>
+                            order by aa.signdate desc) where rownum<26
+				     ]]></value>
+				</entry>
+				<!--查询初中任课老师管辖内班级信息 -->
+			<entry key="InformQueryExtImpl.getTeacherClassInfos.query">
+					<value><![CDATA[
+					select 
+							distinct
+							ee.levelid,
+					        tb.name,
+					       ee.levelnum,
+					       ee.levelcode,
+					       case 
+					        ee.levelcode
+					          when 2012001 then '小学' 
+					          when 2012002 then '初中'
+					          when 2012003 then '高中'
+					          when 2012004 then '内高班'         
+					          end as levelname,
+					       eg.gradeid,
+					       eg.gradename,
+					       eg.gradenum,
+					       ec.classid,
+					       ec.classsname,
+					       ec.classnum
+					from e_class ec
+					 inner join e_classcourse ecl on ec.classid=ecl.classid
+					 inner join t_baseinfo tb on tb.teacherid = ecl.teacherid
+					inner join e_grade eg on eg.gradeid=ec.gradeid and eg.used=1  
+					inner join e_edusys ee on ee.levelid=eg.levelid and ee.used=1  
+					inner join e_term et on et.schoolyear=eg.schoolyear and et.used=1
+					where 1=1
+					  <#if techerid?has_content>
+					    and ecl.teacherid=:techerid
+					  </#if>
+					  <#if levelcode?has_content>
+					    and ee.levelcode=:levelcode
+					  </#if>
+					   <#if campusid?has_content>
+					    and ee.campusid=:campusid
+					  </#if>
+					  <#if cmis30id?has_content>
+					    and ec.cmis30id=:cmis30id
+					    and eg.cmis30id=:cmis30id
+					    and ee.cmis30id=:cmis30id
+					    and ecl.cmis30id=:cmis30id
+					    and ecl.partid=mod(:cmis30id,20)
+					  </#if>
+					  <#if discode?has_content>
+					    and ee.discode=:discode
+					    and eg.discode=:discode
+					    and ec.discode=:discode
+					    and ecl.discode=:discode
+					  </#if>
+					   order by eg.gradenum, ec.classnum
+					]]></value>
+				</entry>
+				<!-- 查询学生信息 -->
+			<entry key="InformQueryExtImpl.getStudentInfo.query">
+					<value><![CDATA[
+					SELECT distinct si.studentid,si.name,sb.inschoolid,si.edu_id
+				           FROM s_baseinfo si
+				           join s_beadroll sb on sb.studentid = si.studentid
+				           join e_stuclass es on es.studentid = si.studentid and es.used=1
+					 where 1 = 1
+					  <#if discode?has_content>
+			         	and si.discode = :discode
+			         	and sb.discode = :discode
+			         	and es.discode = :discode
+			          </#if>
+			          <#if cmis30Id?has_content>
+			         	and si.cmis30id = :cmis30Id
+			         	and sb.cmis30id = :cmis30Id
+			         	and es.cmis30id = :cmis30Id
+               			and si.partid   = mod(:cmis30Id,20)
+			         	and sb.partid   = mod(:cmis30Id,20)
+			         	and es.partid   = mod(:cmis30Id,20)
+			         </#if>
+					    and si.inschoolstate='1002001'
+					  <#if idslist?has_content>
+					 	and es.classid in (<#list idslist as id>${id}<#if id_has_next>,</#if></#list>)
+					  </#if>
+					 order by sb.inschoolid,si.name
+					]]></value>
+				</entry>
+				<!-- 查询初中评价信息 -->
+			<entry key="InformQueryExtImpl.querymiddleAppraise.query">
+					<value><![CDATA[
+					select * from(
+					   select pt.write_man as identifyname,tp.part_name as appraisaltype,sb.name,to_char(pt.edittime,'yyyy-MM-dd HH24-mi-ss') as edittime from partinfo pt 
+                          inner join one_level_part tp on substr(pt.two_part_id,0,1) = tp.one_part_id
+                          inner join s_baseinfo sb on sb.edu_id = pt.edu_id  and sb.inschoolstate='1002001'
+                          inner join e_stuclass est on sb.studentid=est.studentid and est.used=1
+                          inner join e_grade eg on eg.gradeid=est.gradeid and eg.used=1
+                          inner join e_term et on et.schoolyear=eg.schoolyear and et.used=1
+                          where  pt.edittime is not null
+                          <#if appraiserrid?has_content&&eduid?has_content>
+                              and (pt.userid=:appraiserrid or pt.edu_id = :eduid)
+                             <#elseif eduid?has_content>
+                              and pt.edu_id = :eduid
+                             <#elseif appraiserrid?has_content>
+                              and pt.userid=:appraiserrid
+                          </#if>
+                          <#if writeman?has_content>
+                             and pt.write_man=:writeman
+                          </#if>
+                          order by pt.edittime desc) where rownum<26
+					]]></value>
+				</entry>
+					<!-- 查询初中xxxx评价信息 -->
+					 <!-- <#if comment =="1">
+					     select ar.practiceid,aat.attachid,ar.cmis30id,ar.discode,ar.partid from a_attach aat inner join a_practices ar on ar.old_practiceid=aat.old_attachid where  aat.attachtype=3
+					  </#elseif comment =="2">
+					     select ar.workid,aat.attachid,ar.cmis30id,ar.discode,ar.partid from a_attach aat inner join a_learnprocess_works ar on ar.old_workid=aat.old_attachid where  aat.attachtype=4
+					  </#elseif comment =="3">
+					     select ar.recordid,aat.attachid,ar.cmis30id,ar.discode,ar.partid from a_attach aat inner join a_recordpackage ar on ar.old_recordid=aat.old_attachid where  aat.attachtype=1
+					  </#elseif comment =="4">
+					     select ar.baseid,aat.attachid,ar.cmis30id,ar.discode,ar.partid from a_attach aat inner join a_personality ar on ar.old_baseid=aat.old_attachid where  aat.attachtype=2
+					  </#if> -->
+			<entry key="IUpdateData.querySelect.query">
+					<value><![CDATA[
+					  select ar.practiceid,aat.attachid,ar.cmis30id,ar.discode,ar.partid from a_attach aat inner join a_practices ar on ar.old_practiceid=aat.old_attachid where  aat.attachtype=3
+					]]></value>
+				</entry>
+				<entry key="MonitorStaticticsExtImpl.queryHeathData.query1">
+					<value><![CDATA[
+					select count(1) as count from (select
+                                distinct sa.studentid
+							from s_baseinfo sb 
+							inner join e_stuclass es on sb.studentid=es.studentid and es.used=1
+							inner join e_class ecl on  ecl.used=1 and ecl.classid=es.classid and ecl.classid=:classid
+							inner join e_grade eg on eg.gradeid=ecl.gradeid and eg.used=1
+							inner join e_term et on et.schoolyear=eg.schoolyear and et.used=1
+							inner join sh_healthstandard sa on sa.studentid=sb.studentid and sa.schoolyear=substr(:termid,1,4)
+							and sa.cmis30id=:cmis30id and sa.discode=:discode and sa.partid=mod(:cmis30id,20)
+							inner join sh_healthdata shha on sa.healthstdid=shha.healthstdid
+							and shha.cmis30id=:cmis30id and shha.discode=:discode and shha.partid=mod(:cmis30id,20)
+							where 1=1 and sb.inschoolstate='1002001' and sb.cmis30id=:cmis30id and sb.discode=:discode and sb.partid=mod(:cmis30id,20))
+					]]></value>
+				</entry>
+			</map>	                                                            
+		</property>
+	</bean>
+</beans>

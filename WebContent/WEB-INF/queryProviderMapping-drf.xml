@@ -1,0 +1,469 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd"
+	default-autowire="byName" default-lazy-init="true">
+<bean id="queryProviderMapping-drf"
+		class="org.nestframework.commons.hibernate.QueryProviderMappingImpl">
+		<property name="queryMap">
+			<map>
+				<!-- 高中缓存开始  -->
+				<!--增加自我评价缓存(缓存)-->
+				<entry key="SelfAppManager.insertSelfAppraisal.addCache">
+					<value><![CDATA[
+							insert into a_apprasial(apprasialid,appraisaltypeid,appraiserrid,semesterid,studentid,appraseridentify,appraser,apprasial,signdate,edu_id,CMIS30ID,DISCODE,EDITTIME)
+										values(:apprasialid,:appraisaltypeid,:appraiserrid,:semesterid,:studentid,:appraseridentify,:appraser,:apprasial,:signdate,:edu_id,:cmis30id,:discode,sysdate)						
+					]]></value>
+				</entry>
+				<entry key="SelfAppManager.insertSelfAppraisal.addCache1">
+					<value><![CDATA[
+							insert into a_apprasial(apprasialid,appraisaltypeid,appraiserrid,semesterid,studentid,appraseridentify,appraser,apprasial,signdate,edu_id,CMIS30ID,DISCODE,EDITTIME)
+										values(:apprasialid,:appraisaltypeid,:appraiserrid,:semesterid,:studentid,:appraseridentify,:appraser,:apprasial,to_date(:signdate,'yyyy-MM-dd'),:edu_id,:cmis30id,:discode,sysdate)						
+					]]></value>
+				</entry>
+				<!--更新自我评价缓存(缓存) -->
+				<entry key="SelfAppManager.updateSelfAppraisal.updateCache">
+					<value><![CDATA[
+							update a_apprasial 
+							set apprasial =:apprasial,
+							signdate =:signdate,
+							EDITTIME=sysdate
+							<#if appraseridentify?has_content>
+							,appraseridentify =:appraseridentify 
+							</#if>
+							where apprasialid =:apprasialid
+					]]></value>
+				</entry>
+				<!--更新自我评价缓存(缓存) -->
+				<entry key="SelfAppManager.updateSelfAppraisal.updateCache1">
+					<value><![CDATA[
+							update a_apprasial 
+							set apprasial =:apprasial,
+							signdate =to_date(:signdate,'yyyy-MM-dd'),
+							EDITTIME=sysdate
+							<#if appraseridentify?has_content>
+							,appraseridentify =:appraseridentify 
+							</#if>
+							where apprasialid =:apprasialid
+					]]></value>
+				</entry>
+				<!--删除自我评价缓存(缓存) -->
+				<entry key="SelfAppManager.deleteSelfAppraisal.deleteCache">
+					<value><![CDATA[
+							delete from a_apprasial where apprasialid =:apprasialid and cmis30id=:cmis30id and discode =:discode
+					]]></value>
+				</entry>
+				<!--删除记录袋附件(缓存) -->
+				<entry key="SelfAppManager.deletetSelfPackageAttach.deleteCache">
+					<value><![CDATA[
+							delete from a_attach where attachtypeid =:recordid
+					]]></value>
+				</entry>
+				<!--删除附件(缓存) -->
+				<entry key="SelfAppManager.deletetSelfAttach.deleteCache">
+					<value><![CDATA[
+							delete from a_attach where attachid =:attachid
+					]]></value>
+				</entry>
+				<!-- 保存高中实践活动(缓存) -->
+				<entry key="SelfPractices.insertPractices.addCache">
+					<value>
+						<![CDATA[
+						insert into A_PRACTICES(PRACTICEID,SEMESTERID,DISCODE,CMIS30ID,STUDENTID,APPRAISALTYPEID,EDU_ID,ITEM1,ITEM2,ITEM3,ITEM4,ITEM5,ITEM6,ITEM7,ITEM8,ITEM9,ITEM10,ITEM11,ITEM12,ITEM13,ITEM14,ITEM15,ITEM16,ITEM17,ITEM18,ITEM19,ITEM20,EDITTIME)values(:practiceid,:semesterid,:discode,:cmis30id,:studentid,:appraisaltypeid,:edu_id,:item1,:item2,:item3,:item4,:item5,:item6,:item7,:item8,:item9,:item10,:item11,:item12,:item13,:item14,:item15,:item16,:item17,:item18,:item19,:item20,sysdate)						
+								]]>
+					</value>
+				</entry>
+				<!-- 保存综合自我评价(缓存) -->
+				<entry key="SelfPractices.insertPracticeappraisal.addCache">
+					<value>
+						<![CDATA[
+						insert into A_PRACTICEAPPRAISAL(APPRAISALID,PRACTICEID,SIGNER,SIGNDATE,CONTENT,EDITTIME)values(:appraisalid,:practiceid,:signer,sysdate,:content,sysdate)						
+								]]>
+					</value>
+				</entry>
+				<!--更新综合自我评价(缓存)-->
+					<entry key="SelfPractices.updatePractices.updateCache">
+						<value><![CDATA[
+							update A_PRACTICES 
+							set ITEM1 =:item1
+							<#if item2?has_content>
+								,ITEM2 =:item2
+							</#if>
+							<#if item3?has_content>
+								,ITEM3 =:item3
+							</#if>
+							<#if item4?has_content>
+								,ITEM4 =:item4
+							</#if>
+							<#if item5?has_content>
+								,ITEM5 =:item5
+							</#if>
+							<#if item6?has_content>
+								,ITEM6 =:item6
+							</#if>
+							<#if item7?has_content>
+								,ITEM7 =:item7
+							</#if>
+							<#if item8?has_content>
+								,ITEM8 =:item8
+							</#if>
+							<#if item9?has_content>
+								,ITEM9 =:item9
+							</#if>
+							<#if item10?has_content>
+								,ITEM10 =:item10
+							</#if>
+							<#if item11?has_content>
+								,ITEM11 =:item11
+							</#if>
+							<#if item12?has_content>
+								,ITEM12 =:item12
+							</#if>
+							<#if item13?has_content>
+								,ITEM13 =:item13
+							</#if>
+							<#if item14?has_content>
+								,ITEM14 =:item14
+							</#if>
+							<#if item15?has_content>
+								,ITEM15 =:item15
+							</#if>
+							<#if item16?has_content>
+								,ITEM16 =:item16
+							</#if>
+							<#if item17?has_content>
+								,ITEM17 =:item17
+							</#if>
+							<#if item18?has_content>
+								,ITEM18 =:item18
+							</#if>
+							<#if item19?has_content>
+								,ITEM19 =:item19
+							</#if>
+							<#if item20?has_content>
+								,ITEM20 =:item20
+							</#if>
+							where PRACTICEID =:practiceid
+						]]></value>
+					</entry>
+					<!--综合自我评价(缓存)-->
+					<entry key="SelfPractices.updatePracticeappraisal.updateCache">
+						<value><![CDATA[
+							update A_PRACTICEAPPRAISAL 
+							set CONTENT =:content,
+							EDITTIME=sysdate
+							<#if signdate?has_content>
+								,SIGNDATE =:signdate
+							</#if>
+							where APPRAISALID =:appraisalid
+						]]></value>
+					</entry>
+					<!-- 保存附件(缓存) -->
+					<entry key="SelfAppManager.insertattach.addCache">
+						<value>
+							<![CDATA[
+							insert into A_ATTACH(ATTACHID,WORKID,PROCESSID,ATTACHTYPE,ATTACHNAME,ATTACHPATH,IMAGE,ATTACHTYPEID,DISCODE,CMIS30ID)values(:attachid,:workid,:processid,:attachtype,:attachname,:attachpath,:image,:attachtypeid,:discode,:cmis30id)						
+									]]>
+						</value>
+					</entry>
+					<!--删除附表(缓存) -->
+					<entry key="SelfPractices.deletePracticesPracticeappraisal.deleteCache">
+						<value><![CDATA[
+								delete from A_PRACTICEAPPRAISAL where PRACTICEID =:practiceid
+						]]></value>
+					</entry>
+					<!--单独删除自我评价(缓存) -->
+					<entry key="SelfPractices.deletePracticeappraisal.deleteCache">
+						<value><![CDATA[
+								delete from A_PRACTICEAPPRAISAL where APPRAISALID =:appraisalid
+						]]></value>
+					</entry>
+					<!-- 保存学科学习过程记录 -->
+					<entry key="LearnprocessWorks.insertLearnprocessWork.addCache">
+						<value>
+							<![CDATA[
+							insert into a_learnprocess_works(WORKID,SUBJECT,SEMESTERID,EDU_ID,DISCODE,CMIS30ID,STUDENTID,PROCESSDESC,SIGNDATE,EDITTIME)values(:workid,:subject,:semesterid,:edu_id,:discode,:cmis30id,:studentid,:processdesc,:signdate,sysdate)						
+									]]>
+						</value>
+					</entry>
+					<!-- 保存学科学习过程记录 -->
+					<entry key="LearnprocessWorks.insertLearnprocessWork.addCache1">
+						<value>
+							<![CDATA[
+							insert into a_learnprocess_works(WORKID,SUBJECT,SEMESTERID,EDU_ID,DISCODE,CMIS30ID,STUDENTID,PROCESSDESC,SIGNDATE,EDITTIME)values(:workid,:subject,:semesterid,:edu_id,:discode,:cmis30id,:studentid,:processdesc,to_date(:signdate,'yyyy-MM-dd'),sysdate)						
+									]]>
+						</value>
+					</entry>
+					<!--更新学科学习过程记录-->
+					<entry key="LearnprocessWorks.updateLearnprocessWork.updateCache">
+						<value><![CDATA[
+							update a_learnprocess_works 
+							set processdesc =:processdesc,subject =:subject,signdate =:signdate,
+							EDITTIME=sysdate  
+							where workid =:workid
+						]]></value>
+					</entry>	
+					<entry key="LearnprocessWorks.updateLearnprocessWork.updateCache1">
+						<value><![CDATA[
+							update a_learnprocess_works 
+							set processdesc =:processdesc,subject =:subject,signdate =to_date(:signdate,'yyyy-MM-dd'),
+							EDITTIME=sysdate  
+							where workid =:workid
+						]]></value>
+					</entry>				
+					<!--删除学业成就 -->
+					<entry key="LearnprocessWorks.deletetLearnprocessWorks.deleteCache">
+						<value><![CDATA[
+								delete from a_learnprocess_works where workid =:recordid
+						]]></value>
+					</entry>
+					<!-- 保存个性发展基本情况-->
+						<entry key="Personality.insertPersonality.addCache">
+						<value>
+							<![CDATA[
+							insert into a_personality(BASEID,SEMESTERID,INDEXID,EDU_ID,DISCODE,CMIS30ID,STUDENTID,DEVELOPMENTRD,SIGNDATE,EDITTIME)values(:baseid,:semesterid,:indexid,:edu_id,:discode,:cmis30id,:studentid,:developmentrd,:signdate,sysdate)						
+									]]>
+						</value>
+					</entry>
+					<entry key="Personality.insertPersonality.addCache1">
+						<value>
+							<![CDATA[
+							insert into a_personality(BASEID,SEMESTERID,INDEXID,EDU_ID,DISCODE,CMIS30ID,STUDENTID,DEVELOPMENTRD,SIGNDATE,EDITTIME)values(:baseid,:semesterid,:indexid,:edu_id,:discode,:cmis30id,:studentid,:developmentrd,to_date(:signdate,'yyyy-MM-dd'),sysdate)						
+									]]>
+						</value>
+					</entry>
+					<!--更新个性发展基本情况-->
+					<entry key="Personality.updatePersonality.updateCache">
+						<value><![CDATA[
+							update a_personality 
+							set developmentrd =:developmentrd,signdate =:signdate,
+							EDITTIME=sysdate 
+							where baseid =:baseid
+						]]></value>
+					</entry>
+					<entry key="Personality.updatePersonality.updateCache1">
+						<value><![CDATA[
+							update a_personality 
+							set developmentrd =:developmentrd,signdate =to_date(:signdate,'yyyy-MM-dd'),
+							EDITTIME=sysdate 
+							where baseid =:baseid
+						]]></value>
+					</entry>
+					<!-- 保存记录袋 -->
+					<entry key="SelfAppManager.insertReportPackage.addCache">
+						<value>
+							<![CDATA[
+							insert into A_RECORDPACKAGE(RECORDID,SEMESTERID,APPRAISALTYPEID,CONTENT,APPRASERIDENTIFY,SIGNER,SIGNDATE,EDU_ID,DISCODE,CMIS30ID,STUDENTID,EDITTIME)values(:recordid,:semesterid,:appraisaltypeid,:content,:appraseridentify,:signer,:signdate,:edu_id,:discode,:cmis30id,:studentid,sysdate)						
+									]]>
+						</value>
+					</entry>
+					<!-- 保存记录袋 -->
+					<entry key="SelfAppManager.insertReportPackage.addCache1">
+						<value>
+							<![CDATA[
+							insert into A_RECORDPACKAGE(RECORDID,SEMESTERID,APPRAISALTYPEID,CONTENT,APPRASERIDENTIFY,SIGNER,SIGNDATE,EDU_ID,DISCODE,CMIS30ID,STUDENTID,EDITTIME)values(:recordid,:semesterid,:appraisaltypeid,:content,:appraseridentify,:signer,to_date(:signdate,'yyyy-MM-dd'),:edu_id,:discode,:cmis30id,:studentid,sysdate)						
+									]]>
+						</value>
+					</entry>
+					<!--更新记录袋 -->
+					<entry key="RecordPackageManager.doUpdate.updateCache">
+						<value><![CDATA[
+							update a_recordpackage 
+							set content =:content,
+							signdate =:signdate, 
+							appraseridentify =:appraseridentify,
+							EDITTIME=sysdate 
+							where recordid =:recordid
+						]]></value>
+					</entry>
+					<entry key="RecordPackageManager.doUpdate.updateCache1">
+						<value><![CDATA[
+							update a_recordpackage 
+							set content =:content,
+							signdate =to_date(:signdate,'yyyy-MM-dd'), 
+							appraseridentify =:appraseridentify,
+							EDITTIME=sysdate 
+							where recordid =:recordid
+						]]></value>
+					</entry>
+					<!--删除自记录袋 -->
+					<entry key="SelfAppManager.deletetSelfPackage.deleteCache">
+						<value><![CDATA[
+								delete from a_recordpackage where recordid =:recordid
+						]]></value>
+					</entry>	
+					<!--删除高中综合实践活动 -->
+					<entry key="SelfPractices.deletePractices.deleteCache">
+						<value><![CDATA[
+								delete from A_PRACTICES where PRACTICEID =:practiceid
+						]]></value>
+					</entry>
+				<!-- 高中缓存结束  -->
+				
+				<!-- 初中缓存开始  -->
+				<!-- 初中栏目保存(缓存) -->
+				<entry key="PartInfo.insertPartInfoWith.addCache">
+					<value>
+						<![CDATA[
+						insert into PARTINFO(PART_ID,USERID,TERMID,TOPIC,WRITE_MAN,SIGNER_NAME,TWO_PART_ID,SUBJECT_ID,CREATEDATE,IS_ATTACHMEN,DISCODE,CMIS30ID,STUDENTID,PART_INFO,EDU_ID,EDITTIME)values(:part_id,:userid,:termid,:topic,:write_man,:signer_name,:two_part_id,:subject_id,:createdate,:is_attachmen,:discode,:cmis30id,:studentid,:part_info,:edu_id,sysdate)						
+								]]>
+					</value>
+				</entry>
+				<entry key="PartInfo.insertPartInfoWith.addCache1">
+					<value>
+						<![CDATA[
+						insert into PARTINFO(PART_ID,USERID,TERMID,TOPIC,WRITE_MAN,SIGNER_NAME,TWO_PART_ID,SUBJECT_ID,CREATEDATE,IS_ATTACHMEN,DISCODE,CMIS30ID,STUDENTID,PART_INFO,EDU_ID,EDITTIME)values(:part_id,:userid,:termid,:topic,:write_man,:signer_name,:two_part_id,:subject_id,to_date(:createdate,'yyyy-MM-dd'),:is_attachmen,:discode,:cmis30id,:studentid,:part_info,:edu_id,sysdate)						
+								]]>
+					</value>
+				</entry>
+				<!--更新-->
+				<entry key="PartInfo.updatePartInfo.updateCache">
+					<value><![CDATA[
+						update PARTINFO 
+						set PART_INFO =:part_info,
+						EDITTIME=sysdate
+						<#if topic?has_content>
+							,TOPIC =:topic
+						</#if>
+						<#if subject_id?has_content>
+							,SUBJECT_ID =:subject_id
+						</#if>
+						<#if createdate?has_content>
+							,CREATEDATE =:createdate
+						</#if>
+						where PART_ID =:part_id
+					]]></value>
+				</entry>
+				<entry key="PartInfo.updatePartInfo.updateCache1">
+					<value><![CDATA[
+						update PARTINFO 
+						set PART_INFO =:part_info,
+						EDITTIME=sysdate
+						<#if topic?has_content>
+							,TOPIC =:topic
+						</#if>
+						<#if subject_id?has_content>
+							,SUBJECT_ID =:subject_id
+						</#if>
+						<#if createdate?has_content>
+							,CREATEDATE =to_date(:createdate,'yyyy-MM-dd')
+						</#if>
+						where PART_ID =:part_id
+					]]></value>
+				</entry>
+				<!--更新-->
+				<entry key="PartInfo.updatePartInfoZh.updateCache">
+					<value><![CDATA[
+						update PARTINFO 
+						set EDITTIME=sysdate
+						<#if part_info?has_content>
+							,PART_INFO =:part_info
+						</#if>
+						<#if topic?has_content>
+							,TOPIC =:topic
+						</#if>
+						<#if subject_id?has_content>
+							,SUBJECT_ID =:subject_id
+						</#if>
+						<#if createdate?has_content>
+							,CREATEDATE =:createdate
+						</#if>
+						<#if address?has_content>
+							,ADDRESS =:address
+						</#if>
+						<#if cooperation_man?has_content>
+							,COOPERATION_MAN =:cooperation_man
+						</#if>
+						<#if startdate?has_content>
+							,STARTDATE =:startdate
+						</#if>
+						<#if enddate?has_content>
+							,ENDDATE =:enddate
+						</#if>
+						<#if keyword?has_content>
+							,KEYWORD =:keyword
+						</#if>
+						where PART_ID =:part_id
+					]]></value>
+				</entry>
+				<entry key="PartInfo.updatePartInfoZh.updateCache1">
+					<value><![CDATA[
+						update PARTINFO 
+						set EDITTIME=sysdate
+						<#if part_info?has_content>
+							,PART_INFO =:part_info
+						</#if>
+						<#if topic?has_content>
+							,TOPIC =:topic
+						</#if>
+						<#if subject_id?has_content>
+							,SUBJECT_ID =:subject_id
+						</#if>
+						<#if createdate?has_content>
+							,CREATEDATE =to_date(:createdate,'yyyy-MM-dd')
+						</#if>
+						<#if address?has_content>
+							,ADDRESS =:address
+						</#if>
+						<#if cooperation_man?has_content>
+							,COOPERATION_MAN =:cooperation_man
+						</#if>
+						<#if startdate?has_content>
+							,STARTDATE =to_date(:startdate,'yyyy-MM-dd')
+						</#if>
+						<#if enddate?has_content>
+							,ENDDATE =to_date(:enddate,'yyyy-MM-dd')
+						</#if>
+						<#if keyword?has_content>
+							,KEYWORD =:keyword
+						</#if>
+						where PART_ID =:part_id
+					]]></value>
+				</entry>
+				<!-- 保存 -->
+				<entry key="PartInfo.insertPartInfo.addCache">
+					<value>
+						<![CDATA[
+						insert into PARTINFO(PART_ID,USERID,TERMID,TOPIC,WRITE_MAN,SIGNER_NAME,TWO_PART_ID,SUBJECT_ID,CREATEDATE,IS_ATTACHMEN,DISCODE,CMIS30ID,STUDENTID,PART_INFO,EDU_ID,EDITTIME,KEYWORD,COOPERATION_MAN,STARTDATE,ENDDATE,ADDRESS)values(:part_id,:userid,:termid,:topic,:write_man,:signer_name,:two_part_id,:subject_id,:createdate,:is_attachmen,:discode,:cmis30id,:studentid,:part_info,:edu_id,sysdate,:keyword,:cooperation_man,:startdate,:enddate,:address)						
+						]]>
+					</value>
+				</entry>
+				<entry key="PartInfo.insertPartInfo.addCache1">
+					<value>
+						<![CDATA[
+						insert into PARTINFO(PART_ID,USERID,TERMID,TOPIC,WRITE_MAN,SIGNER_NAME,TWO_PART_ID,SUBJECT_ID,CREATEDATE,IS_ATTACHMEN,DISCODE,CMIS30ID,STUDENTID,PART_INFO,EDU_ID,EDITTIME,KEYWORD,COOPERATION_MAN,STARTDATE,ENDDATE,ADDRESS)values(:part_id,:userid,:termid,:topic,:write_man,:signer_name,:two_part_id,:subject_id,to_date(:createdate,'yyyy-MM-dd'),:is_attachmen,:discode,:cmis30id,:studentid,:part_info,:edu_id,sysdate,:keyword,:cooperation_man,to_date(:startdate,'yyyy-MM-dd'),to_date(:enddate,'yyyy-MM-dd'),:address)						
+						]]>
+					</value>
+				</entry>
+				<!--删除附件 -->
+				<entry key="PartInfo.deleteAttachmentwith.deleteCache">
+					<value><![CDATA[
+							delete from ATTACHMENT where PART_ID =:part_id
+					]]></value>
+				</entry>
+				<!--删除自我评价 -->
+				<entry key="PartInfo.deletePartInfo.deleteCache">
+					<value><![CDATA[
+							delete from PARTINFO where PART_ID =:part_id and cmis30id =:cmis30id and discode =:discode
+					]]></value>
+				</entry>
+				<!--删除附件 -->
+				<entry key="PartInfo.deleteAttachment.deleteCache">
+					<value><![CDATA[
+							delete from ATTACHMENT where ATTACHMENT_ID =:attachment_id
+					]]></value>
+				</entry>
+				<!-- 保存附件 -->
+				<entry key="PartInfo.insertAttachment.addCache">
+					<value>
+						<![CDATA[
+							insert into ATTACHMENT(ATTACHMENT_ID,PART_ID,ATTACHMENT_NAME,ATTACHMENT_PATH,DISCODE,CMIS30ID)values(:attachment_id,:part_id,:attachment_name,:attachment_path,:discode,:cmis30id)						
+								]]>
+					</value>
+				</entry>
+				<!-- 初中缓存结束  -->
+			</map>	                                                            
+		</property>
+	</bean>
+</beans>

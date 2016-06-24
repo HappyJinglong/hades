@@ -1,0 +1,1736 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd"
+	default-autowire="byName" default-lazy-init="true">
+
+	<bean id="queryProviderMapping-mcb"
+		class="org.nestframework.commons.hibernate.QueryProviderMappingImpl">
+		<property name="queryMap">
+			<map>
+			<!-- 根据父类id查询评价类型  -->
+			<entry key="MasterAppriseExt.getAppraisalTypeByUpAppraisalTypeId.query">
+					<value><![CDATA[
+						select appraisaltypeid,upappraisaltypeid,appraisaltype from A_APPRAISALTYPE
+						where 1=1
+						<#if upappraisaltypeid?has_content>
+						  and upappraisaltypeid=:upappraisaltypeid
+						</#if>
+					]]></value>
+				</entry>
+				
+						
+			<entry key="MasterAppriseExt.getAppraisal.query">
+					<value><![CDATA[
+						select apprasialid,appraisaltypeid,appraiserrid,semesterid,
+						studentid,appraseridentify,appraser,apprasial,signdate,edu_id 
+						from a_apprasial
+						where 1=1
+						<#if appraisaltypeids?has_content>
+							and appraisaltypeid in(
+								<#list appraisaltypeids as appraisaltypeid>
+									${appraisaltypeid}
+									<#if appraisaltypeid_has_next>,</#if>
+								</#list>
+							)
+						</#if>
+						<#if semesterid?has_content>
+							and semesterid=:semesterid						
+						</#if>
+						<#if eduIds?has_content>
+							and edu_id in(
+								<#list eduIds as eduId>
+									${eduId}
+									<#if eduId_has_next>,</#if>
+								</#list>
+							)				
+						</#if>
+					]]></value>
+				</entry>
+				
+				<entry key="MasterAppriseExt.getRecordpackage.query">
+					<value><![CDATA[
+						select recordid,studentid,semesterid,appraisaltypeid,
+						content,appraseridentify,signer,signdate,edu_id
+						from a_recordpackage
+						where 1=1
+						<#if appraisaltypeid?has_content>
+							and appraisaltypeid=:appraisaltypeid
+						</#if>
+						<#if semesterid?has_content>
+							and semesterid=:semesterid						
+						</#if>
+						<#if eduIds?has_content>
+							and edu_id in(
+								<#list eduIds as eduId>
+									${eduId}
+									<#if eduId_has_next>,</#if>
+								</#list>
+							)				
+						</#if>
+					]]></value>
+				</entry>
+				<entry key="MasterAppriseExt.getLearnprocessWorks.query">
+					<value><![CDATA[
+						select workid,subject,processdesc,semesterid,
+						studentid,edu_id,SIGNDATE
+						from a_learnprocess_works
+						where 1=1
+						<#if semesterid?has_content>
+							and semesterid=:semesterid						
+						</#if>
+						<#if eduIds?has_content>
+							and edu_id in(
+								<#list eduIds as eduId>
+									${eduId}
+									<#if eduId_has_next>,</#if>
+								</#list>
+							)				
+						</#if>
+					]]></value>
+				</entry>
+				
+				
+				<entry key="MasterAppriseExt.getLearnprocessAppraisa.query">
+					<value><![CDATA[
+						select appraisalid,subject,appraisal,semesterid,
+						studentid,edu_id,signdate,sign
+						from A_LEARNPROCESS_APPRAISAL
+						where 1=1
+						<#if semesterid?has_content>
+							and semesterid=:semesterid						
+						</#if>
+						<#if eduIds?has_content>
+							and edu_id in(
+								<#list eduIds as eduId>
+									${eduId}
+									<#if eduId_has_next>,</#if>
+								</#list>
+							)				
+						</#if>
+					]]></value>
+				</entry>
+				
+					<entry key="MasterAppriseExt.getPersonality.query">
+					<value><![CDATA[
+						select baseid,studentid,semesterid,indexid,developmentrd,edu_id,signdate
+						from a_personality
+						where 1=1
+						<#if semesterid?has_content>
+							and semesterid=:semesterid						
+						</#if>
+						<#if eduIds?has_content>
+							and edu_id in(
+								<#list eduIds as eduId>
+									${eduId}
+									<#if eduId_has_next>,</#if>
+								</#list>
+							)				
+						</#if>
+					]]></value>
+				</entry>
+				<entry key="MasterAppriseExt.getPractices.query">
+					<value><![CDATA[
+						select practiceid,semesterid,studentid,appraisaltypeid,item1,item2,item3,
+						item4,item5,item6,item7，item8，item9，item10，item11，item12，item13，item14，
+						item15，item16，item17，item18，item19，item20，edu_id
+						from a_practices
+						where 1=1
+						<#if appraisaltypeids?has_content>
+							and appraisaltypeid in(
+								<#list appraisaltypeids as appraisaltypeid>
+									${appraisaltypeid}
+									<#if appraisaltypeid_has_next>,</#if>
+								</#list>
+							)
+						</#if>
+						<#if semesterid?has_content>
+							and semesterid=:semesterid						
+						</#if>
+						<#if eduIds?has_content>
+							and edu_id in(
+								<#list eduIds as eduId>
+									${eduId}
+									<#if eduId_has_next>,</#if>
+								</#list>
+							)				
+						</#if>
+					]]></value>
+				</entry>
+						<!-- 查询自我评价 -->
+				<entry key="MasterAppriseExtImpl.queryAppraise.query">
+					<value><![CDATA[
+						select a1.apprasialid,aa.appraisaltypeid,a1.appraiserrid,a1.semesterid,
+						a1.appraseridentify appraseridentifynum,
+						case a1.appraseridentify when 1 then '本人'
+						                      when 2 then '同学'
+						                      when 3 then '教师'
+						                      when 4 then '班主任'
+						                      when 5 then '学生家长' end appraseridentify,aa.appraisaltype
+						,a1.appraser,a1.apprasial,a1.signdate,a1.edu_id from a_apprasial a1
+						inner join a_appraisaltype aa on aa.appraisaltypeid=a1.appraisaltypeid
+						where 1=1
+						<#if appraisaltypeids?has_content>
+							and a1.appraisaltypeid in(
+								<#list appraisaltypeids as appraisaltypeid>
+									${appraisaltypeid}
+									<#if appraisaltypeid_has_next>,</#if>
+								</#list>
+							)
+						</#if>
+						<#if eduIds?has_content>
+							and a1.edu_id in(
+								<#list eduIds as eduId>
+									${eduId}
+									<#if eduId_has_next>,</#if>
+								</#list>
+							)				
+						</#if>
+						<#if semesterid?has_content>
+    						and a1.semesterid=:semesterid 
+   						</#if>
+						and a1.appraseridentify in(1,2,3,4,5)
+						order by a1.apprasialid
+					]]></value>
+				</entry>
+				<!-- 查询记录袋 -->
+				<entry key="MasterAppriseExtImpl.queryRecordpackage.query">
+					<value><![CDATA[
+				        select ar.recordid,aa.appraisaltypeid,ar.semesterid,
+				        ar.appraseridentify appraseridentifynum,
+						case ar.appraseridentify when 1 then '本人'
+						                      when 2 then '同学'
+						                      when 3 then '教师'
+						                      when 4 then '班主任'
+						                      when 5 then '学生家长' end appraseridentify
+						,ar.signer,ar.content,ar.signdate,ar.edu_id,aa.appraisaltype
+						from a_recordpackage ar
+						inner join a_appraisaltype aa on aa.appraisaltypeid=ar.appraisaltypeid
+						where 1=1
+						<#if appraisaltypeid?has_content>
+							and ar.appraisaltypeid=:appraisaltypeid
+						</#if>
+						<#if eduIds?has_content>
+							and ar.edu_id in(
+								<#list eduIds as eduId>
+									${eduId}
+									<#if eduId_has_next>,</#if>
+								</#list>
+							)				
+						</#if>
+						<#if semesterid?has_content>
+    						and ar.semesterid=:semesterid  
+   						</#if>
+						order by ar.recordid
+					]]></value>
+				</entry>
+				
+				<!-- 体质健康查询  -->
+				<entry key="MasterAppriseExtImpl.queryHealthstandard.query">
+					<value><![CDATA[
+						select shhd.schoolyear,shhd.healthstdid,shhd.reward_score,shhd.year_score,shhd.year_grade,shhd.gradenum,shhd.gradename
+					      		,shha.healthid,shha.item_name,shha.item_type,shha.item_mark,shha.item_score,shha.item_grade,sb.edu_id
+					    from s_baseinfo sb 
+					    join sh_healthstandard shhd on sb.studentid=shhd.studentid
+					             and sb.discode=shhd.discode
+					             and sb.cmis30id=shhd.cmis30id and shhd.schoolyear=substr(:termId,1,4)
+					    join sh_healthdata shha on shhd.healthstdid=shha.healthstdid
+					             and shhd.discode=shha.discode
+					             and shhd.cmis30id=shha.cmis30id
+					    where 1=1
+					    <#if cmis30id?has_content>
+							and shhd.cmis30id=:cmis30id 
+   						</#if>
+   						<#if discode?has_content>
+    						and shhd.discode=:discode  
+   						</#if>
+   						<#if studentIds?has_content>
+							and shhd.studentid in(
+								<#list studentIds as studentid>
+									${studentid}
+									<#if studentid_has_next>,</#if>
+								</#list>
+							)				
+						</#if>
+					    and shhd.partid=mod(:cmis30id,20)
+					    order by shha.item_type
+					]]></value>
+				</entry>
+				
+					<!-- 根据教育ID查询studentid |classid  -->
+				<entry key="MasterAppriseExtImpl.querystudentIdByeduId.query">
+					<value><![CDATA[
+              			select sb.studentid,es.classid,ee.levelcode
+              			from s_baseinfo sb 
+              			join e_stuclass es on sb.studentid=es.studentid and es.used=1
+              			join e_grade eg on eg.gradeid=es.gradeid and eg.used=1
+              			
+              			join e_edusys ee on eg.levelid=ee.levelid and ee.used=1
+	                    and eg.discode=ee.discode
+	                    and eg.cmis30id=ee.cmis30id
+              			
+                    	join e_term et on et.schoolyear=eg.schoolyear and et.used=1 
+   						where 1=1
+          				<#if eduIds?has_content>
+							and edu_id in(
+								<#list eduIds as eduId>
+									${eduId}
+									<#if eduId_has_next>,</#if>
+								</#list>
+							)				
+						</#if>
+   						<#if discode?has_content>
+    						and sb.discode=:discode 
+   						</#if>
+						<#if cmis30id?has_content>
+							and sb.cmis30id=:cmis30id
+   						</#if>
+   						and sb.inschoolstate=1002001 
+					]]></value>
+				</entry>
+				<!--综合实践活动查询 -->
+				<entry key="MasterAppriseExtImpl.queryPractices.query1">
+					<value><![CDATA[
+						select sb.name,aa.appraisaltype,ap.practiceid,ap.semesterid,ap.appraisaltypeid,ap.edu_id,ap.item1,ap.item2,ap.item5,ap.item6,ap.item7,ap.item8,ap.item9 
+						from a_practices ap
+						inner join a_appraisaltype aa on aa.appraisaltypeid=ap.appraisaltypeid
+						inner join s_baseinfo sb on SB.inschoolstate='1002001'
+								and	sb.edu_id=ap.edu_id 
+								<#if cmis30id?has_content> 		
+									and sb.cmis30id=:cmis30id
+									and sb.partid= mod(:cmis30id,20)
+								</#if>
+								<#if discode?has_content> 		
+									and sb.discode=:discode
+								</#if>
+						INNER JOIN e_stuclass es 
+								on es.studentid=sb.studentid
+								and es.used=1
+								<#if cmis30id?has_content> 	
+									and es.cmis30id=:cmis30id
+									and es.partid=mod(:cmis30id,20)	 
+								</#if>
+								<#if discode?has_content> 		
+									and es.discode=:discode
+								</#if>
+						 inner join e_grade eg 
+								on eg.gradeid=es.gradeid  and eg.used=1
+								and eg.cmis30id=sb.cmis30id
+								and eg.discode=sb.discode
+						inner join e_term et on et.schoolyear=eg.schoolyear and et.used=1
+						where 1=1
+						<#if appraisaltypeids?has_content>
+							and ap.appraisaltypeid in(
+								<#list appraisaltypeids as appraisaltypeid>
+									${appraisaltypeid}
+									<#if appraisaltypeid_has_next>,</#if>
+								</#list>
+							)
+						</#if>
+						<#if eduIds?has_content>
+							and ap.edu_id in(
+								<#list eduIds as eduId>
+									${eduId}
+									<#if eduId_has_next>,</#if>
+								</#list>
+							)				
+						</#if>
+						<#if semesterid?has_content>
+    						and ap.semesterid=:semesterid  
+   						</#if>
+					]]></value> 
+				</entry>
+					<!--综合实践活动	自我评价查询 -->
+				<entry key="MasterAppriseExtImpl.queryPracticesSelfAppraise.query">
+					<value><![CDATA[
+						select appraisalid,practiceid,signer,signdate,content
+						from a_practiceappraisal
+						where 1=1
+						<#if appraisalids?has_content>
+						and practiceid in(
+							<#list appraisalids as appraisalid>
+								${appraisalid}
+								<#if appraisalid_has_next>,</#if>
+							</#list>
+						)
+						</#if>
+					]]></value> 
+				</entry>
+				<!--查看个性发展基本情况记录 -->
+				<entry key="MasterAppriseExtImpl.queryApersonality.query">
+					<value><![CDATA[
+						select ap.baseid,ap.semesterid,ap.appraisaltypeid,ap.indexid,ap.developmentrd,ap.edu_id,ap.signdate,sb.name 
+						from a_personality ap
+						inner join s_baseinfo sb on sb.studentid=ap.studentid and sb.discode=:discode and sb.cmis30id=:cmis30id and sb.partid=mod(:cmis30id,20)
+						where 1=1
+						<#if eduIds?has_content>
+							and ap.edu_id in(
+								<#list eduIds as eduId>
+									${eduId}
+									<#if eduId_has_next>,</#if>
+								</#list>
+							)				
+						</#if>
+						<#if semesterid?has_content>
+    						and ap.semesterid=:semesterid  
+   						</#if>
+						order by ap.baseid
+					]]></value> 
+				</entry>
+				<!--查看学业成就_学科学习过程记录 -->
+				<entry key="MasterAppriseExtImpl.queryAlearnprocessWorks.query">
+					<value><![CDATA[
+						select al.workid,al.subject,al.semesterid,al.processdesc,al.signdate,al.edu_id,sb.name
+						from a_learnprocess_works al
+						inner join s_baseinfo sb on sb.studentid=al.studentid and sb.discode=:discode and sb.cmis30id=:cmis30id and sb.partid=mod(:cmis30id,20)
+						where 1=1 
+						<#if eduIds?has_content>
+							and al.edu_id in(
+								<#list eduIds as eduId>
+									${eduId}
+									<#if eduId_has_next>,</#if>
+								</#list>
+							)				
+						</#if>
+						<#if semesterid?has_content>
+    						and al.semesterid=:semesterid  
+   						</#if>
+						order by al.workid
+					]]></value> 
+				</entry>
+				<!--查看课程评语 -->
+				<entry key="MasterAppriseExtImpl.queryLearnprocessAppraisal.query1">
+					<value><![CDATA[
+						select appraisalid,semesterid,subject,appraisal,sign,signdate,edu_id,appraiserrid  
+						from a_learnprocess_appraisal
+						where 1=1
+						<#if eduIds?has_content>
+							and edu_id in(
+								<#list eduIds as eduId>
+									${eduId}
+									<#if eduId_has_next>,</#if>
+								</#list>
+							)				
+						</#if>
+						<#if semesterid?has_content>
+    						and semesterid=:semesterid 
+   						</#if>
+						order by appraisalid
+					]]></value> 
+				</entry>  
+					<!-- 班主任评语查询  -->
+				<entry key="MasterAppriseExtImpl.queryAssess.query">
+					<value><![CDATA[
+						select sa.assessid,sa.termid,sa.assesscontent,sa.signname,sa.signdate,sb.edu_id 
+						from s_assess sa,s_baseinfo sb
+						where 1=1
+						<#if termid?has_content>
+    						and sa.termid=:termid 
+   						</#if>
+   						<#if discode?has_content>
+    						and sa.discode=:discode  
+   						</#if>
+						<#if cmis30id?has_content>
+							and sa.cmis30id=:cmis30id 
+   						</#if>
+   						<#if studentIds?has_content>
+							and sa.studentid in(
+								<#list studentIds as studentid>
+									${studentid}
+									<#if studentid_has_next>,</#if>
+								</#list>
+							)				
+						</#if>
+						and sa.studentid=sb.studentid
+						and sa.discode=sb.discode
+						and sa.cmis30id=sb.cmis30id
+						and sa.partid=mod(:cmis30id,20)
+						order by sa.assessid
+					]]></value>
+				</entry> 
+				
+				<!-- 查询初中评价信息  -->
+				<entry key="MasterAppriseExtImpl.queryMiddleSchoolAppraisalInfo.query">
+					<value><![CDATA[
+					
+              			 select olp.one_part_id,olp.part_name
+						        ,tp.two_part_id,tp.two_part_name
+						        ,po.termid,po.part_info,po.write_man,po.signer_name,po.createdate
+						        
+						        ,po.part_id,po.topic,po.startdate,po.enddate,po.keyword,po.cooperation_man
+						        ,po.address,po.subject_id,po.edu_id,po.userid
+						        ,st.subject_name
+				          from one_level_part olp
+				          join two_part tp on olp.one_part_id=tp.one_part_id
+				          join partInfo po on tp.two_part_id=po.two_part_id and po.two_part_id<>22
+				          <#if onePartId?has_content>
+    						   and olp.one_part_id=:onePartId
+   						  </#if> 
+   						  <#if secondPartId?has_content>
+    						   and tp.two_part_id=:secondPartId
+   						  </#if>
+				          <#if eduIds?has_content>
+							  and po.edu_id in(
+								<#list eduIds as eduId>
+									${eduId}
+									<#if eduId_has_next>,</#if>
+								</#list>
+							)				
+						</#if>
+   						<#if termid?has_content>
+							and po.termid=:termid
+   						</#if>
+				          left join subject st on po.subject_id=st.subject_id
+				        
+					]]></value>
+				</entry>
+				
+				
+					<!--获取学年  	esy.schoolyear>(select es.schoolyear from e_schoolyear es where es.used=1)-:manyYears-->
+				<entry key="ScoreExtImpl.getYears.query">
+				     <value><![CDATA[
+	                   select 
+		                   	esy.schoolyear,
+		                   	replace(esy.schoolyearname,'学年','') as syName
+	                   from e_schoolyear esy
+        				   where 
+        				   esy.schoolyear>(select es.schoolyear from e_schoolyear es where es.used=1)-:manyYears
+        				   order by esy.schoolyear desc
+				     ]]></value>
+				</entry>
+				
+				
+				<!--根据学年获取当前班的历史班级id  -->
+				<entry key="ScoreExtImpl.getClassIdBySchoolyearAndClassid.query">
+				     <value><![CDATA[
+	                  select ecl.CLASSID from e_class ecl
+				          inner join e_grade eg on eg.gradeid=ecl.gradeid
+				          and eg.schoolyear=:schoolyear
+				          inner join e_grade egg on to_char(egg.graduateyear,'yyyy')=to_char(eg.graduateyear,'yyyy') and egg.used=1 and egg.levelid=eg.levelid
+				         inner join e_class ec on egg.gradeid=ec.gradeid and ec.used=1 and ec.classid=:classid and ecl.classnum=ec.classnum 
+				     ]]></value>
+				</entry>
+				
+				
+				
+					<!--获取教务老师管辖班级  -->
+				<entry key="ScoreExtImpl.getJWLSClass.query">
+				     <value><![CDATA[
+	                  SELECT EG.levelid,ee.levelname,ee.levelnum,ec.gradeid,EG.gradename,EG.gradenum,ec.classid,ec.classsname,ec.classnum
+						from E_GRADE eg
+						join E_SCHOOLYEAR es on EG.SCHOOLYEAR=ES.SCHOOLYEAR and ES.USED=1
+						join E_EDUSYS ee on ee.LEVELID=eg.LEVELID and EE.LEVELCODE=:levelCode and ee.used=1
+						join E_CLASS ec on ec.gradeid=eg.gradeid and ec.used=1
+						where EG.CMIS30ID=:cmis30id and EG.used=1 and ee.campusid=:campusid
+						ORDER BY eg.GRADENUM asc,TO_NUMBER(ec.classnum) ASC
+				     ]]></value>
+				</entry>
+				
+				<!--内置课程根据学段获取学科  -->
+				<entry key="ScoreExtImpl.getSubjectBySegmentId.query">
+				     <value><![CDATA[
+	                 select distinct KC.subject_id,KSS.subject_name from k_course kc,k_sys_subject kss,k_segment_model ksm,k_class_model k
+	                 where KC.SUBJECT_ID=KSS.SUBJECT_ID 
+	                 and kss.subject_name not in ('社会实践','社区服务','研究性学习活动')
+	                  <#if segmentId?has_content>
+	                   	and KSM.segment_id=:segmentId
+	                   </#if>
+	                  <#if cmis30id?has_content>
+	                  	AND KC.cmis30id=:cmis30id
+	                  </#if>
+	                  <#if courseKinds?has_content>
+			                 and kc.course_kind in(
+									<#list courseKinds as courseKind>
+										${courseKind}
+										<#if courseKind_has_next>,</#if>
+									</#list>
+							)	
+			           </#if>
+			           	and ksm.course_id=kc.course_id
+			           <#if teacherid?has_content>
+			           	 and k.teacherid=:teacherid
+			            </#if>
+			             <#if classid?has_content>
+			           	 	and k.classid=:classid
+			            </#if>
+			            and k.sement_model_id=ksm.sement_model_id
+			           	
+				     ]]></value>
+				</entry>
+				<!--内置课程根据学段获取学科  -->
+				<entry key="ScoreExtImpl.getSubjectBySegmentId.query2">
+				     <value><![CDATA[
+		                select distinct kc.subject_id,KSS.subject_name from k_course kc
+	                    inner join k_sys_subject kss on kc.SUBJECT_ID=KSS.SUBJECT_ID and kss.subject_name not in ('社会实践','社区服务','研究性学习活动')
+	                    inner join k_segment_model ksm on ksm.course_id=kc.course_id
+	                     <#if segmentId?has_content>
+		                   	and KSM.segment_id=:segmentId
+		                   </#if>
+	                    inner join k_class_model k on k.sement_model_id=ksm.sement_model_id and (k.old_class_model_id is not null or k.old_class_model_id is null and k.teacherid is not null)
+	                    and k.special=0
+	                    <#if teacherid?has_content>
+				           	 and k.teacherid=:teacherid
+				            </#if>
+				             <#if classid?has_content>
+				           	 	and k.classid=:classid
+				            </#if>
+	                   <#if schoolyear?has_content>
+				           	 	and k.schoolyear=:schoolyear
+				            </#if>
+		                 where  1=1
+		                  <#if cmis30id?has_content>
+		                  	AND kc.cmis30id=:cmis30id
+		                  </#if>
+	                		<#if courseKinds?has_content>
+				                 and kc.course_kind in(
+										<#list courseKinds as courseKind>
+											${courseKind}
+											<#if courseKind_has_next>,</#if>
+										</#list>
+	                  			)	
+				           </#if>
+				     ]]></value>
+				</entry>
+				<entry key="ScoreExtImpl.getSubjectBySegmentIdAndStudents.query">
+				     <value><![CDATA[
+		                select distinct kc.subject_id,kss.subject_name from e_class ecl
+						inner join e_stuclass est on ecl.classid=est.classid and ecl.classid=:classid
+						inner join s_baseinfo sb on sb.studentid=est.studentid and sb.inschoolstate='1002001' and sb.discode=:discode and sb.cmis30id=:cmis30id and sb.partid=mod(:cmis30id,20)
+						inner join k_student_model ksm on ksm.studentid=sb.studentid
+						inner join k_class_model k on k.class_model_id=ksm.class_model_id and (k.old_class_model_id is not null or k.old_class_model_id is null and k.teacherid is not null)
+						inner join k_segment_model ksm on k.sement_model_id=ksm.sement_model_id 
+						<#if segmentId?has_content>
+		                   	and ksm.segment_id=:segmentId
+		                </#if>
+						inner join k_course kc on kc.course_id=ksm.course_id
+						<#if cmis30id?has_content>
+		                  	and kc.cmis30id=:cmis30id
+		                </#if>
+	                	<#if courseKinds?has_content>
+				            and kc.course_kind in(
+								<#list courseKinds as courseKind>
+									${courseKind}
+									<#if courseKind_has_next>,</#if>
+								</#list>
+	                  	 )	
+				        </#if>
+				        inner join k_sys_subject kss on kss.subject_id=kc.subject_id and kss.subject_name not in ('社会实践','社区服务','研究性学习活动')
+				     ]]></value>
+				</entry>
+					<!--校本课程根据学段获取学科  -->
+				<entry key="ScoreExtImpl.getSubjectBySegmentIdAndXB.query">
+				     <value><![CDATA[
+	                 select distinct KC.subject_id,KSS.subject_name from k_course kc,k_sys_subject kss,k_segment_course ksc
+	                 where KC.SUBJECT_ID=KSS.SUBJECT_ID 
+	                  <#if segmentId?has_content>
+	                   	and ksc.segment_id=:segmentId
+	                   </#if>
+	                  <#if cmis30id?has_content>
+	                  	AND KC.cmis30id=:cmis30id
+	                  </#if>
+	                  <#if courseKind?has_content>
+			                and  kc.course_kind=:courseKind
+			           </#if>
+			           <#if teacherid?has_content>
+			                and  ksc.declare_teacher=:teacherid
+			           </#if>
+			           	and ksc.course_id=kc.course_id
+				     ]]></value>
+				</entry>
+				
+					<!--内置根据学科和课程类型获取课程模块  -->
+				<entry key="ScoreExtImpl.getCourseBySubjectIdAndCourseType.query">
+				     <value><![CDATA[
+	                select distinct kc.course_id,kc.course_name from k_course kc
+	                 inner join k_segment_model ksm on ksm.segment_id=:segmentId
+	                 inner join k_class_model k
+	                 on  k.sement_model_id=ksm.sement_model_id
+	                	 <#if teacherid?has_content>
+			           		 and k.teacherid=:teacherid
+			            </#if>
+			             <#if classid?has_content>
+			           	 	and k.classid=:classid
+			            </#if>
+	                where 
+	                	  kc.course_id=ksm.course_id
+	                	 <#if subjectId?has_content>
+	                		and kc.subject_id=:subjectId
+	                	</#if>
+	                   	<#if cmis30id?has_content>
+	                  		AND kc.cmis30id=:cmis30id
+	                  	</#if>
+						<#if courseKinds?has_content>
+			                 and kc.course_kind in(
+									<#list courseKinds as courseKind>
+										${courseKind}
+										<#if courseKind_has_next>,</#if>
+									</#list>
+							)	
+			           </#if>
+				     ]]></value>
+				</entry>
+				<!--内置根据学科和课程类型获取课程模块  -->
+				<entry key="ScoreExtImpl.getCourseBySubjectIdAndCourseType.query2">
+				     <value><![CDATA[
+	                select distinct kc.course_id,kc.course_name from k_course kc
+	                 inner join k_segment_model ksm on ksm.segment_id=:segmentId
+	                 inner join k_class_model k
+	                 on  k.sement_model_id=ksm.sement_model_id and (k.old_class_model_id is not null or k.old_class_model_id is null and k.teacherid is not null) 
+	                	 <#if teacherid?has_content>
+			           		 and k.teacherid=:teacherid
+			            </#if>
+			             <#if classid?has_content>
+			           	 	and k.classid=:classid
+			            </#if>
+			            <#if schoolyear?has_content>
+			           	 	and k.schoolyear=:schoolyear
+			            </#if>
+	                where 
+	                	  kc.course_id=ksm.course_id
+	                	 <#if subjectId?has_content>
+	                		and kc.subject_id=:subjectId
+	                	</#if>
+	                   	<#if cmis30id?has_content>
+	                  		AND kc.cmis30id=:cmis30id
+	                  	</#if>
+						<#if courseKinds?has_content>
+			                 and kc.course_kind in(
+									<#list courseKinds as courseKind>
+										${courseKind}
+										<#if courseKind_has_next>,</#if>
+									</#list>
+							)	
+			           </#if>
+				     ]]></value>
+				</entry>
+				<!--内置根据学科和课程类型获取课程模块  通过学生-->
+				<entry key="ScoreExtImpl.getCourseBySubjectIdAndCourseTypeByStudents.query">
+				     <value><![CDATA[
+	                		select distinct kc.course_id,kc.course_name from e_class ecl 
+							inner join e_stuclass est on ecl.classid=est.classid and est.classid=:classid
+							inner join s_baseinfo sb on sb.studentid=est.studentid and sb.inschoolstate='1002001' and sb.discode=:discode and sb.cmis30id=:cmis30id and sb.partid=mod(:cmis30id,20)
+							inner join k_student_model ksm on ksm.studentid=sb.studentid
+							inner join k_class_model k on  k.class_model_id=ksm.class_model_id and (k.old_class_model_id is not null or k.old_class_model_id is null and k.teacherid is not null)
+							inner join k_segment_model ksm on ksm.sement_model_id=k.sement_model_id and ksm.segment_id=:segmentId
+							inner join k_course kc on kc.course_id=ksm.course_id 
+							<#if subjectId?has_content>
+								 and kc.subject_id=:subjectId
+							</#if>
+								 <#if cmis30id?has_content>
+								    and kc.cmis30id=:cmis30id
+								 </#if>
+							  <#if courseKinds?has_content>
+								and kc.course_kind in(
+							       <#list courseKinds as courseKind>
+							             ${courseKind}
+							       <#if courseKind_has_next>,</#if>
+							 </#list>
+							 </#if>
+							)
+				     ]]></value>
+				</entry>
+					<!--校本根据学科和课程类型获取课程模块  -->
+				<entry key="ScoreExtImpl.getSchoolCourseBySubjectIdAndCourseType.query">
+				     <value><![CDATA[
+	                select distinct kc.course_id,kc.course_name from k_course kc
+	                 inner join k_segment_course ksc on ksc.segment_id=:segmentId 
+	                 		 <#if teacherid?has_content>
+			               		 and  ksc.declare_teacher=:teacherid
+			          		 </#if>
+	                where 1=1 
+	                	 and kc.course_id=ksc.course_id
+	                	 <#if subjectId?has_content>
+	                		and kc.subject_id=:subjectId
+	                	</#if>
+	                   	<#if cmis30id?has_content>
+	                  		AND kc.cmis30id=:cmis30id
+	                  	</#if>
+						<#if courseKinds?has_content>
+			                 and kc.course_kind in(
+									<#list courseKinds as courseKind>
+										${courseKind}
+										<#if courseKind_has_next>,</#if>
+									</#list>
+							)	
+			           </#if>
+				     ]]></value>
+				</entry>
+			
+				<!--内置课程查询模块学分、学时、任课老师  -->
+				<entry key="ScoreExtImpl.getNZXFAndXSAndTeacherName.query">
+				     <value><![CDATA[
+		                 select   KC.credit_hour,KC.period_count,tb.name,kcm.class_model_id,KC.course_kind,KC.course_name,KC.credit_hour model_credit
+		                    from k_course kc
+							INNER JOIN k_segment_model ksm on KC.COURSE_ID=ksm.course_id AND ksm.segment_id=:segmentId
+								 <#if courseId?has_content>
+							  	and  KC.course_id=:courseId
+							 </#if>
+							 <#if subjectId?has_content>
+							 	AND KC.subject_id=:subjectId
+							  </#if>
+							  <#if cmis30id?has_content>
+							  	and KC.cmis30id=:cmis30id 
+							  </#if>
+							 <#if courseKinds?has_content>
+				                 and KC.course_kind in(
+										<#list courseKinds as courseKind>
+											${courseKind}
+											<#if courseKind_has_next>,</#if>
+										</#list>
+								)	
+			          		 </#if>
+							INNER JOIN k_class_model kcm on ksm.sement_model_id=kcm.sement_model_id and kcm.classid=:classid
+							   <#if teacherid?has_content>
+							  		and kcm.teacherid=:teacherid 
+							  </#if>
+							   <#if schoolyear?has_content>
+							  		and kcm.schoolyear=:schoolyear 
+							  </#if>
+							left JOIN  T_BASEINFO  tb on kcm.teacherid=tb.teacherid and tb.cmis30id=KC.cmis30id and tb.discode=:discode
+				     ]]></value>
+				</entry>
+				<!--内置课程查询模块学分、学时、任课老师  -->
+				<entry key="ScoreExtImpl.getNZXFAndXSAndTeacherNameByStudents.query">
+				     <value><![CDATA[
+		                select distinct kc.credit_hour,kc.period_count,tb.name,k.class_model_id,kc.course_kind,kc.course_name,kc.credit_hour model_credit,k.special from e_class ecl
+						inner join e_stuclass est on ecl.classid=est.classid and ecl.classid=:classid
+						inner join s_baseinfo sb on sb.studentid=est.studentid and sb.inschoolstate='1002001' and sb.discode=:discode and sb.cmis30id=:cmis30id and sb.partid=mod(:cmis30id,20)
+						inner join k_student_model ksm on ksm.studentid=sb.studentid
+						inner join k_class_model k on k.class_model_id=ksm.class_model_id 
+						inner join k_segment_model ksm on k.sement_model_id=ksm.sement_model_id  and ksm.course_id=:course_id and ksm.segment_id=:segmentId
+						inner join k_course kc on KC.COURSE_ID=ksm.course_id
+			            left JOIN  T_BASEINFO  tb on k.teacherid=tb.teacherid and tb.cmis30id=:cmis30id and tb.discode=:discode
+				     ]]></value>
+				</entry>
+				<!--更新课程id -->
+				<entry key="ScoreExtImpl.updateStudentScoreClassModel.update">
+				     <value><![CDATA[
+		                update k_student_model set class_model_id=:class_model_id where class_model_id in(
+		                		<#list class_model_ids as class_modelid>
+										'${class_modelid}'
+										<#if class_modelid_has_next>,</#if>
+									</#list>
+		                )
+				     ]]></value>
+				</entry>
+				<!--校本课程查询模块学分、学时、任课老师  -->
+				<entry key="ScoreExtImpl.getSchoolXFAndXSAndTeacherName.query">
+				     <value><![CDATA[
+		                 select   KC.credit_hour,KC.period_count,tb.name,ksc.segment_course_id,KC.course_kind,KC.course_name,KC.credit_hour model_credit 
+		                  from k_course kc 
+		                 INNER JOIN  k_segment_course ksc on KC.COURSE_ID=ksc.course_id AND ksc.segment_id=:segmentId
+		                  <#if courseId?has_content>
+							  	and  KC.course_id=:courseId
+							 </#if>
+							 <#if subjectId?has_content>
+							 	AND KC.subject_id=:subjectId
+							  </#if>
+							  <#if cmis30id?has_content>
+							  	and KC.cmis30id=:cmis30id 
+							  </#if>
+							 <#if courseKind?has_content>
+				                 and KC.course_kind=:courseKind
+			          		 </#if>
+			          		   <#if teacherid?has_content>
+							  		and ksc.declare_teacher=:teacherid 
+							  </#if>
+		                 left JOIN  T_BASEINFO  tb on ksc.declare_teacher=tb.teacherid and tb.cmis30id=KC.cmis30id and tb.discode=:discode
+							
+							 
+				     ]]></value>
+				</entry>
+			
+				<!--内置课程查询成绩  -->
+				<entry key="ScoreExtImpl.getNZScore.query">
+				     <value><![CDATA[
+		                 select kc.period_count,kc.course_kind,kc.course_name,kc.credit_hour model_credit,ES.STUDENTID,es.classid,:class_model_id class_model_id,sb.edu_id,sb.name studentName,ksm.peacetime1,ksm.peacetime2,ksm.peacetime3,ksm.peacetime4,
+		                 ksm.peacetime5,ksm.daily_behave,ksm.peacetime16,ksm.examine_result,ksm.peacetime18,ksm.credit_hour,
+		                 ksm.is_pass,:xs-peacetime17 qqxs,ksm.credit_source,100-absence_ration cql,kge.level_name
+		                 from e_stuclass es 
+		                 inner join s_baseinfo sb 
+		                     on  sb.STUDENTID=ES.STUDENTID 
+		                      and sb.inschoolstate='1002001'
+		                      and sb.discode=:discode
+		                      and sb.cmis30id=:cmis30id
+		                      and sb.partid= mod(:cmis30id,20) 
+		                   	inner join e_grade eg 
+								on eg.gradeid=es.gradeid  
+								and eg.cmis30id=:cmis30id
+								and eg.discode=:discode
+		                  inner join k_class_model kcm
+		                   on kcm.class_model_id=:class_model_id and kcm.classid=:preclassid
+		                    <#if schoolyear?has_content>
+				              	and kcm.schoolyear=:schoolyear
+				            </#if>
+		                  inner join k_segment_model k 
+		                    on k.sement_model_id = kcm.sement_model_id
+		                   inner join k_course kc
+		                     on kc.course_id=k.course_id
+		                 left join k_student_model ksm 
+			                 on  ksm.studentid=sb.studentid
+					                 and ksm.class_model_id=kcm.class_model_id
+				          	     and ksm.discode=:discode
+		                     	 and ksm.cmis30id=:cmis30id
+		                     	 and ksm.partid=mod(:cmis30id,20) 
+				         left join k_general_examination_score kge
+				            on kge.student_id=sb.studentid
+				             <#if subject_id?has_content>
+				              	and kge.SUBJECT_ID=:subject_id
+				              </#if>
+				             <#if cmis30id?has_content>
+				             	 and kge.cmis30id=:cmis30id
+				             	 and kge.partid= mod(:cmis30id,20) 
+				              </#if>
+				              <#if discode?has_content>
+				            	  and kge.discode=:discode
+				              </#if>
+				         inner join s_beadroll sl on sl.discode=es.discode
+		                    and sl.partid=es.partid and sl.cmis30id=es.cmis30id
+		                    and sl.STUDENTID=es.STUDENTID
+		                    
+		                    where         
+		                      es.used=1  
+		                      <#if classid?has_content>
+		                    	  and  es.classid=:classid 
+		                      </#if>
+		                      <#if discode?has_content>
+		                     	 and es.discode=:discode
+		                      </#if>
+		                      <#if cmis30id?has_content>	
+			                      and es.cmis30id=:cmis30id 
+			                      and es.partid=mod(:cmis30id,20) 
+		                      </#if>
+			          		ORDER BY sl.inschoolid ,sb.name asc
+				     ]]></value>
+				</entry> 
+				<entry key="ScoreExtImpl.getNZScore2.query">
+				     <value><![CDATA[
+		                 select kc.period_count,kc.course_kind,kc.course_name,kc.credit_hour model_credit,ES.STUDENTID,es.classid,ksm.class_model_id class_model_id,sb.edu_id,sb.name studentName,ksm.peacetime1,ksm.peacetime2,ksm.peacetime3,ksm.peacetime4,
+		                 ksm.peacetime5,ksm.daily_behave,ksm.peacetime16,ksm.examine_result,ksm.peacetime18,ksm.credit_hour,
+		                 ksm.is_pass,:xs-peacetime17 qqxs,ksm.credit_source,100-absence_ration cql,kge.level_name
+		                 from e_stuclass es 
+		                 inner join s_baseinfo sb on  sb.STUDENTID=ES.STUDENTID  and sb.inschoolstate='1002001' and sb.discode=:discode and sb.cmis30id=:cmis30id and sb.partid= mod(:cmis30id,20)
+                     inner join k_student_model ksm on ksm.studentid=sb.studentid and ksm.class_model_id in(
+                     		<#list class_model_ids as class_model_id>
+										'${class_model_id}'
+										<#if class_model_id_has_next>,</#if>
+									</#list>
+                     ) and ksm.discode=:discode and ksm.cmis30id=:cmis30id and ksm.partid=mod(:cmis30id,20) 
+                     inner join k_class_model kcm  on kcm.class_model_id=ksm.class_model_id  
+                     inner join k_segment_model k on k.sement_model_id = kcm.sement_model_id
+                     inner join k_course kc on kc.course_id=k.course_id
+                     inner join s_beadroll sl on  sl.STUDENTID=es.STUDENTID and sl.discode=:discode and sl.cmis30id=:cmis30id and sl.partid=mod(:cmis30id,20) 
+                    left join k_general_examination_score kge on kge.student_id=ksm.studentid  and kge.subject_id=kc.subject_id
+				             <#if subject_id?has_content>
+				              	and kge.SUBJECT_ID=:subject_id
+				              </#if>
+				             <#if cmis30id?has_content>
+				             	 and kge.cmis30id=:cmis30id
+				             	 and kge.partid= mod(:cmis30id,20) 
+				              </#if>
+				              <#if discode?has_content>
+				            	  and kge.discode=:discode
+				              </#if>
+                  	 where         
+		                      es.used=1  
+		                      <#if classid?has_content>
+		                    	  and  es.classid=:classid 
+		                      </#if>
+		                      <#if discode?has_content>
+		                     	 and es.discode=:discode
+		                      </#if>
+		                      <#if cmis30id?has_content>	
+			                      and es.cmis30id=:cmis30id 
+			                      and es.partid=mod(:cmis30id,20) 
+		                      </#if>
+			          		ORDER BY sl.inschoolid ,sb.name asc
+				     ]]></value>
+				</entry> 
+				<!--校本课程查询成绩  -->
+				<entry key="ScoreExtImpl.getSchoolScore.query">
+				     <value><![CDATA[
+		          			select ksm.classid,kc.period_count,kc.course_kind,kc.course_name,kc.credit_hour model_credit,sb.studentid,:segment_course_id segment_course_id,sb.edu_id,sb.name studentName,ksm.peacetime1,ksm.peacetime2,ksm.peacetime3,ksm.peacetime4,
+		                	 ksm.peacetime5,ksm.daily_behave,ksm.peacetime16,ksm.examine_result,ksm.peacetime18,ksm.credit_hour,
+		                	 ksm.is_pass,:xs-peacetime17 qqxs,ksm.credit_source,100-absence_ration cql,kge.level_name
+		          		   from k_student_matriculate ksm
+		          			inner join s_baseinfo sb on 
+		          			  sb.STUDENTID=ksm.STUDENTID 
+		          			   and SB.inschoolstate='1002001'
+		          			  <#if discode?has_content>
+		          			 	 and sb.discode=:discode
+		          			 	 and ksm.discode=sb.discode
+		          			  </#if>
+		          			  <#if cmis30id?has_content>
+			                      and sb.cmis30id=:cmis30id
+			                      and sb.partid= mod(:cmis30id,20)
+			                      and ksm.cmis30id=sb.cmis30id
+			                      and ksm.partid= sb.partid
+		                      </#if>
+		                      <#if segment_course_id?has_content>
+		          			 	 and ksm.segment_course_id=:segment_course_id 
+		          			   </#if> 
+		          			  inner join k_segment_course k 
+		          			  	on k.segment_course_id=ksm.segment_course_id
+		          			  inner join k_course kc
+		                     	on kc.course_id=k.course_id
+		          			  left join k_general_examination_score kge
+				            	on kge.student_id=sb.studentid
+				              	and kge.SUBJECT_ID=:subject_id
+				              	and kge.cmis30id=:cmis30id
+				              	and kge.discode=:discode
+				             	 and kge.partid=mod(:cmis30id,20)
+		          			   
+		          			inner join s_beadroll sl on sl.discode=sb.discode  
+		                    and sl.partid=sb.partid and sl.cmis30id=sb.cmis30id
+		                    and sl.STUDENTID=sb.STUDENTID
+		                    ORDER BY sl.inschoolid,sb.name asc
+				     ]]></value>
+				</entry>
+				
+				
+							<!--内置课程根据ClassModelId查询成绩  -->
+				<entry key="ScoreExtImpl.getNZScoreByClassModelId.query">
+				     <value><![CDATA[
+		          		select peacetime5,studentid from k_student_model
+		          		where 1=1 
+		          			<#if class_model_id?has_content>
+		          				and class_model_id=:class_model_id
+		          			</#if>
+		          		  	<#if discode?has_content>
+		          			 	 and discode=:discode
+		          			 </#if>
+		          			 <#if cmis30id?has_content>
+			                      and cmis30id=:cmis30id
+			                      and partid= mod(:cmis30id,20)
+		                     </#if>
+				     ]]></value>
+				</entry>
+				
+				
+				<!--根据界别、班级号、姓名查询学生  -->
+				<entry key="ScoreExtImpl.getStudentInfoByGraduateyearAndClassnumAndNameAndEduId.query">
+				     <value><![CDATA[
+		          		select sb.edu_id,SB.studentid,SB.name studentName,eg.graduateyear circle
+		          		<#if schoolyears?has_content>
+		          		,oecl.classnum,oecl.classid
+		          		<#else>
+		          		 ,ec.classid,ec.classnum
+		          		</#if>
+		          		from s_baseinfo sb
+						inner join e_stuclass es on ES.studentid=sb.studentid and ES.used='1' and es.discode=sb.discode and es.cmis30id=sb.cmis30id
+						inner join e_grade eg on eg.gradeid=es.gradeid  and eg.used='1' and eg.discode=es.discode and eg.cmis30id=es.cmis30id 
+							<#if graduateyears?has_content>
+			                	AND to_char(eg.graduateyear,'yyyy') in(
+									<#list graduateyears as graduateyear>
+										'${graduateyear}'
+										<#if graduateyear_has_next>,</#if>
+									</#list>
+								)	
+							</#if>
+						inner join e_edusys ee on ee.levelid=eg.levelid and ee.levelcode in(2012003,2012004) and ee.used=1
+						inner join e_term et on et.schoolyear=eg.schoolyear and et.used=1	
+						INNER JOIN e_class ec on  ec.classid=es.classid and ec.used='1'
+							and  ec.discode=es.discode and ec.cmis30id=es.cmis30id 
+							<#if classnums?has_content>
+			                	 and ec.classnum in(
+									<#list classnums as classnum>
+										'${classnum}'
+										<#if classnum_has_next>,</#if>
+									</#list>
+								)	
+							</#if>
+						<#if schoolyears?has_content>
+						inner join e_grade oeg on oeg.levelid=eg.levelid and to_char(oeg.graduateyear,'yyyy')=to_char(eg.graduateyear,'yyyy') and
+						oeg.schoolyear in(
+								<#list schoolyears as schoolyear>
+										'${schoolyear}'
+										<#if schoolyear_has_next>,</#if>
+									</#list>
+						)
+						inner join e_class oecl on oecl.gradeid=oeg.gradeid and oecl.classnum=ec.classnum
+						</#if>
+						where 1=1
+ 						<#if studentNames?has_content>
+			                and sb.name in(
+									<#list studentNames as studentName>
+										'${studentName}'
+										<#if studentName_has_next>,</#if>
+									</#list>
+							)	
+			           </#if>
+ 						<#if discode?has_content>	
+ 							and sb.discode=:discode
+ 						</#if>	
+ 						<#if cmis30id?has_content>
+ 							and sb.cmis30id=:cmis30id 
+ 							and sb.partid=mod(:cmis30id,20)
+ 						</#if>	
+				     ]]></value>
+				</entry>
+				
+				
+				<!--根据学科名称和模块名称 -->
+				<entry key="ScoreExtImpl.getCourseByCourseNameAndSubjectName.query">
+				     <value><![CDATA[
+		          		select kc.course_kind,kc.course_name courseName,kc.period_count,kc.course_id,
+		          		kc.credit_hour model_credit,ks.subject_name subjectName  from k_course kc 
+		          		  inner join k_sys_subject ks 
+		          		  on ks.subject_id=kc.subject_id 
+		          		 <#if subjectNames?has_content>
+			                	 and ks.subject_name in(
+									<#list subjectNames as subjectName>
+										'${subjectName}'
+										<#if subjectName_has_next>,</#if>
+									</#list>
+								)	
+						 </#if>
+						  <#if courseNames?has_content>
+			               		 and kc.course_name in(
+									<#list courseNames as courseName>
+										'${courseName}'
+										<#if courseName_has_next>,</#if>
+									</#list>
+								)	
+						  </#if>
+						  <#if cmis30id?has_content>
+						 	 and kc.cmis30id=:cmis30id
+						 </#if>
+						
+				     ]]></value>
+				</entry>
+				
+				
+				<!--判断学生是否在校本课程中 -->
+				<entry key="ScoreExtImpl.xbCourseIsStudent.query">
+				     <value><![CDATA[
+					select kss.schoolyear schoolyearName,kss.segment_order segmentName,ksc.course_id,ksm.classid,ksm.studentid,ksm.segment_course_id  
+					from k_segment_course ksc 
+					inner join k_study_segment  kss 
+						on 1=1
+						<#if cmis30id?has_content>
+						 	 and kss.cmis30id=:cmis30id
+						 </#if>
+						  <#if schoolyearNames?has_content>
+			               		 and kss.schoolyear in(
+									<#list schoolyearNames as schoolyearName>
+										'${schoolyearName}'
+										<#if schoolyearName_has_next>,</#if>
+									</#list>
+								)	
+						  </#if>
+						  	<#if segmentNames?has_content>
+			               		 and kss.segment_order in(
+									<#list segmentNames as segmentName>
+										'${segmentName}'
+										<#if segmentName_has_next>,</#if>
+									</#list>
+								)	
+						  </#if>
+						  <#if courseIds?has_content>
+				               		 and ksc.course_id in(
+										<#list courseIds as courseId>
+											'${courseId}'
+											<#if courseId_has_next>,</#if>
+										</#list>
+									)	
+						</#if>
+						  and ksc.segment_id=kss.segment_id
+					inner join k_student_matriculate ksm
+						on ksc.segment_course_id=ksm.segment_course_id
+						<#if studentids?has_content>
+				               		and ksm.studentid in(
+										<#list studentids as studentid>
+											'${studentid}'
+											<#if studentid_has_next>,</#if>
+										</#list>
+									)	
+						</#if>
+						 <#if discode?has_content>	
+ 							and ksm.discode=:discode
+ 						</#if>	
+ 						<#if cmis30id?has_content>
+ 							and ksm.cmis30id=:cmis30id 
+ 							and ksm.partid=mod(:cmis30id,20)
+ 						</#if>	
+				     ]]></value>
+				</entry>
+				
+				<!--判断学生是否在内置课程中 -->
+				<entry key="ScoreExtImpl.nZCourseIsStudent.query">
+				     <value><![CDATA[
+						select kss.schoolyear schoolyearName,kss.segment_order segmentName,ksm.course_id,kcm.classid,k.studentid,kcm.class_model_id 
+						from k_class_model kcm
+						inner join k_study_segment kss on 1=1 
+							 <#if cmis30id?has_content>
+	 							and kss.cmis30id=:cmis30id 
+	 						</#if>	
+							 <#if schoolyearNames?has_content>
+				               		 and kss.schoolyear in(
+										<#list schoolyearNames as schoolyearName>
+											'${schoolyearName}'
+											<#if schoolyearName_has_next>,</#if>
+										</#list>
+									)	
+							  </#if>
+							  	<#if segmentNames?has_content>
+				               		 and kss.segment_order in(
+										<#list segmentNames as segmentName>
+											'${segmentName}'
+											<#if segmentName_has_next>,</#if>
+										</#list>
+									)	
+							  </#if>
+						  inner join k_segment_model ksm 
+							   on ksm.segment_id=kss.segment_id
+							   <#if courseIds?has_content>
+					               		 and ksm.course_id in(
+											<#list courseIds as courseId>
+												'${courseId}'
+												<#if courseId_has_next>,</#if>
+											</#list>
+										)	
+								</#if>	
+							and	kcm.sement_model_id=ksm.sement_model_id
+						left join k_student_model k on  k.class_model_id=kcm.class_model_id 	
+							<#if studentids?has_content>
+				               		and k.studentid in(
+										<#list studentids as studentid>
+											'${studentid}'
+											<#if studentid_has_next>,</#if>
+										</#list>
+									)	
+							</#if>
+							and k.classid=kcm.classid
+						<#if discode?has_content>	
+ 							and k.discode=:discode
+ 						</#if>	
+ 						<#if cmis30id?has_content>
+ 							and k.cmis30id=:cmis30id 
+ 							and k.partid=mod(:cmis30id,20)
+ 						</#if>
+ 						where kcm.classid in(
+ 										<#list classids as classid>
+												'${classid}'
+												<#if classid_has_next>,</#if>
+											</#list>
+ 						)
+				     ]]></value>
+				</entry>
+				<!--判断学生是否在内置课程中 -->
+				<entry key="ScoreExtImpl.nZCourseIsStudent.query2">
+				     <value><![CDATA[
+						select kss.schoolyear schoolyearName,kss.segment_order segmentName,ksm.course_id,kcm.classid,kcm.schoolyear,k.studentid,kcm.class_model_id 
+						from k_class_model kcm
+						inner join k_study_segment kss on 1=1 
+							 <#if cmis30id?has_content>
+	 							and kss.cmis30id=:cmis30id 
+	 						</#if>	
+							 <#if schoolyearNames?has_content>
+				               		 and kss.schoolyear in(
+										<#list schoolyearNames as schoolyearName>
+											'${schoolyearName}'
+											<#if schoolyearName_has_next>,</#if>
+										</#list>
+									)	
+							  </#if>
+							  	<#if segmentNames?has_content>
+				               		 and kss.segment_order in(
+										<#list segmentNames as segmentName>
+											'${segmentName}'
+											<#if segmentName_has_next>,</#if>
+										</#list>
+									)	
+							  </#if>
+						  inner join k_segment_model ksm 
+							   on ksm.segment_id=kss.segment_id
+							   <#if courseIds?has_content>
+					               		 and ksm.course_id in(
+											<#list courseIds as courseId>
+												'${courseId}'
+												<#if courseId_has_next>,</#if>
+											</#list>
+										)	
+								</#if>	
+							and	kcm.sement_model_id=ksm.sement_model_id
+						left join k_student_model k on  k.class_model_id=kcm.class_model_id 	
+							<#if studentids?has_content>
+				               		and k.studentid in(
+										<#list studentids as studentid>
+											'${studentid}'
+											<#if studentid_has_next>,</#if>
+										</#list>
+									)	
+							</#if>
+						<#if discode?has_content>	
+ 							and k.discode=:discode
+ 						</#if>	
+ 						<#if cmis30id?has_content>
+ 							and k.cmis30id=:cmis30id 
+ 							and k.partid=mod(:cmis30id,20)
+ 						</#if>
+				     ]]></value>
+				</entry>
+					<!--学生查询内置课程成绩 -->
+				<!-- <entry key="ScoreExtImpl.studentGetNZScore.query1">
+				     <value><![CDATA[
+						select sb.name studentName,ks.subject_name subjectName,kc.course_name courseName,KSM.peacetime1,KSM.peacetime2,KSM.peacetime3,
+							KSM.peacetime4,KSM.peacetime5,KSM.daily_behave,KSM.peacetime16,100-KSM.absence_ration cql,kc.period_count-KSM.peacetime17 qqxs,kc.course_kind,
+							KSM.examine_result,KSM.peacetime18,KSM.credit_hour,KSM.credit_source,KSM.is_pass,kge.level_name
+					from s_baseinfo sb 
+						   INNER JOIN e_stuclass es 
+								on es.studentid=sb.studentid
+							     and es.used=1
+							   <#if cmis30id?has_content>
+							   		and es.partid=mod(:cmis30id,20)	  
+									and es.cmis30id=:cmis30id
+								</#if>
+								<#if discode?has_content> 	
+									and es.discode=:discode
+								</#if>
+							inner join e_grade eg 
+								on eg.gradeid=es.gradeid  and eg.used=1
+								and eg.cmis30id=:cmis30id
+								and eg.discode=:discode
+							inner join e_term et on et.schoolyear=eg.schoolyear and et.used=1
+						   INNER JOIN k_segment_model km on km.segment_id=:segment_id
+						   INNER JOIN k_course kc on  kc.course_id=km.course_id
+								 and kc.cmis30id=:cmis30id
+									and kc.course_kind<>1230320
+							inner join k_sys_subject ks		
+								on kc.subject_id=ks.subject_id
+							inner join k_class_model kcm 
+							   on kcm.sement_model_id=km.sement_model_id
+							   <#if classid?has_content> 
+							    	 and kcm.classid=:classid
+								</#if>	
+							left join k_student_model ksm 
+								on  ksm.classid=:classid
+								 AND ksm.class_model_id=kcm.class_model_id
+								   <#if cmis30id?has_content>		
+							   		 and ksm.cmis30id=:cmis30id
+							   		  and ksm.partid= mod(:cmis30id,20)
+							   	</#if>	
+							   	<#if discode?has_content> 
+									 and ksm.discode=:discode
+								</#if>
+								and ksm.studentid=sb.studentid	
+							left join k_general_examination_score kge
+					            on kge.student_id=sb.studentid
+					              	and kge.SUBJECT_ID=ks.subject_id
+					              	and kge.cmis30id=:cmis30id
+					              	and kge.discode=:discode
+					             	 and kge.partid= mod(:cmis30id,20)
+							where 1=1
+								<#if edu_id?has_content> 
+									and	sb.edu_id=:edu_id 
+								</#if>
+								<#if cmis30id?has_content>	
+									and sb.cmis30id=:cmis30id
+									and sb.partid= mod(:cmis30id,20)
+								</#if>
+								<#if discode?has_content> 			
+									and sb.discode=:discode
+								</#if>
+								and SB.inschoolstate='1002001'
+ 							ORDER BY kc.course_code  
+				     ]]></value>
+				</entry> -->
+				<!--学生查询内置课程成绩 -->
+				<entry key="ScoreExtImpl.studentGetNZScore.query">
+				     <value><![CDATA[
+						select distinct kcc.course_code,sb.name studentName,kss.subject_name subjectName,kcc.course_name courseName,km.peacetime1,km.peacetime2,km.peacetime3,
+							km.peacetime4,km.peacetime5,km.daily_behave,km.peacetime16,100-km.absence_ration cql,kcc.period_count-km.peacetime17 qqxs,kcc.course_kind,
+							km.examine_result,km.peacetime18,km.credit_hour,km.credit_source,km.is_pass,kge.level_name
+							from s_baseinfo sb
+							INNER JOIN e_stuclass es on es.studentid=sb.studentid and es.used=1 
+							<#if cmis30id?has_content>	
+							and es.partid=mod(:cmis30id,20) and es.cmis30id=:cmis30id
+							</#if>
+							<#if discode?has_content> 
+							and es.discode=:discode
+							</#if>
+							inner join e_grade eg on eg.gradeid=es.gradeid and eg.used=1
+							<#if cmis30id?has_content>	
+							and eg.cmis30id=:cmis30id
+							</#if>
+							<#if discode?has_content> 
+							and eg.discode=:discode
+							</#if>			
+							inner join e_term et on et.schoolyear=eg.schoolyear and et.used=1
+							left join k_student_model km on sb.studentid=km.studentid 
+							<#if cmis30id?has_content>	
+							and km.cmis30id=:cmis30id  and km.partid= mod(:cmis30id,20) 
+							</#if>	
+							<#if discode?has_content> 	
+							and km.discode=:discode
+							</#if>		
+							inner join k_class_model kc on kc.class_model_id=km.class_model_id 
+							<#if classid?has_content> 
+							and kc.classid=:classid
+							</#if>	
+							inner join k_segment_model ks on ks.sement_model_id=kc.sement_model_id 
+							and ks.segment_id=:segment_id
+							INNER JOIN k_course kcc on  kcc.course_id=ks.course_id	and kcc.course_kind<>1230320 
+							<#if cmis30id?has_content>
+							and kcc.cmis30id=:cmis30id
+							</#if>	
+							inner join k_sys_subject kss	
+							on kcc.subject_id=kss.subject_id 
+							left join k_general_examination_score kge on kge.student_id=sb.studentid and kss.subject_id=kge.subject_id
+							<#if cmis30id?has_content>
+							and kge.cmis30id=:cmis30id	and kge.partid= mod(:cmis30id,20)
+							</#if>
+							<#if discode?has_content> 	
+							and kge.discode=:discode 
+							</#if>
+							where 1=1 and sb.beadrollstate='1517001' 
+							<#if edu_id?has_content> 
+								and	sb.edu_id=:edu_id 
+							</#if>
+							<#if cmis30id?has_content>
+							 and sb.cmis30id=:cmis30id and sb.partid= mod(:cmis30id,20)
+							 </#if>
+							 <#if discode?has_content> 	
+							 and sb.discode=:discode
+							 </#if>	
+							ORDER BY kcc.course_code
+				     ]]></value>
+				</entry>
+				<!--学生查询内置课程成绩 -->
+				<entry key="ScoreExtImpl.studentGetNZScore.query1">
+				     <value><![CDATA[
+						select distinct kcc.course_code,sb.name studentName,kss.subject_name subjectName,kcc.course_name courseName,km.peacetime1,km.peacetime2,km.peacetime3,
+							km.peacetime4,km.peacetime5,km.daily_behave,km.peacetime16,100-km.absence_ration cql,kcc.period_count-km.peacetime17 qqxs,kcc.course_kind,
+							km.examine_result,km.peacetime18,km.credit_hour,km.credit_source,km.is_pass,kge.level_name
+							from s_baseinfo sb
+							INNER JOIN e_stuclass es on es.studentid=sb.studentid and es.used=1 
+							<#if cmis30id?has_content>	
+							and es.partid=mod(:cmis30id,20) and es.cmis30id=:cmis30id
+							</#if>
+							<#if discode?has_content> 
+							and es.discode=:discode
+							</#if>
+							inner join e_grade eg on eg.gradeid=es.gradeid and eg.used=1
+							<#if cmis30id?has_content>	
+							and eg.cmis30id=:cmis30id
+							</#if>
+							<#if discode?has_content> 
+							and eg.discode=:discode
+							</#if>			
+							inner join e_term et on et.schoolyear=eg.schoolyear and et.used=1
+							left join k_student_model km on sb.studentid=km.studentid 
+							<#if cmis30id?has_content>	
+							and km.cmis30id=:cmis30id  and km.partid= mod(:cmis30id,20) 
+							</#if>	
+							<#if discode?has_content> 	
+							and km.discode=:discode
+							</#if>		
+							inner join k_class_model kc on kc.class_model_id=km.class_model_id 
+							inner join k_segment_model ks on ks.sement_model_id=kc.sement_model_id 
+							and ks.segment_id=:segment_id
+							INNER JOIN k_course kcc on  kcc.course_id=ks.course_id	and kcc.course_kind<>1230320 
+							<#if cmis30id?has_content>
+							and kcc.cmis30id=:cmis30id
+							</#if>	
+							inner join k_sys_subject kss	
+							on kcc.subject_id=kss.subject_id 
+							left join k_general_examination_score kge on kge.student_id=sb.studentid and kss.subject_id=kge.subject_id
+							<#if cmis30id?has_content>
+							and kge.cmis30id=:cmis30id	and kge.partid= mod(:cmis30id,20)
+							</#if>
+							<#if discode?has_content> 	
+							and kge.discode=:discode 
+							</#if>
+							where 1=1 and sb.beadrollstate='1517001' 
+							<#if edu_id?has_content> 
+								and	sb.edu_id=:edu_id 
+							</#if>
+							<#if cmis30id?has_content>
+							 and sb.cmis30id=:cmis30id and sb.partid= mod(:cmis30id,20)
+							 </#if>
+							 <#if discode?has_content> 	
+							 and sb.discode=:discode
+							 </#if>	
+							ORDER BY kcc.course_code
+				     ]]></value>
+				</entry>
+				<!--集合学生查询内置课程成绩 -->
+				<entry key="ScoreExtImpl.studentGetNZScore.query2">
+				     <value><![CDATA[
+						select distinct km.credit_id||'_N' credit_id,kcc.course_code,sb.name studentName,sb.edu_id,kss.subject_name subjectName,kcc.course_name courseName,km.peacetime1,km.peacetime2,km.peacetime3,
+							km.peacetime4,km.peacetime5,km.daily_behave,km.peacetime16,100-km.absence_ration cql,kcc.period_count-km.peacetime17 qqxs,kcc.course_kind,
+							km.examine_result,km.peacetime18,km.credit_hour,km.credit_source,km.is_pass,kge.level_name,km.old_credit_id
+							from s_baseinfo sb
+							INNER JOIN e_stuclass es on es.studentid=sb.studentid and es.used=1 
+							<#if cmis30id?has_content>	
+							and es.partid=mod(:cmis30id,20) and es.cmis30id=:cmis30id
+							</#if>
+							<#if discode?has_content> 
+							and es.discode=:discode
+							</#if>
+							inner join e_grade eg on eg.gradeid=es.gradeid and eg.used=1
+							<#if cmis30id?has_content>	
+							and eg.cmis30id=:cmis30id
+							</#if>
+							<#if discode?has_content> 
+							and eg.discode=:discode
+							</#if>			
+							inner join e_term et on et.schoolyear=eg.schoolyear and et.used=1
+							left join k_student_model km on sb.studentid=km.studentid 
+							<#if cmis30id?has_content>	
+							and km.cmis30id=:cmis30id  and km.partid= mod(:cmis30id,20) 
+							</#if>	
+							<#if discode?has_content> 	
+							and km.discode=:discode
+							</#if>		
+							inner join k_class_model kc on kc.class_model_id=km.class_model_id 
+							inner join k_segment_model ks on ks.sement_model_id=kc.sement_model_id 
+							and ks.segment_id=:segment_id
+							INNER JOIN k_course kcc on  kcc.course_id=ks.course_id	and kcc.course_kind<>1230320 
+							<#if cmis30id?has_content>
+							and kcc.cmis30id=:cmis30id
+							</#if>	
+							inner join k_sys_subject kss	
+							on kcc.subject_id=kss.subject_id 							
+							<#if subjectName?has_content>
+							and kss.subject_name like %:subjectName%
+							</#if>	
+							left join k_general_examination_score kge on kge.student_id=sb.studentid and kss.subject_id=kge.subject_id
+							<#if cmis30id?has_content>
+							and kge.cmis30id=:cmis30id	and kge.partid= mod(:cmis30id,20)
+							</#if>
+							<#if discode?has_content> 	
+							and kge.discode=:discode 
+							</#if>
+							where 1=1 and sb.beadrollstate='1517001' 
+							and	sb.edu_id in(
+									<#list edu_ids as edu_id>
+										'${edu_id}'
+										<#if edu_id_has_next>,</#if>
+									</#list>
+							) 
+							<#if cmis30id?has_content>
+							 and sb.cmis30id=:cmis30id and sb.partid= mod(:cmis30id,20)
+							 </#if>
+							 <#if discode?has_content> 	
+							 and sb.discode=:discode
+							 </#if>	
+							ORDER BY sb.name, kss.subject_name, kcc.course_name, kcc.course_code
+				     ]]></value>
+				</entry>
+				<!--学生查询校本课程成绩 -->
+				<entry key="ScoreExtImpl.studentGetSchoolScore.query2">
+				     <value><![CDATA[
+						SELECT ksm.matriculate_id||'_X' matriculate_id,sb.name studentName,sb.edu_id,ks.subject_name subjectName,kc.course_name courseName,KSM.peacetime1,KSM.peacetime2,KSM.peacetime3,
+							KSM.peacetime4,KSM.peacetime5,KSM.daily_behave,KSM.peacetime16,100-KSM.absence_ration cql,kc.period_count-KSM.peacetime17 qqxs,kc.course_kind,
+							KSM.examine_result,KSM.peacetime18,KSM.credit_hour,KSM.credit_source,KSM.is_pass,kge.level_name,ksm.old_matriculate_id
+							 from k_student_matriculate ksm 
+							INNER JOIN k_study_segment kss
+								 on 1=1 
+								 <#if cmis30id?has_content>
+									 and kss.cmis30id=:cmis30id
+								</#if>
+								 <#if segment_id?has_content>
+									 and kss.segment_id=:segment_id
+							    </#if>
+							 inner join k_segment_course ksc
+							 	on ksc.segment_id=kss.segment_id
+							 	and ksm.segment_course_id=ksc.segment_course_id
+								<#if cmis30id?has_content>		
+							   		 and ksm.cmis30id=:cmis30id
+							   		  and ksm.partid= mod(:cmis30id,20)
+							   	</#if>	
+							   	<#if discode?has_content> 
+									 and ksm.discode=:discode
+								</#if>
+								inner join s_baseinfo sb 
+								on 1=1
+								and	sb.edu_id in(
+									<#list edu_ids as edu_id>
+										'${edu_id}'
+										<#if edu_id_has_next>,</#if>
+									</#list>
+								)		
+								and sb.cmis30id=ksm.cmis30id
+								and sb.discode=ksm.discode
+								and sb.partid=ksm.partid
+								and SB.inschoolstate='1002001'
+							INNER JOIN e_stuclass es 
+								on es.studentid=sb.studentid
+							     and es.used=1
+								and es.cmis30id=ksm.cmis30id
+								and es.discode=ksm.discode
+								and es.partid=ksm.partid
+							inner join e_grade eg 
+								on eg.gradeid=es.gradeid  and eg.used=1
+								and eg.cmis30id=ksm.cmis30id
+								and eg.discode=ksm.discode
+								and ksm.studentid=sb.studentid
+							inner join e_term et on et.schoolyear=eg.schoolyear and et.used=1
+							INNER JOIN k_course kc
+								on kc.course_id=ksc.course_id
+								 and kc.cmis30id=ksm.cmis30id
+							inner join k_sys_subject ks		
+								on kc.subject_id=ks.subject_id						
+							<#if subjectName?has_content>
+							and ks.subject_name like %:subjectName%
+							</#if>	
+							left join k_general_examination_score kge
+					            on kge.student_id=sb.studentid
+					              	and kge.SUBJECT_ID=ks.subject_id
+					              	and kge.cmis30id=sb.cmis30id
+					              	and kge.discode=sb.discode
+					             	 and kge.partid= sb.partid  
+					           ORDER BY kc.course_code  
+						
+				     ]]></value>
+				</entry>
+				
+				<!--学生查询校本课程成绩 -->
+				<entry key="ScoreExtImpl.studentGetSchoolScore.query">
+				     <value><![CDATA[
+						SELECT sb.name studentName,ks.subject_name subjectName,kc.course_name courseName,KSM.peacetime1,KSM.peacetime2,KSM.peacetime3,
+							KSM.peacetime4,KSM.peacetime5,KSM.daily_behave,KSM.peacetime16,100-KSM.absence_ration cql,kc.period_count-KSM.peacetime17 qqxs,kc.course_kind,
+							KSM.examine_result,KSM.peacetime18,KSM.credit_hour,KSM.credit_source,KSM.is_pass,kge.level_name
+							 from k_student_matriculate ksm 
+							INNER JOIN k_study_segment kss
+								 on 1=1 
+								 <#if cmis30id?has_content>
+									 and kss.cmis30id=:cmis30id
+								</#if>
+								 <#if segment_id?has_content>
+									 and kss.segment_id=:segment_id
+							    </#if>
+							 inner join k_segment_course ksc
+							 	on ksc.segment_id=kss.segment_id
+							 	and ksm.segment_course_id=ksc.segment_course_id
+								<#if cmis30id?has_content>		
+							   		 and ksm.cmis30id=:cmis30id
+							   		  and ksm.partid= mod(:cmis30id,20)
+							   	</#if>	
+							   	<#if discode?has_content> 
+									 and ksm.discode=:discode
+								</#if>
+								inner join s_baseinfo sb 
+								on 1=1
+								<#if edu_id?has_content> 
+									and	sb.edu_id=:edu_id 
+								</#if>		
+								and sb.cmis30id=ksm.cmis30id
+								and sb.discode=ksm.discode
+								and sb.partid=ksm.partid
+								and SB.inschoolstate='1002001'
+							INNER JOIN e_stuclass es 
+								on es.studentid=sb.studentid
+							     and es.used=1
+								and es.cmis30id=ksm.cmis30id
+								and es.discode=ksm.discode
+								and es.partid=ksm.partid
+							inner join e_grade eg 
+								on eg.gradeid=es.gradeid  and eg.used=1
+								and eg.cmis30id=ksm.cmis30id
+								and eg.discode=ksm.discode
+								and ksm.studentid=sb.studentid
+							inner join e_term et on et.schoolyear=eg.schoolyear and et.used=1
+							INNER JOIN k_course kc
+								on kc.course_id=ksc.course_id
+								 and kc.cmis30id=ksm.cmis30id
+							inner join k_sys_subject ks		
+								on kc.subject_id=ks.subject_id
+							left join k_general_examination_score kge
+					            on kge.student_id=sb.studentid
+					              	and kge.SUBJECT_ID=ks.subject_id
+					              	and kge.cmis30id=sb.cmis30id
+					              	and kge.discode=sb.discode
+					             	 and kge.partid= sb.partid  
+					           ORDER BY kc.course_code  
+						
+				     ]]></value>
+				</entry>
+				<!--根据eduid获取学生名称 -->
+				<entry key="ScoreExtImpl.GetStudentNameByEduId.query">
+				     <value><![CDATA[
+						SELECT sb.name studentName
+							 from s_baseinfo sb 
+							INNER JOIN e_stuclass es 
+								on es.studentid=sb.studentid
+								<#if edu_id?has_content> 
+									and	sb.edu_id=:edu_id 
+								</#if>
+								<#if cmis30id?has_content> 		
+									and sb.cmis30id=:cmis30id
+									and sb.partid= mod(:cmis30id,20)
+								</#if>
+								<#if discode?has_content> 		
+									and sb.discode=:discode
+								</#if>  
+								and SB.inschoolstate='1002001'
+								and es.used=1
+								and es.cmis30id=sb.cmis30id
+								and es.discode=sb.discode
+								and es.partid=sb.partid
+							inner join e_grade eg 
+								on eg.gradeid=es.gradeid  and eg.used=1
+								and eg.cmis30id=sb.cmis30id
+								and eg.discode=sb.discode
+							inner join e_term et on et.schoolyear=eg.schoolyear and et.used=1
+				     ]]></value>
+				</entry>
+				
+				
+				
+				<!--根据学科名称集获得系统学科 -->
+				<entry key="ScoreExtImpl.getSubjectName.query">
+				     <value><![CDATA[
+		          		select ks.subject_name subjectName,ks.subject_id subjectId
+		          		 from k_sys_subject ks where 1=1
+		          		 <#if subjectNames?has_content>
+			                	 and ks.subject_name in(
+									<#list subjectNames as subjectName>
+										'${subjectName}'
+										<#if subjectName_has_next>,</#if>
+									</#list>
+								)	
+						 </#if>
+						
+				     ]]></value>
+				</entry>
+				
+				<!--查询会考成绩 -->
+				<entry key="ScoreExtImpl.getGENERAL_EXAMINATION_SCORE.query">
+				     <value><![CDATA[
+		          		select student_id studentid,subject_id subjectId,GENERAL_EXAMINATION_SCORE_ID generalExaminationScoreId
+		          		 from K_GENERAL_EXAMINATION_SCORE 
+		          		 where 1=1
+		          		 <#if studentids?has_content>
+			                	 and student_id in(
+									<#list studentids as studentid>
+										'${studentid}'
+										<#if studentid_has_next>,</#if>
+									</#list>
+								)	
+						 </#if>
+						  <#if subjectIds?has_content>
+			                	 and subject_id in(
+									<#list subjectIds as subjectId>
+										'${subjectId}'
+										<#if subjectId_has_next>,</#if>
+									</#list>
+								)	
+						 </#if>
+						 <#if cmis30id?has_content> 		
+									and cmis30id=:cmis30id
+									and partid= mod(:cmis30id,20)
+						</#if>
+						<#if discode?has_content> 		
+									and discode=:discode
+						</#if>  
+						
+				     ]]></value>
+				</entry>
+			
+			</map>	                                                            
+		</property>
+	</bean>
+</beans>

@@ -1,0 +1,730 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd"
+	default-autowire="byName" default-lazy-init="true">
+
+	<bean id="queryProviderMapping-zdq"
+		class="org.nestframework.commons.hibernate.QueryProviderMappingImpl">
+		<property name="queryMap">
+			<map>
+				<!--通过用户名称查询用户名和密码 -->
+				<entry key="LoginServiceExtImpl.queryUserByUserName.query">
+					<value><![CDATA[
+							select username,pwd from o_user where username=:username						
+					]]></value>
+				</entry>
+				<!--向用户表插入一条记录-->
+				<entry key="LoginServiceExtImpl.addUser.add">
+					<value><![CDATA[
+							insert into o_user(userid,username,pwd,used,USERTYPE)values(162,:username,:passwod,1,1503003)						
+					]]></value>
+				</entry>
+				<!--查询学期表里的所有记录-->
+				<entry key="TermServiceExtImpl.queryEschoolYearInDb.query">
+					<value><![CDATA[
+							select termid,termname,termtype from e_term					
+					]]></value>
+				</entry>
+				<!--根据用户名，密码查询该用户所在学校的学校名称 -->
+				<entry key="UserLoginServiceExt.validUserIsExistInDb.query">
+					<value><![CDATA[
+							select bb.schoolname schoolname,ou.usertype usertype,ou.unitid from o_user ou
+							left join b_baseinfo bb on bb.schoolcode=ou.name
+							where ou.username=:username and ou.pwd=:password
+					]]></value>
+				</entry>
+				<!--插入文件信息 -->
+				<entry key="DoWithFileServiceExt.doWithStartUploadFile.insert">
+					<value><![CDATA[
+							insert into h_upload_oldfile(id,Filename,Schoolcode,Uploadtime,Type,State,uuid) values(s_h_upload_oldfile.nextval,:Filename,:Schoolcode,sysdate,:Type,:State,:uuid)
+					]]></value>
+				</entry>
+				<!-- 更新文件信息 -->
+				<entry key="DoWithFileServiceExt.doWithEndUploadFile.update">
+					<value><![CDATA[
+							update h_upload_oldfile set Filepath=:Filepath,State=:State where uuid=:uuid
+					]]></value>
+				</entry>
+				<!-- 更新文件信息 -->
+				<entry key="DoWithFileServiceExt.setValidFileInfo.update">
+					<value><![CDATA[
+							update h_upload_oldfile set State='cast' where Schoolcode=:schoolcode and Type=:filetype and State='done'
+					]]></value>
+				</entry>
+				<!-- 查询文件信息 -->
+				<entry key="DoWithFileServiceExt.queryHuploadOldfileList.query">
+					<value><![CDATA[
+							select Filename,
+							case State 
+							      when 'start' then '上传失败'
+							      when 'done' then '上传成功'
+							      when 'cast' then '该文件已废止'
+							end state
+							from h_upload_oldfile 
+							where Schoolcode=:schoolcode
+							order by Uploadtime desc
+					]]></value>
+				</entry>
+				<!-- 查询高中学期标识号 -->
+				<entry key="TermServiceExtImpl.queryHighSchoolTerms.query">
+					<value><![CDATA[
+					<#if levelcode?has_content>
+							select semesterid,semester from a_semester where semesterid<=(
+								select distinct
+								case mod(et.termid,2) 
+								when 0 then eg.gradenum||2
+								when 1 then eg.gradenum||1
+								end semesterid
+								from e_grade eg
+								inner join e_class ecl on ecl.gradeid=eg.gradeid and ecl.used=1 and ecl.classid=:classid
+								inner join e_edusys ee on ee.levelid=eg.levelid and ee.levelcode in(2012003,2012004) and ee.used=1
+								inner join e_term et on et.schoolyear=eg.schoolyear and et.used=1
+								where  eg.used=1
+							) order by semesterid
+					<#else>
+						select et.termid semesterid,
+						(te.gradenum-(te.schoolyear-et.schoolyear))||'年级第'||
+						        case mod(et.termid,2) 
+						        when 0 then 2
+						        when 1 then 1
+						        end
+						||'学期' semester from e_term et
+						inner join (
+						  select eg.schoolyear,to_number(to_char(eg.entranceyear,'yyyy')) entranceyear,eg.gradenum,et.termid from e_grade eg
+						  inner join e_class ecl on ecl.gradeid=eg.gradeid and ecl.classid=:classid and ecl.used=1
+						  inner join e_edusys ee on ee.levelid=eg.levelid
+						  inner join e_term et on et.schoolyear=eg.schoolyear and et.used=1
+						  where eg.used=1
+						)te on et.schoolyear<=te.schoolyear  and et.schoolyear>=te.entranceyear and et.termid<=te.termid
+						order by et.termid
+					</#if>	
+					]]></value>
+				</entry>
+				<!-- 通过校区标识号获取登录用户的角色信息 -->
+				<entry key="BaseInforManagerExt.querySchoolUserRoleByUserId.query">
+					<value><![CDATA[
+						select distinct oro.roleid,oro.rolename,oro.roletype
+  						from o_userrole ou join o_role oro on oro.roleid = ou.roleid
+  						 and oro.roletype in(1502003,1502005,1502006,1502007)
+					  	join o_rolecampus orc on orc.userroleid = ou.userroleid
+					  	where ou.userid =:userId and oro.used = 1 and orc.campusid =:campuseId
+					  	order by oro.roleid
+					]]></value>
+				</entry>
+				<!--获取登录用户的角色信息  -->
+				<entry key="BaseInforManagerExt.queryUserRoleByUserId.query">
+					<value><![CDATA[
+						select distinct oro.roleid,oro.rolename,oro.roletype
+						from o_userrole ou
+            			join o_rolecampus orc on ou.userroleid=orc.userroleid
+            			join o_role oro on oro.roleid = ou.roleid and oro.roletype in(1502003,1502005,1502006,1502007)
+						where 1=1
+						<#if userId?has_content>
+					 		and ou.userid = :userId 
+					    </#if>
+					    <#if campuseId?has_content>
+					 		and orc.campusid = :campuseId 
+					    </#if>
+            			and oro.used = 1
+						order by oro.roleid
+					]]></value>
+				</entry>
+				<!--获取高中学科  -->
+				<entry key="SubjectServiceExtImpl.querySubjectDtoByLevelCode.queryh">
+					<value><![CDATA[
+						select subjectid,subject subjectname from a_subject order by sequence
+					]]></value>
+				</entry>
+				<entry key="SubjectServiceExtImpl.querySubjectDtoByLevelCode.querym">
+					<value><![CDATA[
+						select subject_id subjectid,subject_name  subjectname from subject order by subject_order
+					]]></value>
+				</entry>
+				<!-- 获取登录用户的校区信息 ，并且过滤掉只有小学的校区-->
+				<entry key="BaseInforManagerExt.queryUserSchoolByUserId.query">
+					<value><![CDATA[
+						select distinct bc.campusid,bc.name,bc.campusno
+						from o_user ou 
+						join b_baseinfo orc on ou.unitid = orc.cmis30id
+						join b_campus bc on bc.cmis30id = orc.cmis30id
+						inner join e_edusys ee on ee.campusid=bc.campusid and ee.levelcode in(2012002,2012003,2012004) and ee.used=1
+						join o_userrole ous on ous.userid = ou.userid
+						join o_role orl on ous.roleid=orl.roleid and orl.roletype in(1502003,1502005,1502006,1502007)
+            			join o_rolecampus oc on oc.userroleid = ous.userroleid 
+            			where ou.userid = :userId 
+            			and bc.campusid = oc.campusid
+						order by bc.campusno
+					]]></value>
+				</entry>
+				<entry key="BaseInforManagerExt.queryCountryInfoDtoByDiscode.query">
+					<value><![CDATA[
+						select alto.name,alto.discode,alto.totalcount,alto.coursedbover,
+						case when alto.coursedbunover is null then alto.totalcount
+						else alto.coursedbunover
+						end coursedbunover,
+						alto.cmisdbover,
+						case when alto.cmisdbunover is null then alto.totalcount
+						else alto.cmisdbunover
+						end cmisdbunover
+						,alto.attchfileover,
+						case when  alto.attchfileunover is  null then alto.totalcount
+						else alto.attchfileunover
+						end attchfileunover
+						from(
+							select alt.name,alt.discode,alt.totalcount,
+							sum(decode(alt.type,'coursedb',uploadcount,0)) coursedbover,
+							sum(decode(alt.type,'coursedb',counts)) coursedbunover,
+							sum(decode(alt.type,'cmisdb',uploadcount,0)) cmisdbover,
+							sum(decode(alt.type,'cmisdb',counts)) cmisdbunover,
+							sum(decode(alt.type,'attchfile',uploadcount,0)) attchfileover,
+							sum(decode(alt.type,'attchfile',counts)) attchfileunover
+							from (
+								select al.name,al.discode,ot.type,totalcount,uploadcount,(totalcount-uploadcount) counts from (
+								  select ss.name,bc.discode,count(distinct bb.schoolcode) totalcount from b_baseinfo bb
+								  inner join sys_dict ss on bb.discode=ss.dict_id
+								  inner join b_campus bc on bc.cmis30id=bb.cmis30id
+								  inner join e_edusys ee on ee.campusid=bc.campusid and ee.levelcode in (2012003,2012004)
+								  group by ss.name,bc.discode
+							) al
+							left join(
+							  select bb.discode,hu.type,count(distinct hu.schoolcode) uploadcount from h_upload_oldfile hu
+							  inner join b_baseinfo bb on bb.schoolcode=hu.schoolcode 
+							  <#if discode?has_content>
+							  and bb.discode=:discode
+							  </#if>
+							   inner join b_campus bc on bc.cmis30id=bb.cmis30id
+						 	inner join e_edusys ee on ee.campusid=bc.campusid and ee.levelcode in (2012003,2012004)
+							  where hu.state='done'
+							  group by bb.discode,hu.type
+							) ot on ot.discode=al.discode
+						) alt group by alt.name,alt.discode,alt.totalcount
+						)alto where 1=1
+						<#if discode?has_content>
+						and alto.discode=:discode
+						</#if>
+						order by alto.discode
+					]]></value>
+				</entry>
+				<entry key="BaseInforManagerExt.querySchoolUploadInfoDtoByCondition.query">
+					<value><![CDATA[
+					<#if isupload?has_content>
+						select bb.schoolname schoolname,'上传成功' state,hu.uploadtime uploadtime from h_upload_oldfile hu
+						inner join b_baseinfo bb on bb.schoolcode=hu.schoolcode and bb.discode=:discode
+						inner join b_campus bc on bc.cmis30id=bb.cmis30id
+   						inner join e_edusys ee on ee.campusid=bc.campusid and ee.levelcode in (2012003,2012004)
+						where hu.state='done' and hu.type=:db
+					<#else>
+						select  distinct bt.schoolname,
+						case when bc.state is null then '未上传'
+						else '上传失败或者正在上传中'
+						end state
+						,
+						bc.uploadtime from b_baseinfo bt
+						inner join b_campus bc on bc.cmis30id=bt.cmis30id
+						inner join e_edusys ee on ee.campusid=bc.campusid and ee.levelcode in (2012003,2012004)
+						left join(
+						    select  bb.schoolname,bb.schoolcode,hh.state,hh.uploadtime uploadtime from b_baseinfo bb
+						    inner join h_upload_oldfile hh on hh.schoolcode=bb.schoolcode and hh.state='start' and hh.type=:db
+						    where bb.discode=:discode
+						) bc on bc.schoolcode=bt.schoolcode
+						where bt.schoolname not in(
+						    select distinct bb.schoolname from b_baseinfo bb
+						    inner join b_campus bc on bc.cmis30id=bb.cmis30id
+						    inner join e_edusys ee on ee.campusid=bc.campusid and ee.levelcode in (2012003,2012004)
+						    inner join h_upload_oldfile hh on hh.schoolcode=bb.schoolcode and hh.state in('done','cast') and hh.type=:db
+						    where bb.discode=:discode
+						)and bt.discode=:discode
+						order by schoolname,state,uploadtime desc
+					</#if>
+					]]></value>
+				</entry>
+				<!-- 获取登录用户的校区信息 ，并且过滤掉只有小学的校区-->
+				<entry key="BaseInforManagerExt.queryEdusysDtoByInfo.query">
+					<value><![CDATA[
+						select * from (
+				      	select distinct ee.campusid,ee.levelcode
+				      	<#if roleId?has_content>
+				      		,ee.levelid,ee.levelname
+				      	<#else>
+				      		,orl.roleid,orl.rolename
+				      	</#if>
+				      	from o_user ou 
+				      	join e_edusys ee on ee.campusid=:campuseId and ee.used=1
+				      	join o_rolecampus orc on orc.campusid=:campuseId
+				      	join o_userrole our on orc.userroleid=our.userroleid and ou.userid=our.userid
+				      	join o_role orl on our.roleid=orl.roleid
+				      	
+				      	<#if roleType == "1502006" >
+				      		join e_grade eg on eg.levelid=ee.levelid and eg.used=1
+               				join e_term et on et.schoolyear=eg.schoolyear and et.used=1
+               				join e_class ecl on ecl.gradeid=eg.gradeid and ecl.masterid=ou.personid
+				      	</#if>
+				      	
+				      	<#if roleType == "1502007" >
+				      		join e_grade eg on eg.levelid=ee.levelid and eg.used=1
+                			join e_term et on et.schoolyear=eg.schoolyear and et.used=1
+                			join e_classcourse ecl on  ecl.teacherid=ou.personid
+                			join e_class ecla on ecla.gradeid=eg.gradeid and ecla.classid=ecl.classid and ecla.used=1
+				      	</#if>	      	
+				      	where  1=1
+				      	and ee.levelcode in(2012002,2012003,2012004)
+				      	<#if userId?has_content>
+    						and  ou.userid = :userId
+   						</#if>
+   						<#if unitlevel?has_content>
+    						and orl.unitlevel = :unitlevel
+   						</#if>
+   						<#if roleId?has_content>
+    						and orl.roleid = :roleId
+   						</#if>
+   						<#if campuseId?has_content>
+    						and ee.campusid = :campuseId
+   						</#if>
+   						)
+   						order by levelcode desc
+					]]></value>
+				</entry>
+				<!--常用功能 -->
+				<entry key="ShowUserFuncDwr.queryUseNumUserMenu.query">
+					<value><![CDATA[
+						select funcid,funcname,execfilename,userid,commonfuncid from(
+					      			  select distinct ofc.funcid,ofc.funcname,ofc.execfilename,clickcount,ou.userid,oc.commonfuncid
+					                  from h_o_func ofc
+					                  inner join h_o_rolefunc oro on oro.funcid = ofc.funcid
+					                  inner join o_role rl on rl.roleid = oro.roleid
+					                  <#if roleId?has_content>
+					                  and rl.roleid = :roleId
+					                  </#if>
+					                  inner join o_userrole ou on ou.roleid = rl.roleid and ou.userid = :userId
+					                  inner join h_o_commonfunc oc on oc.funcid=ofc.funcid and oc.userid=:userId
+					                  where 1=1 and ofc.used =1 
+					                  and ofc.layer in (1,2)
+					                  and ofc.funcleveltype in (:funcLevelType,2)
+					                  order by ofc.execfilename,clickcount desc
+					      ) where  rownum <=4
+					]]></value> 
+				</entry>
+				<!--查看学业成就_学科学习过程记录 -->
+				<entry key="OperationAppraiseServiceExtImpl.queryAlearnprocessWorks.query">
+					<value><![CDATA[
+						select al.workid,al.subject,al.semesterid,al.processdesc,al.signdate,al.edu_id,sb.name
+						from a_learnprocess_works al
+						inner join s_baseinfo sb on sb.studentid=al.studentid and sb.discode=:discode and sb.cmis30id=:cmis30id and sb.partid=mod(:cmis30id,20)
+						where 1=1 
+						<#if edu_id?has_content>
+    						and al.edu_id=:edu_id
+   						</#if>
+						<#if semesterid?has_content>
+    						and al.semesterid=:semesterid  
+   						</#if>
+   						<#if discode?has_content>
+    						and al.discode=:discode  
+   						</#if>
+						<#if cmis30id?has_content>
+							and al.cmis30id=:cmis30id 
+   						</#if>
+						and al.partid=mod(:cmis30id,20)
+						order by al.workid
+					]]></value> 
+				</entry> 
+				<!--查看个性发展基本情况记录 -->
+				<entry key="OperationAppraiseServiceExtImpl.queryApersonality.query">
+					<value><![CDATA[
+						select ap.baseid,ap.semesterid,ap.appraisaltypeid,ap.indexid,ap.developmentrd,ap.edu_id,ap.signdate,sb.name 
+						from a_personality ap
+						inner join s_baseinfo sb on sb.studentid=ap.studentid and sb.discode=:discode and sb.cmis30id=:cmis30id and sb.partid=mod(:cmis30id,20)
+						where 1=1
+						<#if edu_id?has_content>
+    						and ap.edu_id=:edu_id 
+   						</#if>
+						<#if semesterid?has_content>
+    						and ap.semesterid=:semesterid  
+   						</#if>
+   						<#if discode?has_content>
+    						and ap.discode=:discode  
+   						</#if>
+						<#if cmis30id?has_content>
+							and ap.cmis30id=:cmis30id 
+   						</#if>
+						and ap.partid=mod(:cmis30id,20)
+						order by ap.baseid
+					]]></value> 
+				</entry>
+				<!--查看课程评语 -->
+				<entry key="OperationAppraiseServiceExtImpl.queryLearnprocessAppraisal.query1">
+					<value><![CDATA[
+						select appraisalid,semesterid,subject,appraisal,sign,signdate,edu_id,appraiserrid 
+						from a_learnprocess_appraisal
+						where 1=1
+						<#if edu_id?has_content>
+    						and edu_id=:edu_id
+   						</#if>
+						<#if semesterid?has_content>
+    						and semesterid=:semesterid 
+   						</#if>
+   						<#if discode?has_content>
+    						and discode=:discode  
+   						</#if>
+						<#if cmis30id?has_content>
+							and cmis30id=:cmis30id 
+   						</#if>
+						and partid=mod(:cmis30id,20)
+						order by appraisalid
+					]]></value> 
+				</entry>
+				<!--综合实践活动查询 -->
+				<entry key="OperationAppraiseServiceExtImpl.queryPractices.query1">
+					<value><![CDATA[
+						select sb.name,aa.appraisaltype,ap.practiceid,ap.semesterid,ap.appraisaltypeid,ap.edu_id,ap.item1,ap.item2,ap.item5,ap.item6,ap.item7,ap.item8,ap.item9 
+						from a_practices ap
+						inner join a_appraisaltype aa on aa.appraisaltypeid=ap.appraisaltypeid
+						inner join s_baseinfo sb on SB.inschoolstate='1002001'
+								<#if edu_id?has_content> 
+									and	sb.edu_id=:edu_id 
+								</#if>
+								<#if cmis30id?has_content> 		
+									and sb.cmis30id=:cmis30id
+									and sb.partid= mod(:cmis30id,20)
+								</#if>
+								<#if discode?has_content> 		
+									and sb.discode=:discode
+								</#if>
+						INNER JOIN e_stuclass es 
+								on es.studentid=sb.studentid
+								and es.used=1
+								<#if cmis30id?has_content> 	
+									and es.cmis30id=:cmis30id
+									and es.partid=mod(:cmis30id,20)	 
+								</#if>
+								<#if discode?has_content> 		
+									and es.discode=:discode
+								</#if>
+						 inner join e_grade eg 
+								on eg.gradeid=es.gradeid  and eg.used=1
+								and eg.cmis30id=sb.cmis30id
+								and eg.discode=sb.discode
+						inner join e_term et on et.schoolyear=eg.schoolyear and et.used=1
+							 
+						where 1=1
+						<#if edu_id?has_content>
+    						and ap.edu_id=:edu_id
+   						</#if>
+						<#if semesterid?has_content>
+    						and ap.semesterid=:semesterid  
+   						</#if>
+   						<#if discode?has_content>
+    						and ap.discode=:discode 
+   						</#if>
+						<#if cmis30id?has_content>
+							and ap.cmis30id=:cmis30id  
+   						</#if>
+						and ap.partid=mod(:cmis30id,20)
+						order by practiceid
+					]]></value> 
+				</entry>  
+				<!--综合实践活动查询 -->
+				<entry key="OperationAppraiseServiceExtImpl.queryattchfile.query">
+					<value><![CDATA[
+						select attachid,attachtype,attachname,attachpath,attachtypeid from a_attach
+						where 1=1
+						and attachtypeid in(
+						<#if attachtypeids?has_content>
+							<#list attachtypeids as attachtypeid>
+								'${attachtypeid}'
+								<#if attachtypeid_has_next>,</#if>
+							</#list>
+						<#else>
+							''
+						</#else>
+						</#if>
+						)
+					]]></value> 
+				</entry>
+				<!--综合实践活动查询 -->
+				<entry key="OperationAppraiseServiceExtImpl.calcuHeighTermidByEduId.query">
+					<value><![CDATA[
+						select distinct
+								case mod(et.termid,2) 
+								when 0 then eg.gradenum||2
+								when 1 then eg.gradenum||1
+								end semesterid
+								from e_grade eg
+								inner join e_class ecl on ecl.gradeid=eg.gradeid and ecl.used=1
+                				inner join e_stuclass stu on stu.classid=ecl.classid and stu.used=1
+                				inner join s_baseinfo sb on sb.cmis30id=:cmis30id and sb.discode=:discode 
+                				and sb.partid=mod(:cmis30id,20) and stu.studentid=sb.studentid 
+                				and sb.inschoolstate='1002001'  and sb.edu_id=:edu_id
+								inner join e_edusys ee on ee.levelid=eg.levelid and ee.levelcode in(2012003,2012004) and ee.used=1
+								inner join e_term et on et.schoolyear=eg.schoolyear and et.used=1
+								where  eg.used=1
+					]]></value> 
+				</entry>
+				<!--查询当前有效学期 -->
+				<entry key="OUserServiceExtImpl.queryCurrentTermid.query">
+					<value><![CDATA[
+						select termid,termname from e_term where used=1
+					]]></value> 
+				</entry>
+				<!--查询指定学校名称和区县代码-->
+				<entry key="OUserServiceExtImpl.queryDiscodeAndSchoolName.query">
+					<value><![CDATA[
+					<#if teacherid?has_content>
+						select bb.schoolname,bb.discode,tb.name teachername from b_baseinfo bb
+						inner join t_baseinfo tb on tb.cmis30id=bb.cmis30id and tb.teacherid=:teacherid
+						where bb.cmis30id=:cmis30id
+					<#else>
+						select schoolname,discode from b_baseinfo where cmis30id=:cmis30id
+					</#if>
+					]]></value> 
+				</entry>
+				<!--通过教育id查询出学生的基本信息-->
+				<entry key="OUserServiceExtImpl.queryStudentInfo.query">
+					<value><![CDATA[
+						select ee.levelcode,ee.campusid,bb.schoolname,bb.cmis30id,bb.discode,sb.studentid,sb.name,eg.gradeid,eg.gradename,eg.gradenum,ecl.classid,ecl.classsname,ou.userid masterid,ee.levelname,ee.levelid from b_baseinfo bb
+					   inner join s_baseinfo sb on  sb.inschoolstate='1002001' and sb.edu_id=:edu_id and bb.cmis30id=sb.cmis30id
+					   inner join e_stuclass est on est.studentid=sb.studentid and est.used=1
+					   inner join e_grade eg on eg.gradeid=est.gradeid and eg.used=1 and eg.schoolyear=substr(:termid,1,4)
+					   inner join e_class ecl on ecl.classid=est.classid and ecl.used=1
+					   inner join e_edusys ee on ee.levelid=eg.levelid and ee.levelcode in('2012002','2012003','2012004')
+					   left join o_user ou on ecl.masterid = ou.personid and ou.used=1 and ou.systemtype=2
+					]]></value> 
+				</entry>
+				<!--通过用户标识号查询所拥有的角色-->
+				<entry key="LoginUserInfoServiceExtImpl.queryListRoleTypes.query">
+					<!-- <value><![CDATA[
+						select distinct orol.roletype,orol.roleid,ol.campusid,orol.rolename from o_role orol
+						inner join o_userrole oro on oro.roleid=orol.roleid
+						inner join o_rolecampus ol on ol.userroleid=oro.userroleid
+						
+						inner join o_user ou on ou.userid=oro.userid and ou.used=1 and ou.username=:username and (ou.systemtype=2 or ou.systemtype=3) and ou.unitid=:cmis30id
+						
+						where orol.roletype in(1502003,1502005,1502006,1502007)
+					]]></value> --> 
+					<value><![CDATA[
+						select distinct orol.roletype,orol.roleid,ol.campusid,orol.rolename from o_role orol
+						inner join o_userrole oro on oro.roleid=orol.roleid
+						inner join o_rolecampus ol on ol.userroleid=oro.userroleid
+						where orol.roletype in(1502003,1502005,1502006,1502007) and oro.userid=:userid
+					]]></value>
+				</entry>
+				<!--教务老师查询校区-->
+				<entry key="LoginUserInfoServiceExtImpl.queryCampuseIdBySchoolAdmin.query">
+					<!-- <value><![CDATA[
+						select distinct ee.campusid,ee.levelcode,ee.levelid,ee.levelname from t_baseinfo tb
+				        inner join b_campus bc on bc.cmis30id=tb.cmis30id and bc.cmis30id=:cmis30id and bc.campusid in(
+				        	<#list campuseids as campuseid>
+								${campuseid}
+								<#if campuseid_has_next>,</#if>
+							</#list>
+				        )
+						inner join e_edusys ee on bc.campusid=ee.campusid and ee.used=1 and ee.levelcode in(2012002,2012003,2012004)
+						where tb.edu_id=:username
+					]]></value>  -->
+					<value><![CDATA[
+						select distinct ee.campusid,ee.levelcode,ee.levelid,ee.levelname from b_campus bc
+						inner join e_edusys ee on bc.campusid=ee.campusid and ee.used=1 and ee.levelcode in(2012002,2012003,2012004)
+						where bc.cmis30id=:cmis30id and bc.campusid in(
+				        	<#list campuseids as campuseid>
+								${campuseid}
+								<#if campuseid_has_next>,</#if>
+							</#list>
+				        )
+					]]></value>
+				</entry>
+				<!--班主任老师查询校区-->
+				<entry key="LoginUserInfoServiceExtImpl.queryCampuseIdBySchoolTeacher.queryMater">
+					<value><![CDATA[
+						 	select distinct ee.campusid,ee.levelcode,ee.levelid,ee.levelname from e_class ecl
+							inner join e_grade eg on eg.gradeid=ecl.gradeid and eg.used=1
+							inner join e_term et on et.schoolyear=eg.schoolyear and et.used=1
+							inner join e_edusys ee on ee.levelid=eg.levelid and ee.levelcode in(2012002,2012003,2012004)
+							 and ee.used=1
+							 and ee.campusid in(
+								 <#list campuseids as campuseid>
+									${campuseid}
+									<#if campuseid_has_next>,</#if>
+								</#list>
+							 )
+							where ecl.masterid=:teacherid and ecl.cmis30id=:cmis30id and ecl.used=1
+					]]></value> 
+				</entry>
+				<!--任课老师老师查询校区-->
+				<entry key="LoginUserInfoServiceExtImpl.queryCampuseIdBySchoolTeacher.queryCourse">
+					<value><![CDATA[
+						 	select distinct ee.campusid,ee.levelcode,ee.levelid,ee.levelname from e_classcourse ecla
+							inner join e_subject es on es.subjectid=ecla.subjectid and es.used=1
+							inner join e_class ecl on ecl.classid=ecla.classid and ecl.used=1 and ecl.cmis30id=:cmis30id
+							inner join e_grade eg on eg.gradeid=ecl.gradeid and eg.used=1 and eg.cmis30id=:cmis30id
+							inner join e_term et on et.schoolyear=eg.schoolyear and et.used=1
+							inner join e_edusys ee on ee.levelid=eg.levelid and ee.levelcode=2012002 and ee.cmis30id=:cmis30id
+							and ee.used=1
+							and ee.campusid in(
+				        		<#list campuseids as campuseid>
+									${campuseid}
+									<#if campuseid_has_next>,</#if>
+								</#list>
+			        		)
+							where ecla.teacherid=:teacherid
+					]]></value> 
+				</entry>
+				<!--任课老师老师查询校区-->
+				<entry key="LoginUserInfoServiceExtImpl.queryCampuseIdBySchoolTeacher.queryKCourse">
+					<value><![CDATA[
+						 	select distinct ee.campusid,ee.levelcode,ee.levelid,ee.levelname from k_class_model ecla
+							inner join e_class ecl on ecl.classid=ecla.classid and ecl.used=1 and ecl.cmis30id=:cmis30id
+							inner join e_grade eg on eg.gradeid=ecl.gradeid and eg.used=1 and eg.cmis30id=:cmis30id
+							inner join e_term et on et.schoolyear=eg.schoolyear and et.used=1
+							inner join e_edusys ee on ee.levelid=eg.levelid and ee.levelcode in(2012003,2012004) and ee.cmis30id=:cmis30id
+							and ee.used=1
+							and ee.campusid in(
+				        		<#list campuseids as campuseid>
+									${campuseid}
+									<#if campuseid_has_next>,</#if>
+								</#list>
+			        		)
+							where ecla.teacherid=:teacherid
+					]]></value> 
+				</entry>
+				<!--通过校区查询角色-->
+				<entry key="LoginUserInfoServiceExtImpl.queryUserRolesByUserIdAndCampusId.query">
+					<value><![CDATA[
+						 	select distinct oro.roleid,oro.rolename,oro.roletype from o_role oro
+							inner join o_userrole ous on oro.roleid=ous.roleid and ous.userid=:userid
+							inner join o_rolecampus orol on orol.userroleid=ous.userroleid and orol.campusid=:campusid
+							where oro.used=1 and oro.roletype in(1502003,1502005,1502006,1502007)
+							order by oro.roletype
+					]]></value> 
+				</entry>
+				<!--通过校区查询角色-->
+				<entry key="LoginUserInfoServiceExtImpl.queryEdusysByCampuseId.query">
+					<value><![CDATA[		 	
+							select levelid,levelname,levelcode from e_edusys where used=1  and levelcode in(2012002,2012003,2012004) 
+							and campusid=:campuseid and cmis30id=:cmis30id and discode=:discode
+							order by levelcode
+					]]></value> 
+				</entry>
+				<!--班主任老师查询校区-->
+				<entry key="LoginUserInfoServiceExtImpl.queryEdusysByPersionIdForMaster.query">
+					<value><![CDATA[
+						 	 select distinct ee.levelcode,ee.levelid,ee.levelname from e_edusys ee
+			                  inner join e_grade eg on ee.levelid=eg.levelid and eg.used=1 and eg.cmis30id=:cmis30id and eg.discode=:discode
+			                  inner join e_term et on et.schoolyear=eg.schoolyear and et.used=1
+			                  inner join e_class ecl on ecl.used=1 and eg.gradeid=ecl.gradeid and ecl.cmis30id=:cmis30id and ecl.discode=:discode and ecl.masterid=:personid
+			                  where ee.levelcode in(2012002,2012003,2012004) and ee.campusid=:campuseid and ee.cmis30id=:cmis30id and ee.discode=:discode
+			                  and ee.used=1  order by ee.levelcode
+					]]></value> 
+				</entry>
+				<!--任课老师查询学段-->
+				<entry key="LoginUserInfoServiceExtImpl.queryEdusysByPersionIdForCourse.query">
+					<value><![CDATA[
+						 	  select distinct ee.levelcode,ee.levelid,ee.levelname from e_edusys ee
+			                  inner join e_grade eg on ee.levelid=eg.levelid and eg.used=1 and eg.cmis30id=:cmis30id and eg.discode=:discode
+			                  inner join e_term et on et.schoolyear=eg.schoolyear and et.used=1
+			                  inner join e_class ecl on ecl.used=1 and ecl.cmis30id=:cmis30id and ecl.discode=:discode 
+			                  inner join e_classcourse ecla on ecla.classid=ecl.classid and ecla.teacherid=:personid and ecla.cmis30id=:cmis30id
+			                  inner join e_subject es on es.subjectid=ecla.subjectid and es.used=1
+			                  where ee.levelcode in(2012002,2012003,2012004) and ee.campusid=:campuseid and ee.cmis30id=:cmis30id and ee.discode=:discode
+			                  and ee.used=1 order by ee.levelcode
+					]]></value> 
+				</entry>
+				<!--查询用户所属学校-->
+				<entry key="LoginUserInfoServiceExtImpl.queryUserNameCount.query">
+					<value><![CDATA[
+						 	select distinct unitid from o_user ou
+						 	inner join o_userrole ous on ous.userid=ou.userid
+						 	where ou.username=:username and ou.usertype='1503005' and ou.systemtype=2 and ou.used=1
+					]]></value> 
+				</entry>
+				<!--查询校级用户角色类型-->
+				<entry key="OUserServiceExtImpl.queryRoleRealType.query">
+					<value><![CDATA[
+						 	select roletype from o_role where roleid=:roleId
+					]]></value> 
+				</entry>
+				<!--查询用户表里所有综素系统数据-->
+				<entry key="UserLoginServiceExt.queryLoginOUserAll.query">
+					<value><![CDATA[
+						 	select systemtype,ou.userid,ouu.username,pwd,usertype,unitid,personid,primaryschool,middleschool,highschool,used,name,cardsort,cardid,unitname,telephone,pwd_show,ouu.cot cot from o_user ou
+							inner join o_userrole ous on ous.userid=ou.userid
+							inner join(
+								select username,count(1) cot from o_user oue
+				              	inner join o_userrole ous on ous.userid=oue.userid
+				              	where oue.systemtype in(2,3)
+				              	group by username
+							) ouu on ouu.username=ou.username
+							where systemtype in(2,3)
+					]]></value> 
+				</entry>
+				<entry key="UserLoginServiceExt.queryStudentInfosAll.query">
+					<value><![CDATA[
+							select sb.edu_id,sb.name,sb.sex,to_char(sb.birthday,'yyyy-MM-dd') birthday,sb.cmis30id,sb.studentno,sb.cardid from s_baseinfo sb
+							inner join e_stuclass est on est.studentid=sb.studentid
+							inner join e_grade eg on eg.gradeid=est.gradeid
+							inner join e_edusys ee on ee.levelid=eg.levelid and ee.levelcode in(2012003,2012004)			
+					]]></value>
+				</entry>
+				<!-- 查询记录袋 -->
+				<entry key="AattachFileExtImpl.queryRecodingPacking.queryR">
+					<value><![CDATA[
+							select ar.recordid attachtypeid,aat.attachid,ar.cmis30id,ar.discode,ar.partid from a_attach aat
+							inner join a_recordpackage ar on  ar.old_recordid=aat.old_attachtypeid
+							where  aat.attachtype=1		
+					]]></value>
+				</entry>
+				<!-- 查询个人发展 -->
+				<entry key="AattachFileExtImpl.queryRecodingPacking.queryAP">
+					<value><![CDATA[
+							select ar.baseid attachtypeid,aat.attachid,ar.cmis30id,ar.discode,ar.partid from a_attach aat
+							inner join a_personality ar on ar.old_baseid=aat.old_attachtypeid
+							where  aat.attachtype=2
+					]]></value>
+				</entry>
+				<!-- 查询综合实践 -->
+				<entry key="AattachFileExtImpl.queryRecodingPacking.queryP">
+					<value><![CDATA[
+							select ar.practiceid attachtypeid,aat.attachid,ar.cmis30id,ar.discode,ar.partid from a_attach aat
+							inner join a_practices ar on ar.old_practiceid=aat.old_attachtypeid
+							where  aat.attachtype=3
+					]]></value>
+				</entry>
+				<!-- 查询学科学习发展过程-->
+				<entry key="AattachFileExtImpl.queryRecodingPacking.queryAL">
+					<value><![CDATA[
+							select ar.workid attachtypeid,aat.attachid,ar.cmis30id,ar.discode,ar.partid from a_attach aat
+							inner join a_learnprocess_works ar on ar.old_workid=aat.old_attachtypeid
+							where  aat.attachtype=4
+					]]></value>
+				</entry>
+				<!-- 查询初中评价信息-->
+				<entry key="MidSchoolDataInitCacheExtImpl.queryPartInfoCacheDtosInDb.query">
+					<value><![CDATA[
+							select pt.* from partinfo pt
+							inner join s_baseinfo sb on pt.edu_id=sb.edu_id and sb.inschoolstate='1002001'
+							inner join e_stuclass est on est.studentid=sb.studentid and est.used=1
+							inner join e_grade eg on eg.gradeid=est.gradeid and eg.used=1
+							inner join e_term et on et.schoolyear=eg.schoolyear and et.used=1
+							inner join e_class ecl on ecl.classid=est.classid and ecl.used=1
+							inner join e_edusys ee on ee.levelcode='2012002' and ee.levelid=eg.levelid and ee.used=1
+							where pt.part_id='52640982'
+					]]></value>
+				</entry>
+				<!-- 查询初中评价信息附件-->
+				<entry key="MidSchoolDataInitCacheExtImpl.queryAttachmentCacheDtosInDb.query">
+					<value><![CDATA[
+							select * from Attachment att
+							inner join partinfo pt on att.part_id=pt.part_id
+							inner join s_baseinfo sb on pt.edu_id=sb.edu_id and sb.inschoolstate='1002001'
+							inner join e_stuclass est on est.studentid=sb.studentid and est.used=1
+							inner join e_grade eg on eg.gradeid=est.gradeid and eg.used=1
+							inner join e_term et on et.schoolyear=eg.schoolyear and et.used=1
+							inner join e_class ecl on ecl.classid=est.classid and ecl.used=1
+							inner join e_edusys ee on ee.levelcode='2012002' and ee.levelid=eg.levelid and ee.used=1
+							where pt.part_id='73135664'
+					]]></value>
+				</entry>
+			</map>	                                                            
+		</property>
+	</bean>
+</beans>

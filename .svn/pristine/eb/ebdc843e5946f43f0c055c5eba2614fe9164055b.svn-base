@@ -1,0 +1,51 @@
+@charset "utf-8";
+/* CSS Document */
+
+
+*{font-size:12px;}
+body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,form,fieldset,input,textarea,p,blockquote,th,td{margin:0;padding:0;}
+h1 h2 h3{font-size:12px;font-weight:normal;}
+a{text-decoration:none;color:black;}
+ul{list-style:none;}
+img{margin:0;border:0 none;display:block;}
+
+.clear:after{content:"";display:block;clear:both;}
+.clear{zoom:1}
+
+body{ background:url(../images/bg33.png);}
+.bigB{width:1200px;margin:72px auto 0;}
+.leftB{width:980px;margin-right:10px;float:left;}
+.rightB{width:210px;float:left;}
+.upB{margin-bottom:10px;}
+.blueB{background-color:#fffffb;width:210px;height:490px;margin-right:10px;float:left;vertical-align:middle;text-align:center;display:table-cell;}
+.blueB1{width:760px;height:490px;float:left;}
+.blueB2{background-color:#fffffb;height:295px;margin-top:10px;}
+.greenB{background-color:#fffffb;width:753px;height:100px;/*float:left;*/margin-right:10px;}
+.greenB1{background-color:#fffffb;height:295px;}
+.purple{background-color:#fffffb;width:217px;height:100px;float:left;}
+
+
+
+#top_left{position:relative;}
+#top_center{position:relative;}
+#top_right{position:relative;}
+#dw_right{position:relative;}
+#loginB{position:relative;}
+#dw_left{float:left; position:relative;}
+#top_left .build{position:absolute;left:65px;top:190px;}
+#top_left .version{position:absolute;left:10px;top:465px;color:#96bf28;font-size:14px;font-family:"微软雅黑";}
+#top_center .title{position:absolute;left:415px;top:108px;}
+#top_center .name{position:absolute;left:419px;top:277px;font-family:"微软雅黑";font-size:29px;color:#fffffb;}
+#top_right .book{position:absolute;left:73px;top:110px;}
+#top_right .help{position:absolute;left:10px;top:270px;font-family:"微软雅黑";font-size:14px;color:#96bf28;}
+#top_right a:hover{color:#234755;}
+#top_right:hover{background-color:#224b55;}
+#dw_right .tool{position:absolute;left:73px;top:110px;}
+#dw_right .phone{position:absolute;left:10px;top:250px;font-family:"微软雅黑";font-size:14px;color:#96bf28;width:187px;}
+/*#dw_left .user{position:relative;left:10px;top:30px;}*/
+#dw_left .userN{font-family:"微软雅黑";font-size:14px;color:#96bf28;float:left;line-height:30px;}
+#dw_left .userB{ position:absolute;left:10px;bottom:30px;}
+#loginB .login{position:absolute;left:830px;top:34px;}
+#loginB .login a{font-family:"微软雅黑";font-size:24px;color:#96bf28;}
+
+.bigBwrapper{ position:absolute; left:50%; top:50%; width:1300px; height:706px; margin-left:-650px; margin-top:-353px;  background:url(../images/bg36.png); z-index:99;}

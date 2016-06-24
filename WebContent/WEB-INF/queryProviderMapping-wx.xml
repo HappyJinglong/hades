@@ -1,0 +1,2506 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd"
+	default-autowire="byName" default-lazy-init="true">
+
+	<!-- query provider mapping implement 							<#if userKindForSe?has_content>
+								and su.user_kind  =:userKindForSe
+						    </#if>
+-->
+	<bean id="queryProviderMapping-wx"
+		class="org.nestframework.commons.hibernate.QueryProviderMappingImpl">
+		<property name="queryMap">
+			<map>
+				<!-- 获得学生信息 -->
+				<entry key="SelfAppManager.selectStudent.query">
+					<value><![CDATA[
+					select distinct sbi.studentid,sbi.name,ee.levelname,ee.levelcode,ec.classsname,eg.gradename,sc.schoolname,sbi.discode,
+									ee.levelnum,ec.CLASSNUM,eg.gradenum,sc.schoolcode,sbi.sex,sbi.studentno,et.termid,sbi.cmis30id,sc.discode,sbi.edu_id,et.termtype,
+									ec.classid,eg.gradeid,ee.levelid
+             						 from s_baseinfo sbi
+             						 inner join b_baseinfo sc on sc.cmis30id = sbi.cmis30id
+									 inner join E_STUCLASS stc on stc.studentid = sbi.studentid
+                     		       	 inner join e_class ec on ec.classid = stc.classid 
+                      			     inner join e_grade eg on eg.gradeid = stc.gradeid 
+                       			     inner join E_EDUSYS ee on ee.LEVELID = eg.LEVELID
+                           			 inner join e_schoolyear es on es.schoolyear = eg.schoolyear
+                          			 inner join e_term et on et.schoolyear = es.schoolyear and et.used = 1
+                            			where ee.levelcode <> 2012001 and sbi.studentid =:studentid
+ 					]]></value>
+				</entry>
+				<!-- 查询自我评价  -->
+						<entry key="SelfAppManager.selectSelfAppraise.query">
+						<value>
+							<![CDATA[
+							select sbi.studentid,sbi.name,aa.apprasialid,aat.appraisaltype,ast.semester,aa.appraisaltypeid,aa.appraseridentify,aa.semesterid,aa.apprasial,aa.appraser,aa.signdate,aa.appraiserrid
+              					 from s_baseinfo sbi
+             						 inner join b_baseinfo sc on sc.cmis30id = sbi.cmis30id and sc.cmis30id=:cmis30id and sc.discode=:discode 
+              						 left join a_apprasial aa on aa.edu_id = sbi.edu_id 
+             						 inner join a_appraisaltype aat on aat.appraisaltypeid = aa.appraisaltypeid
+               						 inner join a_semester ast on ast.semesterid = aa.semesterid
+                            		 where sbi.studentid =:evaluateid 
+                            		 and sbi.cmis30id =:cmis30id 
+                            		 and sbi.discode =:discode 
+                            		 and sbi.partid = mod(:cmis30id,20) 
+                            		 <#if termId?has_content>
+										and aa.semesterid =:termId
+									</#if>
+									<#if evaluateType?has_content>
+										and aa.appraisaltypeid =:evaluateType
+									</#if>
+								 	<#if appraseridentify?has_content>
+										and aa.APPRASERIDENTIFY =:appraseridentify 
+									</#if>
+									]]>
+						</value>
+					</entry>
+					<!--增加自我评价 -->
+				<entry key="SelfAppManager.insertSelfAppraisal.add">
+					<value><![CDATA[
+							insert into a_apprasial(apprasialid,appraisaltypeid,appraiserrid,semesterid,studentid,appraseridentify,appraser,apprasial,signdate,edu_id,CMIS30ID,DISCODE,EDITTIME)values(s_A_APPRASIAL.NEXTVAL,:appraisaltypeid,:appraiserrid,:semesterid,:studentid,:appraseridentify,:appraser,:apprasial,:signdate,:edu_id,:cmis30id,:discode,sysdate)						
+					]]></value>
+				</entry>
+				<!--增加自我评价 -->
+				<entry key="SelfAppManager.insertSelfAppraisalwith.add">
+					<value><![CDATA[
+							insert into a_apprasial(apprasialid,appraisaltypeid,appraiserrid,semesterid,studentid,appraseridentify,appraser,apprasial,signdate,edu_id,CMIS30ID,DISCODE,EDITTIME)values(:apprasialid,:appraisaltypeid,:appraiserrid,:semesterid,:studentid,:appraseridentify,:appraser,:apprasial,:signdate,:edu_id,:cmis30id,:discode,sysdate)						
+					]]></value>
+				</entry>
+					<!--更新自我评价 -->
+				<entry key="SelfAppManager.updateSelfAppraisal.update">
+					<value><![CDATA[
+							update a_apprasial 
+							set apprasial =:apprasial,
+							signdate =:signdate,
+							EDITTIME=sysdate
+							<#if appraseridentify?has_content>
+							,appraseridentify =:appraseridentify 
+							</#if>
+							where apprasialid =:apprasialid
+					]]></value>
+				</entry>
+					<!--删除自我评价 -->
+				<entry key="SelfAppManager.deleteSelfAppraisal.delete">
+					<value><![CDATA[
+							delete from a_apprasial where apprasialid =:apprasialid and cmis30id=:cmis30id and discode =:discode
+					]]></value>
+				</entry>
+					<!--删除自记录袋 -->
+				<entry key="SelfAppManager.deletetSelfPackage.delete">
+					<value><![CDATA[
+							delete from a_recordpackage where recordid =:recordid
+					]]></value>
+				</entry>
+				<!--删除记录袋附件 -->
+				<entry key="SelfAppManager.deletetSelfPackageAttach.delete">
+					<value><![CDATA[
+							delete from a_attach where attachtypeid =:recordid
+					]]></value>
+				</entry>
+					<!--删除附件 -->
+				<entry key="SelfAppManager.deletetSelfAttach.delete">
+					<value><![CDATA[
+							delete from a_attach where attachid =:attachid
+					]]></value>
+				</entry>
+				<!--删除学业成就 -->
+				<entry key="LearnprocessWorks.deletetLearnprocessWorks.delete">
+					<value><![CDATA[
+							delete from a_learnprocess_works where workid =:recordid
+					]]></value>
+				</entry>
+				<!--获取自我评价列表 -->
+					<entry key="SelfAppManager.selectSelfAppraiseList.query">
+						<value>
+							<![CDATA[
+							select sbi.studentid,sbi.name,aa.apprasialid,aat.appraisaltype,ast.semester,aa.appraisaltypeid,aa.appraseridentify,aa.semesterid,aa.apprasial,aa.appraser,aa.signdate,aat.appraisaltype
+              					 from s_baseinfo sbi
+             						 inner join b_baseinfo sc on sc.cmis30id = sbi.cmis30id  and sc.cmis30id=:cmis30id and sc.discode=:discode 
+              						 left join a_apprasial aa on aa.edu_id = sbi.edu_id  
+             						 left join a_appraisaltype aat on aat.appraisaltypeid = aa.appraisaltypeid
+               						 left join a_semester ast on ast.semesterid = aa.semesterid
+                            			where sbi.studentid =:evaluateid and sbi.cmis30id =:cmis30id and sbi.discode =:discode and sbi.partid = mod(:cmis30id,20) 
+								 	<#if evaluateType?has_content>
+										and aa.appraisaltypeid =:evaluateType
+									</#if>
+									 <#if termId?has_content>
+										and aa.semesterid =:termId
+									</#if>
+									]]>
+						</value>
+					</entry>
+					
+					<!-- 查询记录袋 -->
+						<entry key="SelfAppManager.selectReportPackage.query">
+						<value>
+							<![CDATA[
+							select sbi.studentid,sbi.name,aat.appraisaltype,ast.semester,ar.recordid,ar.studentid,ar.semesterid,
+							ar.appraisaltypeid,ar.content,ar.appraseridentify,ar.signer,ar.signdate,ar.edu_id
+              					 from s_baseinfo sbi
+             						 inner join b_baseinfo sc on sc.cmis30id = sbi.cmis30id and sc.cmis30id=:cmis30id and sc.discode=:discode 
+              						 left join a_recordpackage ar on ar.edu_id = sbi.edu_id  
+             						 left join a_appraisaltype aat on aat.appraisaltypeid = ar.appraisaltypeid
+               						 left join a_semester ast on ast.semesterid = ar.semesterid
+                            		where sbi.studentid =:evaluateid and sbi.cmis30id =:cmis30id and sbi.discode =:discode and sbi.partid = mod(:cmis30id,20) 
+                            		 <#if termId?has_content>
+										and ar.semesterid =:termId
+									</#if>
+								 	<#if evaluateType?has_content>
+										and ar.appraisaltypeid =:evaluateType
+									</#if>
+									]]>
+						</value>
+					</entry>
+					<!-- 保存记录袋 -->
+						<entry key="SelfAppManager.insertReportPackage.add">
+						<value>
+							<![CDATA[
+							insert into A_RECORDPACKAGE(RECORDID,SEMESTERID,APPRAISALTYPEID,CONTENT,APPRASERIDENTIFY,SIGNER,SIGNDATE,EDU_ID,DISCODE,CMIS30ID,STUDENTID,EDITTIME)values(s_A_RECORDPACKAGE.NEXTVAL,:semesterid,:appraisaltypeid,:content,:appraseridentify,:signer,:signdate,:edu_id,:discode,:cmis30id,:studentid,sysdate)						
+									]]>
+						</value>
+					</entry>
+						<!--更新记录袋 -->
+					<entry key="RecordPackageManager.doUpdate.update">
+						<value><![CDATA[
+							update a_recordpackage 
+							set content =:content,
+							signdate =:signdate, 
+							appraseridentify =:appraseridentify,
+							EDITTIME=sysdate 
+							where recordid =:recordid
+						]]></value>
+					</entry>
+					<!-- 保存记录袋附件 -->
+						<entry key="SelfAppManager.insertattach.add">
+						<value>
+							<![CDATA[
+							insert into A_ATTACH(ATTACHID,WORKID,PROCESSID,ATTACHTYPE,ATTACHNAME,ATTACHPATH,IMAGE,ATTACHTYPEID,DISCODE,CMIS30ID)values(s_A_ATTACH.NEXTVAL,:workid,:processid,:attachtype,:attachname,:attachpath,:image,:attachtypeid,:discode,:cmis30id)						
+									]]>
+						</value>
+					</entry>
+					<!-- 查询记录袋附件名称 -->
+						<entry key="SelfAppManager.selectattach.query">
+						<value>
+							<![CDATA[
+							select attachid,attachname,attachpath from A_ATTACH where ATTACHTYPEID =:recordid 
+							<#if attachtype?has_content>
+										and ATTACHTYPE =:attachtype 
+							</#if> 
+							and cmis30id =:cmis30id and discode =:discode and partid = mod(:cmis30id,20) order by attachid 
+									]]>
+						</value>
+					</entry>
+					<!-- 查询记录袋附件列表 -->
+						<entry key="SelfAppManager.selectattachList.query">
+						<value>
+							<![CDATA[
+							select attachid,attachname,attachpath from A_ATTACH where ATTACHID =:attachid and cmis30id =:cmis30id and discode =:discode and partid = mod(:cmis30id,20) 
+									]]>
+						</value>
+					</entry>
+					<!-- 查询当前记录袋主键ID -->
+						<entry key="SelfAppManager.selectReportPackageId.query">
+						<value>
+							<![CDATA[
+							select s_A_RECORDPACKAGE.NEXTVAL from dual
+									]]>
+						</value>
+					</entry>
+					
+						<!-- 查询学科学习过程记录 -->
+						<entry key="LearnprocessWorks.selectLearnprocessWork.query">
+						<value>
+							<![CDATA[
+							select sbi.studentid,alw.workid,alw.subject,alw.processdesc,alw.semesterid,ast.semester,alw.signdate
+              					 from s_baseinfo sbi
+             						 inner join b_baseinfo sc on sc.cmis30id = sbi.cmis30id and sc.cmis30id=:cmis30id and sc.discode=:discode
+              						 left join a_learnprocess_works alw on alw.edu_id = sbi.edu_id
+               						 left join a_semester ast on ast.semesterid = alw.semesterid
+                            		where sbi.studentid =:evaluateid and sbi.cmis30id =:cmis30id and sbi.discode =:discode and sbi.partid = mod(:cmis30id,20) 
+                            		 <#if termId?has_content>
+										and alw.semesterid =:termId
+									</#if> 
+									]]>
+						</value>
+					</entry>
+					
+						<!--更新学科学习过程记录-->
+					<entry key="LearnprocessWorks.updateLearnprocessWork.update">
+						<value><![CDATA[
+							update a_learnprocess_works 
+							set processdesc =:processdesc,subject =:subject,signdate =:signdate,
+							EDITTIME=sysdate  
+							where workid =:workid
+						]]></value>
+					</entry>
+					<!-- 保存学科学习过程记录 -->
+						<entry key="LearnprocessWorks.insertLearnprocessWork.add">
+						<value>
+							<![CDATA[
+							insert into a_learnprocess_works(WORKID,SUBJECT,SEMESTERID,EDU_ID,DISCODE,CMIS30ID,STUDENTID,PROCESSDESC,SIGNDATE,EDITTIME)values(s_A_LEARNPROCESS_WORKS.NEXTVAL,:subject,:semesterid,:edu_id,:discode,:cmis30id,:studentid,:processdesc,:signdate,sysdate)						
+									]]>
+						</value>
+					</entry>
+					
+					
+					<!-- 查询个性发展基本情况-->
+						<entry key="Personality.selectPersonality.query">
+						<value>
+							<![CDATA[
+							select sbi.studentid,ap.baseid,ap.semesterid,ap.appraisaltypeid,ap.indexid,ap.developmentrd,ast.semester,ap.signdate 
+              					 from s_baseinfo sbi
+             						 inner join b_baseinfo sc on sc.cmis30id = sbi.cmis30id and sc.cmis30id=:cmis30id and sc.discode=:discode 
+              						 left join a_personality ap on ap.edu_id = sbi.edu_id 
+               						 left join a_semester ast on ast.semesterid = ap.semesterid
+                            			where sbi.studentid =:evaluateid and sbi.cmis30id =:cmis30id and sbi.discode =:discode and sbi.partid = mod(:cmis30id,20) 
+                            		 <#if termId?has_content>
+										and ap.semesterid =:termId
+									</#if>
+									]]>
+						</value>
+					</entry>
+					<!-- 保存个性发展基本情况-->
+						<entry key="Personality.insertPersonality.add">
+						<value>
+							<![CDATA[
+							insert into a_personality(BASEID,SEMESTERID,INDEXID,EDU_ID,DISCODE,CMIS30ID,STUDENTID,DEVELOPMENTRD,SIGNDATE,EDITTIME)values(s_A_PERSONALITY.NEXTVAL,:semesterid,:indexid,:edu_id,:discode,:cmis30id,:studentid,:developmentrd,:signdate,sysdate)						
+									]]>
+						</value>
+					</entry>
+						<!--更新个性发展基本情况-->
+					<entry key="Personality.updatePersonality.update">
+						<value><![CDATA[
+							update a_personality 
+							set developmentrd =:developmentrd,signdate =:signdate,
+							EDITTIME=sysdate 
+							where baseid =:baseid
+						]]></value>
+					</entry>
+					
+					
+			<!--   ********************初中 ********************     -->		
+					<!--查询内容-->
+					<entry key="PartInfo.selectPartInfo.select">
+						<value>
+						<![CDATA[
+								select distinct sbi.studentid,to_char(pi.part_info) as part_info,pi.part_id,pi.cmis30id,pi.discode,pi.userid,pi.studentid,pi.termid,pi.topic,pi.write_man,pi.signer_name,pi.two_part_id,pi.subject_id,pi.CreateDate,pi.is_attachmen
+              					 from s_baseinfo sbi
+             						 left join partinfo pi on pi.edu_id = sbi.edu_id and pi.termid =:termid
+                            			where sbi.studentid =:evaluateid and sbi.cmis30id =:cmis30id and sbi.discode =:discode and sbi.partid = mod(:cmis30id,20)
+                            			<#if evaluateType?has_content>
+										and pi.two_part_id =:evaluateType
+										</#if>
+						]]>
+						</value>
+					</entry>
+					
+					<entry key="PartInfo.selectPartInfoZh.select">
+						<value><![CDATA[
+								select distinct sbi.studentid,to_char(pi.part_info) as part_info,pi.cmis30id,pi.discode,pi.keyword,pi.cooperation_man,pi.startdate,pi.enddate,pi.address,pi.part_id,pi.userid,pi.studentid,pi.termid,pi.topic,pi.write_man,pi.signer_name,pi.two_part_id,pi.subject_id,pi.CreateDate,pi.is_attachmen
+              					 from s_baseinfo sbi
+             						 inner join b_baseinfo sc on sc.cmis30id = sbi.cmis30id and sc.cmis30id=:cmis30id and sc.discode=:discode 
+             						 left join partinfo pi on pi.edu_id = sbi.edu_id and pi.termid =:termid 
+                            			where sbi.studentid =:evaluateid and sbi.cmis30id =:cmis30id and sbi.discode =:discode and sbi.partid = mod(:cmis30id,20)
+                            			<#if evaluateType?has_content>
+										and pi.two_part_id =:evaluateType
+										</#if>
+						]]></value>
+					</entry>
+					<!-- 保存 -->
+						<entry key="PartInfo.insertPartInfoWith.add">
+						<value>
+							<![CDATA[
+							insert into PARTINFO(PART_ID,USERID,TERMID,TOPIC,WRITE_MAN,SIGNER_NAME,TWO_PART_ID,SUBJECT_ID,CREATEDATE,IS_ATTACHMEN,DISCODE,CMIS30ID,STUDENTID,PART_INFO,EDU_ID,EDITTIME)values(:part_id,:userid,:termid,:topic,:write_man,:signer_name,:two_part_id,:subject_id,:createdate,:is_attachmen,:discode,:cmis30id,:studentid,:part_info,:edu_id,sysdate)						
+									]]>
+						</value>
+					</entry>
+					
+					<!-- 保存 -->
+						<entry key="PartInfo.insertPartInfo.add">
+						<value>
+							<![CDATA[
+							insert into PARTINFO(PART_ID,USERID,TERMID,TOPIC,WRITE_MAN,SIGNER_NAME,TWO_PART_ID,SUBJECT_ID,CREATEDATE,IS_ATTACHMEN,DISCODE,CMIS30ID,STUDENTID,PART_INFO,EDU_ID,EDITTIME,KEYWORD,COOPERATION_MAN,STARTDATE,ENDDATE,ADDRESS)values(:part_id,:userid,:termid,:topic,:write_man,:signer_name,:two_part_id,:subject_id,:createdate,:is_attachmen,:discode,:cmis30id,:studentid,:part_info,:edu_id,sysdate,:keyword,:cooperation_man,:startdate,:enddate,:address)						
+									]]>
+						</value>
+					</entry>
+					
+					<!--更新-->
+					<entry key="PartInfo.updatePartInfo.update">
+						<value><![CDATA[
+							update PARTINFO 
+							set PART_INFO =:part_info,
+							EDITTIME=sysdate
+							<#if topic?has_content>
+								,TOPIC =:topic
+							</#if>
+							<#if subject_id?has_content>
+								,SUBJECT_ID =:subject_id
+							</#if>
+							<#if createdate?has_content>
+								,CREATEDATE =:createdate
+							</#if>
+							where PART_ID =:part_id
+						]]></value>
+					</entry>
+					
+					<!--更新-->
+					<entry key="PartInfo.updatePartInfoZh.update">
+						<value><![CDATA[
+							update PARTINFO 
+							set EDITTIME=sysdate
+							<#if part_info?has_content>
+								,PART_INFO =:part_info
+							</#if>
+							<#if topic?has_content>
+								,TOPIC =:topic
+							</#if>
+							<#if subject_id?has_content>
+								,SUBJECT_ID =:subject_id
+							</#if>
+							<#if createdate?has_content>
+								,CREATEDATE =:createdate
+							</#if>
+							<#if address?has_content>
+								,ADDRESS =:address
+							</#if>
+							<#if cooperation_man?has_content>
+								,COOPERATION_MAN =:cooperation_man
+							</#if>
+							<#if startdate?has_content>
+								,STARTDATE =:startdate
+							</#if>
+							<#if enddate?has_content>
+								,ENDDATE =:enddate
+							</#if>
+							<#if keyword?has_content>
+								,KEYWORD =:keyword
+							</#if>
+							where PART_ID =:part_id
+						]]></value>
+					</entry>
+					<!-- 查询附件名称 -->
+						<entry key="PartInfo.selectAttachment.query">
+						<value>
+							<![CDATA[
+							select attachment_id,part_id,attachment_name,attachment_path from ATTACHMENT where part_id =:part_id order by attachment_id 
+									]]>
+						</value>
+					</entry>
+						<!-- 查询附件名称 -->
+						<entry key="PartInfo.selectAttachmentList.query">
+						<value>
+							<![CDATA[
+							select attachment_id,part_id,attachment_name,attachment_path from ATTACHMENT where attachment_id =:attachment_id 
+									]]>
+						</value>
+					</entry>
+					
+					<!-- 保存附件 -->
+						<entry key="PartInfo.insertAttachment.add">
+						<value>
+							<![CDATA[
+							insert into ATTACHMENT(ATTACHMENT_ID,PART_ID,ATTACHMENT_NAME,ATTACHMENT_PATH,DISCODE,CMIS30ID)values(s_ATTACHMENT.NEXTVAL,:part_id,:attachment_name,:attachment_path,:discode,:cmis30id)						
+									]]>
+						</value>
+					</entry>
+					
+					<!--删除自我评价 -->
+				<entry key="PartInfo.deletePartInfo.delete">
+					<value><![CDATA[
+							delete from PARTINFO where PART_ID =:part_id and cmis30id =:cmis30id and discode =:discode
+					]]></value>
+				</entry>
+					<!--删除附件 -->
+				<entry key="PartInfo.deleteAttachment.delete">
+					<value><![CDATA[
+							delete from ATTACHMENT where ATTACHMENT_ID =:attachment_id
+					]]></value>
+				</entry>
+					<!--删除附件 -->
+				<entry key="PartInfo.deleteAttachmentwith.delete">
+					<value><![CDATA[
+							delete from ATTACHMENT where PART_ID =:part_id
+					]]></value>
+				</entry>
+					<!--删除附件 -->
+				<entry key="SelfAppManager.selectPhoto.query">
+					<value><![CDATA[
+							select photo from s_baseinfo where studentid =:studentid
+					]]></value>
+					</entry>
+					
+			<!-- 查询综合实践活动  -->
+						<entry key="SelfPractices.selectSelfPracticeappraisal.query">
+						<value>
+							<![CDATA[
+							select appraisalid,practiceid,signer,signdate,content from a_practiceappraisal where practiceid =:practiceid 
+									]]>
+						</value>
+					</entry>
+					
+					<!-- 查询综合实践活动自我评价  -->
+						<entry key="SelfPractices.selectSelfPractices.query">
+						<value>
+							<![CDATA[
+								select sbi.studentid,sbi.name,aat.appraisaltype,ast.semester,aa.practiceid,aa.semesterid,aa.studentid,aa.practiceid,aa.appraisaltypeid,aa.item1,
+							aa.item2,aa.item3,aa.item4,aa.item5,aa.item6,aa.item7,aa.item8,aa.item9,aa.item10,aa.item11,aa.item12,aa.item13,aa.item14,aa.item15,aa.item16,aa.item17,
+							aa.item19,aa.item20 
+              					 from s_baseinfo sbi
+             						 inner join b_baseinfo sc on sc.cmis30id = sbi.cmis30id and sc.cmis30id=:cmis30id and sc.discode=:discode 
+              						 left join a_practices aa on aa.edu_id = sbi.edu_id 
+             						 inner join a_appraisaltype aat on aat.appraisaltypeid = aa.appraisaltypeid
+               						 inner join a_semester ast on ast.semesterid = aa.semesterid
+                            		 where sbi.studentid =:evaluateid and sbi.cmis30id =:cmis30id and sbi.discode =:discode and sbi.partid = mod(:cmis30id,20)
+                            		 <#if termId?has_content>
+										and aa.semesterid =:termId
+									</#if>
+								 	<#if evaluateType?has_content>
+										and aa.appraisaltypeid =:evaluateType
+									</#if>
+									]]>
+						</value>
+					</entry>
+					
+					
+					
+					<!-- 保存 -->
+						<entry key="SelfPractices.insertPractices.add">
+						<value>
+							<![CDATA[
+							insert into A_PRACTICES(PRACTICEID,SEMESTERID,DISCODE,CMIS30ID,STUDENTID,APPRAISALTYPEID,EDU_ID,ITEM1,ITEM2,ITEM3,ITEM4,ITEM5,ITEM6,ITEM7,ITEM8,ITEM9,ITEM10,ITEM11,ITEM12,ITEM13,ITEM14,ITEM15,ITEM16,ITEM17,ITEM18,ITEM19,ITEM20,EDITTIME)values(:practiceid,:semesterid,:discode,:cmis30id,:studentid,:appraisaltypeid,:edu_id,:item1,:item2,:item3,:item4,:item5,:item6,:item7,:item8,:item9,:item10,:item11,:item12,:item13,:item14,:item15,:item16,:item17,:item18,:item19,:item20,sysdate)						
+									]]>
+						</value>
+					</entry>
+					
+					<!--更新-->
+					<entry key="SelfPractices.updatePractices.update">
+						<value><![CDATA[
+							update A_PRACTICES 
+							set ITEM1 =:item1
+							<#if item2?has_content>
+								,ITEM2 =:item2
+							</#if>
+							<#if item3?has_content>
+								,ITEM3 =:item3
+							</#if>
+							<#if item4?has_content>
+								,ITEM4 =:item4
+							</#if>
+							<#if item5?has_content>
+								,ITEM5 =:item5
+							</#if>
+							<#if item6?has_content>
+								,ITEM6 =:item6
+							</#if>
+							<#if item7?has_content>
+								,ITEM7 =:item7
+							</#if>
+							<#if item8?has_content>
+								,ITEM8 =:item8
+							</#if>
+							<#if item9?has_content>
+								,ITEM9 =:item9
+							</#if>
+							<#if item10?has_content>
+								,ITEM10 =:item10
+							</#if>
+							<#if item11?has_content>
+								,ITEM11 =:item11
+							</#if>
+							<#if item12?has_content>
+								,ITEM12 =:item12
+							</#if>
+							<#if item13?has_content>
+								,ITEM13 =:item13
+							</#if>
+							<#if item14?has_content>
+								,ITEM14 =:item14
+							</#if>
+							<#if item15?has_content>
+								,ITEM15 =:item15
+							</#if>
+							<#if item16?has_content>
+								,ITEM16 =:item16
+							</#if>
+							<#if item17?has_content>
+								,ITEM17 =:item17
+							</#if>
+							<#if item18?has_content>
+								,ITEM18 =:item18
+							</#if>
+							<#if item19?has_content>
+								,ITEM19 =:item19
+							</#if>
+							<#if item20?has_content>
+								,ITEM20 =:item20
+							</#if>
+							where PRACTICEID =:practiceid
+						]]></value>
+					</entry>
+					<!--删除高中综合实践活动 -->
+				<entry key="SelfPractices.deletePractices.delete">
+					<value><![CDATA[
+							delete from A_PRACTICES where PRACTICEID =:practiceid
+					]]></value>
+				</entry>
+				
+					<!-- 保存综合自我评价 -->
+						<entry key="SelfPractices.insertPracticeappraisal.add">
+						<value>
+							<![CDATA[
+							insert into A_PRACTICEAPPRAISAL(APPRAISALID,PRACTICEID,SIGNER,SIGNDATE,CONTENT,EDITTIME)values(:appraisalid,:practiceid,:signer,sysdate,:content,sysdate)						
+									]]>
+						</value>
+					</entry>
+					
+				<!--单独删除自我评价 -->
+				<entry key="SelfPractices.deletePracticeappraisal.delete">
+					<value><![CDATA[
+							delete from A_PRACTICEAPPRAISAL where APPRAISALID =:appraisalid
+					]]></value>
+				</entry>
+				
+				<!--删除附件 -->
+				<entry key="SelfPractices.deletePracticesPracticeappraisal.delete">
+					<value><![CDATA[
+							delete from A_PRACTICEAPPRAISAL where PRACTICEID =:practiceid
+					]]></value>
+				</entry>
+				
+					<!--更新-->
+					<entry key="SelfPractices.updatePracticeappraisal.update">
+						<value><![CDATA[
+							update A_PRACTICEAPPRAISAL 
+							set CONTENT =:content,
+							EDITTIME=sysdate
+							<#if signdate?has_content>
+								,SIGNDATE =:signdate
+							</#if>
+							where APPRAISALID =:appraisalid
+						]]></value>
+					</entry>
+					
+	<!-- 课改 -->	
+		
+		<!--内置课程查询-->
+		<entry key="Innercourse.selectCourse.query">
+			<value><![CDATA[
+				SELECT kc.course_id,kss.subject_name,kcs.series_name,kc.subject_id,kc.series_id,kc.course_code,kc.course_name,kc.course_kind,kc.apply_grade,kc.student_aspect
+				,kc.period_count,kc.credit_hour,kc.course_remark,kc.course_short_name,kc.default_credit_hour,kc.default_period_count,kc.is_default,sd0.name as course_kindname
+				,sd1.name as student_aspectname
+		         FROM k_course kc
+		         left join k_sys_subject kss on kc.subject_id=kss.subject_id
+		         left join k_course_series kcs on kc.series_id = kcs.series_id
+		         left join sys_dict sd0 on kc.course_kind = sd0.dict_id
+		         left join sys_dict sd1 on kc.student_aspect = sd1.dict_id
+				where kc.course_kind <> 1230320 and kc.cmis30id=:cmis30id 
+				and kss.subject_name not in ('社会实践','社区服务','研究性学习活动')
+				<#if subjectid?has_content>
+					and kc.SUBJECT_ID =:subjectid
+				</#if>
+				<#if courseid?has_content>
+					and kc.COURSE_ID =:courseid
+				</#if>
+				<#if coursekind?has_content>
+					and kc.COURSE_KIND =:coursekind
+				</#if>
+				<#if isdefault?has_content>
+					and kc.IS_DEFAULT =:isdefault
+				</#if>
+				<#if coursename?has_content>
+					and kc.COURSE_NAME like %:coursename% 
+				</#if>
+				order by kss.subject_id,to_number(kc.course_kind),kc.is_default desc,kc.course_code asc
+			]]></value>
+		</entry>
+		
+		<!--内置课程查询-->
+		<entry key="Innercourse.selectCourse1.query">
+			<value><![CDATA[
+				SELECT kc.course_id,kss.subject_name,kcs.series_name,kc.subject_id,kc.series_id,kc.course_code,kc.course_name,kc.course_kind,kc.apply_grade,kc.student_aspect
+				,kc.period_count,kc.credit_hour,kc.course_remark,kc.course_short_name,kc.default_credit_hour,kc.default_period_count,kc.is_default,sd0.name as course_kindname
+				,sd1.name as student_aspectname
+		         FROM k_course kc
+		         left join k_sys_subject kss on kc.subject_id=kss.subject_id
+		         left join k_course_series kcs on kc.series_id = kcs.series_id
+		         left join sys_dict sd0 on kc.course_kind = sd0.dict_id
+		         left join sys_dict sd1 on kc.student_aspect = sd1.dict_id
+				where kc.course_kind <> 1230320 and kc.cmis30id=:cmis30id 
+				<#if subjectid?has_content>
+					and kc.SUBJECT_ID =:subjectid
+				</#if>
+				<#if courseid?has_content>
+					and kc.COURSE_ID =:courseid
+				</#if>
+				<#if coursekind?has_content>
+					and kc.COURSE_KIND =:coursekind
+				</#if>
+				<#if isdefault?has_content>
+					and kc.IS_DEFAULT =:isdefault
+				</#if>
+				<#if coursename?has_content>
+					and kc.COURSE_NAME like %:coursename% 
+				</#if>
+				order by kss.subject_id,to_number(kc.course_kind),kc.is_default desc,kc.course_code asc
+			]]></value>
+		</entry>
+		
+		
+		<!--内置课程查询-->
+		<entry key="Innercourse.selectCourseCheck1.query">
+			<value><![CDATA[
+				SELECT kc.course_id,kss.subject_name,kcs.series_name,kc.subject_id,kc.series_id,kc.course_code,kc.course_name,kc.course_kind,kc.apply_grade,kc.student_aspect
+				,kc.period_count,kc.credit_hour,kc.course_remark,kc.course_short_name,kc.default_credit_hour,kc.default_period_count,kc.is_default,sd0.name as course_kindname
+				,sd1.name as student_aspectname
+		         FROM k_course kc
+		         left join k_sys_subject kss on kc.subject_id=kss.subject_id
+		         left join k_course_series kcs on kc.series_id = kcs.series_id
+		         left join sys_dict sd0 on kc.course_kind = sd0.dict_id
+		         left join sys_dict sd1 on kc.student_aspect = sd1.dict_id
+				where kc.cmis30id=:cmis30id 
+				<#if subjectid?has_content>
+					and kc.SUBJECT_ID =:subjectid
+				</#if>
+				<#if courseid?has_content>
+					and kc.COURSE_ID =:courseid
+				</#if>
+				and kc.COURSE_KIND in ('1230301','1230310','1230315')
+				<#if isdefault?has_content>
+					and kc.IS_DEFAULT =:isdefault
+				</#if>
+				<#if coursename?has_content>
+					and kc.COURSE_NAME like %:coursename% 
+				</#if>
+			]]></value>
+		</entry>
+		<!--内置课程查询-->
+		<entry key="Innercourse.selectCourseCheck.query">
+			<value><![CDATA[
+				SELECT kc.course_id,kss.subject_name,kcs.series_name,kc.subject_id,kc.series_id,kc.course_code,kc.course_name,kc.course_kind,kc.apply_grade,kc.student_aspect
+				,kc.period_count,kc.credit_hour,kc.course_remark,kc.course_short_name,kc.default_credit_hour,kc.default_period_count,kc.is_default,sd0.name as course_kindname
+				,sd1.name as student_aspectname
+		         FROM k_course kc
+		         left join k_sys_subject kss on kc.subject_id=kss.subject_id
+		         left join k_course_series kcs on kc.series_id = kcs.series_id
+		         left join sys_dict sd0 on kc.course_kind = sd0.dict_id
+		         left join sys_dict sd1 on kc.student_aspect = sd1.dict_id
+				where kc.cmis30id=:cmis30id 
+				<#if subjectid?has_content>
+					and kc.SUBJECT_ID =:subjectid
+				</#if>
+				<#if courseid?has_content>
+					and kc.COURSE_ID =:courseid
+				</#if>
+				<#if coursekind?has_content>
+					and kc.COURSE_KIND =:coursekind
+				</#if>
+				<#if isdefault?has_content>
+					and kc.IS_DEFAULT =:isdefault
+				</#if>
+				<#if coursename?has_content>
+					and kc.COURSE_NAME like %:coursename% 
+				</#if>
+			]]></value>
+		</entry>
+			<!--内置课程总数-->
+		<entry key="Innercourse.selectCourse.count">
+			<value><![CDATA[
+			select count(1) from(
+				SELECT kc.course_id,kss.subject_name,kcs.series_name,kc.subject_id,kc.series_id,kc.course_code,kc.course_name,kc.course_kind,kc.apply_grade,kc.student_aspect
+				,kc.period_count,kc.credit_hour,kc.course_remark,kc.course_short_name,kc.default_credit_hour,kc.default_period_count,kc.is_default,sd0.name as course_kindname
+				,sd1.name as student_aspectname
+		         FROM k_course kc
+		         left join k_sys_subject kss on kc.subject_id=kss.subject_id
+		         left join k_course_series kcs on kc.series_id = kcs.series_id
+		         left join sys_dict sd0 on kc.course_kind = sd0.dict_id
+		         left join sys_dict sd1 on kc.student_aspect = sd1.dict_id
+				where kc.course_kind <> 1230320 and kc.cmis30id=:cmis30id 
+				and kss.subject_name not in ('社会实践','社区服务','研究性学习活动')
+				<#if subjectid?has_content>
+					and kc.SUBJECT_ID =:subjectid
+				</#if>
+				<#if courseid?has_content>
+					and kc.COURSE_ID =:courseid
+				</#if>
+				<#if coursekind?has_content>
+					and kc.COURSE_KIND =:coursekind
+				</#if>
+				<#if isdefault?has_content>
+					and kc.IS_DEFAULT =:isdefault
+				</#if>
+				<#if coursename?has_content>
+					and kc.COURSE_NAME like %:coursename% 
+				</#if>)
+			]]></value>
+		</entry>
+		
+		
+		<!--内置课程总数-->
+		<entry key="Innercourse.selectCourse1.count">
+			<value><![CDATA[
+			select count(1) from(
+				SELECT kc.course_id,kss.subject_name,kcs.series_name,kc.subject_id,kc.series_id,kc.course_code,kc.course_name,kc.course_kind,kc.apply_grade,kc.student_aspect
+				,kc.period_count,kc.credit_hour,kc.course_remark,kc.course_short_name,kc.default_credit_hour,kc.default_period_count,kc.is_default,sd0.name as course_kindname
+				,sd1.name as student_aspectname
+		         FROM k_course kc
+		         left join k_sys_subject kss on kc.subject_id=kss.subject_id
+		         left join k_course_series kcs on kc.series_id = kcs.series_id
+		         left join sys_dict sd0 on kc.course_kind = sd0.dict_id
+		         left join sys_dict sd1 on kc.student_aspect = sd1.dict_id
+				where kc.course_kind <> 1230320 and kc.cmis30id=:cmis30id 
+				<#if subjectid?has_content>
+					and kc.SUBJECT_ID =:subjectid
+				</#if>
+				<#if courseid?has_content>
+					and kc.COURSE_ID =:courseid
+				</#if>
+				<#if coursekind?has_content>
+					and kc.COURSE_KIND =:coursekind
+				</#if>
+				<#if isdefault?has_content>
+					and kc.IS_DEFAULT =:isdefault
+				</#if>
+				<#if coursename?has_content>
+					and kc.COURSE_NAME like %:coursename% 
+				</#if>)
+			]]></value>
+		</entry>
+		
+		
+						<!--学科标签-->
+		<entry key="SysSubjectServiceExtImpl.querySysSubjectDb.query">
+			<value><![CDATA[
+				SELECT * from k_sys_subject where SUBJECT_ID <> '65BC7B16-84A4-4BE7-9E6F-4118DE42' and SUBJECT_ID <> 'CE3E521B-3E0A-443E-8058-DD52ADA7' and SUBJECT_ID <> 'ECC12830-B3A0-4400-93BB-91380621' order by SUBJECT_ID
+			]]></value>
+		</entry>
+		
+		<entry key="SysSubjectServiceExtImpl.querySysSubjectDb1.query">
+			<value><![CDATA[
+				SELECT * from k_sys_subject   order by SUBJECT_ID
+			]]></value>
+		</entry>
+					<!--课改_学段课程安排-->
+		<entry key="Innercourse.selectArrange.query">
+			<value><![CDATA[
+				SELECT * from K_COURSE_ARRANGE where COURSE_ID =:courseid
+			]]></value>
+		</entry>
+					<!--课改_课程（模块）插入-->
+		<entry key="Innercourse.insertCourse.add">
+			<value><![CDATA[
+					insert into K_COURSE(COURSE_ID,SUBJECT_ID,SERIES_ID,CMIS30ID,COURSE_CODE,COURSE_NAME,COURSE_KIND,STUDENT_ASPECT,PERIOD_COUNT,CREDIT_HOUR,COURSE_REMARK,IS_DEFAULT,COURSE_SHORT_NAME)values(:course_id,:subject_id,:series_id,:cmis30id,:course_code,:course_name,:course_kind,:student_aspect,:period_count,:credit_hour,:course_remark,:is_default,:course_short_name)						
+			]]></value>
+		</entry>
+		
+		<!--课改_学段课程安排插入-->
+		<entry key="Innercourse.insertCourseArrange.add">
+			<value><![CDATA[
+					insert into K_COURSE_ARRANGE(ARRANGE_ID,COURSE_ID,SEGMENT_ORDER,APPLY_GRADE)values(sys_guid(),:course_id,:segment_order,:apply_grade)						
+			]]></value>
+		</entry>
+		<!--课改_学习方向-->
+		 <entry key="Innercourse.selectAspect.query">
+			<value><![CDATA[
+				select dict_id,dict_type,name from sys_dict where dict_type =:dicttype order by name asc
+			]]></value>
+		</entry>
+		<!--课改_系列-->
+		 <entry key="Innercourse.selectSeries.query">
+			<value><![CDATA[
+				select kcs.series_id,kcs.subject_id,kcs.series_name from K_COURSE_SERIES kcs where kcs.subject_id =:subjectid order by kcs.series_name asc
+			]]></value>
+		</entry>
+		
+		<!--删除课程模块 -->
+		<entry key="Innercourse.deleteCourse.delete">
+				<value><![CDATA[
+						delete from K_COURSE where COURSE_ID =:course_id
+				]]></value>
+		</entry>
+		<!--删除课程模块对应的学段课程安排-->
+		<entry key="Innercourse.deleteArrange.delete">
+				<value><![CDATA[
+						delete from K_COURSE_ARRANGE where COURSE_ID =:course_id
+				]]></value>
+		</entry>
+		<!--删除前判断是否录入成绩-->
+		<entry key="Innercourse.deleteArrange.count">
+				<value><![CDATA[
+				select count(1) as count  from k_student_model ks
+                inner join k_class_model kc on ks.class_model_id=kc.class_model_id 
+                inner join k_segment_model kse on kse.sement_model_id=kc.sement_model_id 
+                inner join k_course kco on kco.course_id=kse.course_id 
+                <#if coursename?has_content>
+                and kco.course_name=:coursename
+                </#if>
+                where ks.cmis30id=:cmis30id and ks.partid = mod(:cmis30id,20)
+				]]></value>
+		</entry>
+		
+		<!--更新课程模块-->
+		<entry key="Innercourse.updateCourse.update">
+			<value><![CDATA[
+				update K_COURSE 
+				set SUBJECT_ID =:subject_id
+				<#if series_id?has_content>
+					,SERIES_ID =:series_id
+				</#if>
+				<#if course_code?has_content>
+					,COURSE_CODE =:course_code
+				</#if>
+				<#if course_name?has_content>
+					,COURSE_NAME =:course_name
+				</#if>
+				<#if course_kind?has_content>
+					,COURSE_KIND =:course_kind
+				</#if>
+				<#if student_aspect?has_content>
+					,STUDENT_ASPECT =:student_aspect
+				</#if>
+				<#if period_count?has_content>
+					,PERIOD_COUNT =:period_count
+				</#if>
+				<#if credit_hour?has_content>
+					,CREDIT_HOUR =:credit_hour
+				</#if>
+				<#if course_remark?has_content>
+					,COURSE_REMARK =:course_remark
+				</#if>
+				<#if course_short_name?has_content>
+					,COURSE_SHORT_NAME =:course_short_name
+				</#if>
+				where COURSE_ID =:course_id
+			]]></value>
+		</entry>
+		<!--更新学段课程安排-->
+		<entry key="Innercourse.updateCourseArrange.update">
+			<value><![CDATA[
+				update K_COURSE_ARRANGE 
+				set SUBJECT_ID =:subject_id
+				<#if series_id?has_content>
+					,SERIES_ID =:series_id
+				</#if>
+				<#if course_code?has_content>
+					,COURSE_CODE =:course_code
+				</#if>
+				<#if course_name?has_content>
+					,COURSE_NAME =:course_name
+				</#if>
+				where ARRANGE_ID =:arrange_id
+			]]></value>
+		</entry>
+		<!--删除课程模块对应的学段开设的模块-->
+		<entry key="Innercourse.deleteSegmentModelwherecourseid.delete">
+				<value><![CDATA[
+						delete from K_SEGMENT_MODEL where course_id =:course_id
+				]]></value>
+		</entry>
+			<!--删除课程模块对应的学段开设的模块-->
+		<entry key="Innercourse.selectSegmentModelId.select">
+				<value><![CDATA[
+						select distinct ksm.sement_model_id from K_SEGMENT_MODEL ksm 
+							inner join k_class_model kcm on kcm.sement_model_id = ksm.sement_model_id
+							inner join e_class ec on ec.classid = kcm.classid
+							inner join e_grade oleg on oleg.gradeid=ec.gradeid 
+							<#if year?has_content>
+								and oleg.schoolyear=:year 
+							</#if>
+							<#if cmis30id?has_content>
+								and oleg.cmis30id=:cmis30id
+							</#if>
+							inner join e_grade eg on oleg.levelid=eg.levelid and to_char(oleg.graduateyear,'yyyy')=to_char(eg.graduateyear,'yyyy') 
+							<#if gradeid?has_content>
+								and eg.gradeid=:gradeid 
+							</#if>
+							<#if cmis30id?has_content>
+								and eg.cmis30id=:cmis30id 
+							</#if>
+							where ksm.COURSE_ID =:course_id 
+							<#if segment_id?has_content>
+								and ksm.SEGMENT_ID =:segment_id
+							</#if>
+				union
+			select distinct ksm.sement_model_id from K_SEGMENT_MODEL ksm 
+							inner join k_class_model kcm on kcm.sement_model_id = ksm.sement_model_id and kcm.schoolyear=:year 
+							inner join e_class ec on ec.classid = kcm.classid 
+							 and ec.gradeid=:gradeid 
+							where 1=1 and ksm.COURSE_ID =:course_id 
+			<#if segment_id?has_content>
+              and ksm.SEGMENT_ID =:segment_id
+             </#if> 
+			]]></value>
+		</entry>
+		
+		<!--删除课程模块对应的学段开设的模块-->
+		<entry key="Innercourse.deleteSegmentModel.delete">
+				<value><![CDATA[
+						delete from K_SEGMENT_MODEL where SEMENT_MODEL_ID in(
+							<#list sementmodelid as semlid>
+								'${semlid}'
+								<#if semlid_has_next>,</#if>
+							</#list>
+						)
+				]]></value>
+		</entry>
+		<!--删除课程模块对应的班级开设的模块-->
+		<entry key="Innercourse.deleteClassModel.delete">
+				<value><![CDATA[
+						delete from K_CLASS_MODEL where class_model_id in(
+							select distinct kcm.class_model_id from k_class_model kcm
+							inner join e_class ec on ec.classid = kcm.classid
+							inner join e_grade oleg on oleg.gradeid=ec.gradeid and oleg.schoolyear=:year and oleg.cmis30id=:cmis30id
+							inner join e_grade eg on oleg.levelid=eg.levelid and to_char(oleg.graduateyear,'yyyy')=to_char(eg.graduateyear,'yyyy') 
+							and eg.gradeid=:gradeid 
+							and eg.cmis30id=:cmis30id
+							where kcm.sement_model_id in(
+								<#list sementmodelid as semlid>
+									'${semlid}'
+									<#if semlid_has_next>,</#if>
+								</#list>
+							)
+						union
+							select distinct kcm.class_model_id from  k_class_model kcm 
+							inner join e_class ec on ec.classid = kcm.classid and ec.gradeid=:gradeid 
+							where 1=1 and kcm.sement_model_id in(
+								<#list sementmodelid as semlid>
+									'${semlid}'
+									<#if semlid_has_next>,</#if>
+								</#list>
+							) and kcm.schoolyear=:year
+						)
+				]]></value>
+		</entry>
+		<!--校验是否可以删除教师授课-->
+		<entry key="Innercourse.selectCheckdeleteClass.count">
+				<value><![CDATA[
+				select count(1) as count from k_student_model where (examine_result is not null or peacetime18 is not null or peacetime16 is not null) and class_model_id in(
+					select distinct kcm.class_model_id from k_class_model kcm
+							inner join e_class ec on ec.classid = kcm.classid
+							inner join e_grade oleg on oleg.gradeid=ec.gradeid and oleg.schoolyear=:year and oleg.cmis30id=:cmis30id
+							inner join e_grade eg on oleg.levelid=eg.levelid and to_char(oleg.graduateyear,'yyyy')=to_char(eg.graduateyear,'yyyy') 
+							and eg.gradeid=:gradeid 
+							and eg.cmis30id=:cmis30id
+							where kcm.sement_model_id in(
+								<#list sementmodelid as semlid>
+									'${semlid}'
+									<#if semlid_has_next>,</#if>
+								</#list>
+							)
+				union
+				select distinct kcm.class_model_id from  k_class_model kcm 
+							inner join e_class ec on ec.classid = kcm.classid 
+							 and ec.gradeid=:gradeid 
+							where 1=1 and kcm.sement_model_id in(
+								<#list sementmodelid as semlid>
+									'${semlid}'
+									<#if semlid_has_next>,</#if>
+								</#list>
+							) and kcm.schoolyear=:year
+				)
+				]]></value>
+		</entry>
+		<!--删除教师授课数据-->
+		<entry key="Innercourse.deleStudentScore.del">
+				<value><![CDATA[
+				delete from k_student_model where class_model_id in(
+					select distinct kcm.class_model_id from k_class_model kcm
+							inner join e_class ec on ec.classid = kcm.classid
+							inner join e_grade oleg on oleg.gradeid=ec.gradeid and oleg.schoolyear=:year and oleg.cmis30id=:cmis30id
+							inner join e_grade eg on oleg.levelid=eg.levelid and to_char(oleg.graduateyear,'yyyy')=to_char(eg.graduateyear,'yyyy') 
+							and eg.gradeid=:gradeid 
+							and eg.cmis30id=:cmis30id
+							where kcm.sement_model_id in(
+								<#list sementmodelid as semlid>
+									'${semlid}'
+									<#if semlid_has_next>,</#if>
+								</#list>
+							)
+						union
+							select distinct kcm.class_model_id from  k_class_model kcm 
+							inner join e_class ec on ec.classid = kcm.classid and ec.gradeid=:gradeid 
+							where 1=1 and kcm.sement_model_id in(
+								<#list sementmodelid as semlid>
+									'${semlid}'
+									<#if semlid_has_next>,</#if>
+								</#list>
+							) and kcm.schoolyear=:year
+				)
+				]]></value>
+		</entry>
+		<!--校验是否可以删除教师授课-->
+		<entry key="Innercourse.selectCheckdeleteClass.delete">
+				<value><![CDATA[
+				delete from k_student_model where class_model_id in(
+					select distinct kcm.class_model_id from k_class_model kcm
+							inner join e_class ec on ec.classid = kcm.classid
+							inner join e_grade oleg on oleg.gradeid=ec.gradeid and oleg.schoolyear=:year and oleg.cmis30id=:cmis30id
+							inner join e_grade eg on oleg.levelid=eg.levelid and to_char(oleg.graduateyear,'yyyy')=to_char(eg.graduateyear,'yyyy') 
+							and eg.gradeid=:gradeid 
+							and eg.cmis30id=:cmis30id
+							where kcm.sement_model_id in(
+								<#list sementmodelid as sementmodelid>
+									'${sementmodelid}'
+									<#if sementmodelid_has_next>,</#if>
+								</#list>
+							)
+				union
+				select distinct kcm.class_model_id from  k_class_model kcm 
+							inner join e_class ec on ec.classid = kcm.classid 
+							and ec.gradeid=:gradeid 
+							where 1=1 and kcm.sement_model_id in(
+								<#list sementmodelid as sementmodelid>
+									'${sementmodelid}'
+									<#if sementmodelid_has_next>,</#if>
+								</#list>
+							) and kcm.schoolyear=:year
+				)
+				]]></value>
+		</entry>
+		<!--校验是否可以删除授课模块-->
+		<entry key="Innercourse.checkClassModelCount.count">
+				<value><![CDATA[
+				select count(1) cot from k_class_model where sement_model_id in(
+				<#list sementmodelid as semlid>
+									'${semlid}'
+									<#if semlid_has_next>,</#if>
+								</#list>
+				)
+				]]></value>
+		</entry>
+<!-- 教师授课 -->
+
+		<!--查询学年-->
+		<!-- es.schoolyear>((select es0.schoolyear from e_schoolyear es0 where es0.used=1)-:gradenum) -->
+		<entry key="Innercourse.selectSchoolyear.select">
+				<value><![CDATA[
+						select 
+							es.schoolyear,
+							es.schoolyearname 
+						from e_schoolyear es 
+						where  es.schoolyear>((select es0.schoolyear from e_schoolyear es0 where es0.used=1)-:gradenum)
+						order by es.schoolyear desc
+				]]></value>
+		</entry>
+		
+		<!--查询年级-->
+		<entry key="Innercourse.selectGrade.select">
+				<value><![CDATA[
+				select eg.gradeid,eg.gradenum,eg.gradename from e_grade eg 
+				      inner join e_edusys ee on ee.levelid=eg.levelid and ee.used=1 and ee.cmis30id=:cmis30id 
+                      inner join e_term et on et.schoolyear=eg.schoolyear and et.used=1 
+				      where eg.used=1 and ee.levelcode=:levelcode and ee.campusid=:campusid order by eg.gradenum
+				]]></value>
+		</entry>
+		
+		<!--查询班级-->
+		<entry key="Innercourse.selectClass.select">
+				<value><![CDATA[
+				select ecl.classid,ecl.classsname,ecl.classnum from e_class ecl
+				inner join e_grade oleg on oleg.gradeid=ecl.gradeid and oleg.schoolyear=:year and oleg.cmis30id=:cmis30id
+				inner join e_grade eg on oleg.levelid=eg.levelid 
+				and to_char(oleg.graduateyear,'yyyy')=to_char(eg.graduateyear,'yyyy') 
+				<#if gradeid?has_content>
+					and eg.gradeid=:gradeid
+				</#if>
+				 and eg.cmis30id=:cmis30id order by oleg.gradeid,to_number(ecl.classnum)
+				]]></value>
+		</entry>
+		<!--查询班级-->
+		<entry key="Innercourse.selectClass.select1">
+				<value><![CDATA[
+				select ecl.classid,ecl.classsname,ecl.classnum from e_class ecl
+				where ecl.gradeid=:gradeid
+				order by ecl.gradeid,to_number(ecl.classnum)
+				]]></value>
+		</entry>
+		<!--查询班级-->
+	<entry key="Innercourse.selectNowClass.select">
+			<value><![CDATA[
+		 	select distinct oleg.gradeid,oleg.gradename,oleg.gradenum,ecl.classid,ecl.classsname,ecl.classnum from e_class ecl
+				inner join e_grade oleg on oleg.gradeid=ecl.gradeid and oleg.schoolyear=:year and oleg.cmis30id=:cmis30id
+				inner join e_grade eg on oleg.levelid=eg.levelid and eg.used=1
+		        inner join e_term et on et.schoolyear=eg.schoolyear and et.used=1
+		        inner join e_edusys ee on eg.levelid=ee.levelid and ee.levelcode=:levelcode and ee.used=1 and ee.campusid=:campusid
+				and to_char(oleg.graduateyear,'yyyy')=to_char(eg.graduateyear,'yyyy') and eg.cmis30id=:cmis30id 
+				<#if gradenumlist?has_content>
+					and eg.GRADENUM in(
+							<#list gradenumlist as gradenum>
+								 ${gradenum}
+								<#if gradenum_has_next>,</#if>
+							</#list>
+					)
+				</#if>
+				order by to_number(oleg.gradenum) asc,to_number(ecl.classnum) asc
+        ]]></value>
+		</entry>
+		<!-- <entry key="Innercourse.selectNowClass.select">
+			<value><![CDATA[
+		 	select distinct oleg.gradeid,oleg.gradename,oleg.gradenum,ecl.classid,ecl.classsname,ecl.classnum from e_class ecl
+				inner join e_grade oleg on oleg.gradeid=ecl.gradeid and oleg.schoolyear=:year and oleg.cmis30id=:cmis30id
+				inner join e_grade eg on oleg.levelid=eg.levelid and eg.used=1
+		        inner join e_term et on et.schoolyear=eg.schoolyear and et.used=1
+		        inner join e_edusys ee on eg.levelid=ee.levelid and ee.levelcode=:levelcode and ee.used=1 and ee.campusid=:campusid
+				and to_char(oleg.graduateyear,'yyyy')=to_char(eg.graduateyear,'yyyy') and eg.cmis30id=:cmis30id 
+				<#if gradenumlist?has_content>
+					and eg.GRADENUM in(
+							<#list gradenumlist as gradenum>
+								 ${gradenum}
+								<#if gradenum_has_next>,</#if>
+							</#list>
+					)
+				</#if>
+				order by to_number(oleg.gradeid) desc,to_number(ecl.classnum) asc
+        ]]></value>
+		</entry> -->
+		<!--查询班级-->
+		<entry key="Innercourse.selectNowClass.select2">
+			<value><![CDATA[
+		 	 select * from (
+                select distinct eg.gradeid,eg.gradename,(eg.gradenum-(et.schoolyear-:year)) gradenum,ecl.classid,ecl.classsname,ecl.classnum from e_class ecl
+                inner join e_grade eg on eg.gradeid=ecl.gradeid and eg.used=1 and eg.cmis30id=:cmis30id 
+                inner join e_edusys ee on eg.levelid=ee.levelid and ee.levelcode=:levelcode and ee.used=1 and ee.campusid=:campusid
+                inner join e_term et on et.schoolyear=eg.schoolyear and et.used=1
+              )
+              where gradenum>0
+			  order by to_number(gradenum) asc,to_number(classnum) asc
+        ]]></value>
+		</entry> 
+		<!--查询学段-->
+		<entry key="Innercourse.selectStudySegment.select">
+				<value><![CDATA[
+						select sd.name,kss.segment_id,kss.schoolyear,kss.segment_order from k_study_segment kss 
+						left join sys_dict sd on kss.segment_order = sd.dict_id 
+						where kss.cmis30id =:cmis30id and kss.schoolyear =:schoolyear 
+						order by sd.name asc
+				]]></value>
+		</entry>
+		
+		<!--查询教师授课选择模块-->
+		<entry key="Innercourse.selectTeacherCourse.select">
+				<value><![CDATA[
+						select distinct kc.course_id,kss.subject_id,kc.course_kind,kc.is_default,kc.course_code,(kc.course_name||'('||kss.subject_name||')') as course_subject_name from k_course kc
+						left join k_sys_subject kss on kss.subject_id = kc.subject_id
+						left join k_course_arrange kca on kca.course_id = kc.course_id
+						where kc.course_kind <>1230320 and kc.cmis30id =:cmis30id 
+						and kss.subject_name not in ('社会实践','社区服务','研究性学习活动')
+						<#if apply_grade?has_content>
+							and kca.apply_grade =:apply_grade 
+						</#if>
+						<#if segment_order?has_content>
+							and kca.segment_order =:segment_order 
+						</#if>
+						<#if subject_id?has_content>
+							and kc.subject_id =:subject_id 
+						</#if>
+						order by kss.subject_id,to_number(kc.course_kind),kc.is_default desc,kc.course_code asc
+				]]></value>
+		</entry>
+		
+		<!--课改_学段开设的模块插入-->
+		<entry key="Innercourse.insertSegmentModel.add">
+			<value><![CDATA[
+					insert into K_SEGMENT_MODEL(SEMENT_MODEL_ID,SEGMENT_ID,COURSE_ID,IS_ASSIGN)values(:sement_model_id,:segment_id,:course_id,:is_assign)						
+			]]></value>
+		</entry>
+		
+		<!--课改_班级开设的模块插入-->
+		<entry key="Innercourse.insertClassModel.add">
+			<value><![CDATA[
+					insert into K_CLASS_MODEL(CLASS_MODEL_ID,SEMENT_MODEL_ID,TEACHERID,CLASSID,schoolyear,NEED_ASSIGN,IS_ASSIGNED,ASSIGN_MODEL)values(sys_guid(),:sement_model_id,:teacherid,:classid,:schoolyear,1,1,1)						
+			]]></value>
+		</entry>
+		
+		<!--查询班级开设的模块-->
+		<entry key="Innercourse.selectClassModel.select">
+				<value><![CDATA[
+						select distinct kcm.class_model_id,kss.subject_id,kc.course_kind,kc.is_default,kc.course_code,ksm.segment_id,kss.subject_name,ksm.course_id,kcm.classid,kcm.teacherid,kc.course_name,(tb.name||'_'||tb.employeeid) as teachercode 
+							from k_class_model kcm 
+							inner join e_class ec on ec.classid = kcm.classid 
+              				 inner join e_grade eg on eg.gradeid = ec.gradeid  and eg.schoolyear=:year
+              				inner join e_grade neg on neg.levelid=eg.levelid and to_char(neg.graduateyear,'yyyy')=to_char(eg.graduateyear,'yyyy') and neg.gradeid=:gradeid
+							inner join k_segment_model ksm on ksm.sement_model_id = kcm.sement_model_id 
+							left join k_course kc on kc.course_id = ksm.course_id 
+							left join k_sys_subject kss on kss.subject_id = kc.subject_id 
+							left join t_baseinfo tb on tb.teacherid = kcm.teacherid 
+							where ksm.segment_id=:segment_id 
+							and kss.subject_name not in ('社会实践','社区服务','研究性学习活动')
+							order by kss.subject_id,to_number(kc.course_kind),kc.is_default desc,kc.course_code asc
+				]]></value>
+		</entry>
+		
+		<!--查询班级开设的模块-->
+		<entry key="Innercourse.selectClassModel.select2">
+				<value><![CDATA[
+				select * from (
+							select distinct kcm.class_model_id,kss.subject_id,kc.course_kind,kc.is_default,kc.course_code,ksm.segment_id,kss.subject_name,ksm.course_id,kcm.classid,kcm.teacherid,kc.course_name,(tb.name||'_'||tb.employeeid) as teachercode 
+														from k_class_model kcm 
+														inner join e_class ec on ec.classid = kcm.classid 
+							              inner join e_grade eg on eg.gradeid = ec.gradeid  and eg.schoolyear=:year
+							              inner join e_grade neg on neg.levelid=eg.levelid and to_char(neg.graduateyear,'yyyy')=to_char(eg.graduateyear,'yyyy') and neg.gradeid=:gradeid
+														inner join k_segment_model ksm on ksm.sement_model_id = kcm.sement_model_id 
+														left join k_course kc on kc.course_id = ksm.course_id 
+														left join k_sys_subject kss on kss.subject_id = kc.subject_id 
+														left join t_baseinfo tb on tb.teacherid = kcm.teacherid 
+														where ksm.segment_id=:segment_id  and kcm.schoolyear is null and kcm.special='0'
+														and kss.subject_name not in ('社会实践','社区服务','研究性学习活动')
+							UNION          
+							select distinct kcm.class_model_id,kss.subject_id,kc.course_kind,kc.is_default,kc.course_code,ksm.segment_id,kss.subject_name,ksm.course_id,kcm.classid,kcm.teacherid,kc.course_name,(tb.name||'_'||tb.employeeid) as teachercode 
+														from k_class_model kcm 
+							              inner join k_segment_model ksm on ksm.sement_model_id = kcm.sement_model_id
+							              inner join e_class ecl on ecl.classid=kcm.classid and ecl.gradeid=:gradeid
+							              left join k_course kc on kc.course_id = ksm.course_id 
+														left join k_sys_subject kss on kss.subject_id = kc.subject_id 
+														left join t_baseinfo tb on tb.teacherid = kcm.teacherid 
+														where kcm.special='0' and ksm.segment_id=:segment_id 
+														and kss.subject_name not in ('社会实践','社区服务','研究性学习活动')
+							              and kcm.schoolyear=:year
+				 )
+				  order by subject_id,to_number(course_kind),is_default desc,course_code asc
+				]]></value>
+		</entry>
+		<!--更新学段课程安排-->
+		<entry key="Innercourse.updateClassModel.update">
+			<value><![CDATA[
+				update K_CLASS_MODEL 
+				set TEACHERID =:teacherid 
+				where CLASS_MODEL_ID =:class_model_id
+			]]></value>
+		</entry>
+		
+		<!--导出模块授课教师数据查询-->
+		<entry key="Innercourse.download.select">
+			<value><![CDATA[
+				select distinct kcm.class_model_id,kss.subject_name,eg.gradenum,ec.classnum,eg.gradename,ec.classsname,kc.course_name,tb.name as teachername,tb.teacherid 
+							from k_class_model kcm
+							inner join e_class ec on ec.classid = kcm.classid
+              				inner join e_grade eg on eg.gradeid = ec.gradeid 
+							inner join k_segment_model ksm on ksm.sement_model_id = kcm.sement_model_id
+							left join k_course kc on kc.course_id = ksm.course_id
+              				left join k_sys_subject kss on kss.subject_id = kc.subject_id
+							left join t_baseinfo tb on tb.teacherid = kcm.teacherid
+							where ksm.segment_id=:segmentid
+							and kss.subject_name not in ('社会实践','社区服务','研究性学习活动')
+							order by to_number(eg.gradenum),to_number(ec.classnum),kc.course_name
+			]]></value>
+		</entry>
+		<!--导出模块授课教师数据查询-->
+		<entry key="Innercourse.download.select1">
+			<value><![CDATA[
+				select * from (
+				select distinct kcm.class_model_id,kss.subject_name,
+				case
+				  when kcm.schoolyear is null then eg.gradenum
+				  else  eg.gradenum-(eg.schoolyear-kcm.schoolyear)
+				 end gradenum
+				              ,ec.classnum,eg.gradename,ec.classsname,kc.course_name,tb.name as teachername,tb.teacherid 
+											from k_class_model kcm
+							  inner join e_class ec on ec.classid = kcm.classid
+				              inner join e_grade eg on eg.gradeid = ec.gradeid 
+							  inner join k_segment_model ksm on ksm.sement_model_id = kcm.sement_model_id and ksm.segment_id=:segmentid
+							  inner join k_study_segment ksst on ksst.segment_id=ksm.segment_id and ksst.schoolyear=:year
+							  left join k_course kc on kc.course_id = ksm.course_id
+				              left join k_sys_subject kss on kss.subject_id = kc.subject_id
+							  left join t_baseinfo tb on tb.teacherid = kcm.teacherid
+							  where kss.subject_name not in ('社会实践','社区服务','研究性学习活动') and (kcm.schoolyear is null and ksst.schoolyear=eg.schoolyear or kcm.schoolyear is not null and ksst.schoolyear<>eg.schoolyear)
+				)	order by to_number(gradenum),to_number(classnum),course_name
+			]]></value>
+		</entry>
+	<!-- 数据检查 -->
+	<entry key="DataCheckExtImpl.queryPartInfo.select">
+			<value><![CDATA[
+			select
+				eg.gradenum,et.termtype,p.two_part_id,
+				decode(
+				eg.gradenum,
+				  6,decode(et.termtype,
+				    1,decode(
+				    11,count(1),
+				    12,count(1),
+				    21,count(1),
+				    23,count(1),
+				    31,count(1),
+				    32,count(1),
+				    33,count(1),
+				    34,count(1),
+				    35,count(1),
+				    41,count(1),
+				    42,count(1),
+				    43,count(1),
+				    44,count(1),
+				    45,count(1),
+				    46,count(1),
+				    51,count(1),
+				    52,count(1),
+				    53,count(1),
+				    54,count(1),
+				    55,count(1),
+				    61,count(1),
+				    62,count(1),
+				    63,count(1),
+				    64,count(1),
+				    65,count(1),
+				    71,count(1),
+				    72,count(1),
+				    73,count(1),
+				    74,count(1),
+				    75,count(1),
+				    81,count(1),
+				    82,count(1),
+				    83,count(1),
+				    84,count(1),
+				    85,count(1),
+				    91,count(1),
+				    92,count(1),
+				    93,count(1),
+				    94,count(1),
+				    95,count(1)
+				    ),
+				    2,decode(
+				    11,count(1),
+				    12,count(1),
+				    21,count(1),
+				    23,count(1),
+				    31,count(1),
+				    32,count(1),
+				    33,count(1),
+				    34,count(1),
+				    35,count(1),
+				    41,count(1),
+				    42,count(1),
+				    43,count(1),
+				    44,count(1),
+				    45,count(1),
+				    46,count(1),
+				    51,count(1),
+				    52,count(1),
+				    53,count(1),
+				    54,count(1),
+				    55,count(1),
+				    61,count(1),
+				    62,count(1),
+				    63,count(1),
+				    64,count(1),
+				    65,count(1),
+				    71,count(1),
+				    72,count(1),
+				    73,count(1),
+				    74,count(1),
+				    75,count(1),
+				    81,count(1),
+				    82,count(1),
+				    83,count(1),
+				    84,count(1),
+				    85,count(1),
+				    91,count(1),
+				    92,count(1),
+				    93,count(1),
+				    94,count(1),
+				    95,count(1)
+				    )
+				  ),
+				  7,decode(et.termtype,
+				    1,decode(
+				    11,count(1),
+				    12,count(1),
+				    21,count(1),
+				    23,count(1),
+				    31,count(1),
+				    32,count(1),
+				    33,count(1),
+				    34,count(1),
+				    35,count(1),
+				    41,count(1),
+				    42,count(1),
+				    43,count(1),
+				    44,count(1),
+				    45,count(1),
+				    46,count(1),
+				    51,count(1),
+				    52,count(1),
+				    53,count(1),
+				    54,count(1),
+				    55,count(1),
+				    61,count(1),
+				    62,count(1),
+				    63,count(1),
+				    64,count(1),
+				    65,count(1),
+				    71,count(1),
+				    72,count(1),
+				    73,count(1),
+				    74,count(1),
+				    75,count(1),
+				    81,count(1),
+				    82,count(1),
+				    83,count(1),
+				    84,count(1),
+				    85,count(1),
+				    91,count(1),
+				    92,count(1),
+				    93,count(1),
+				    94,count(1),
+				    95,count(1)
+				    ),
+				    2,decode(
+				    11,count(1),
+				    12,count(1),
+				    21,count(1),
+				    23,count(1),
+				    31,count(1),
+				    32,count(1),
+				    33,count(1),
+				    34,count(1),
+				    35,count(1),
+				    41,count(1),
+				    42,count(1),
+				    43,count(1),
+				    44,count(1),
+				    45,count(1),
+				    46,count(1),
+				    51,count(1),
+				    52,count(1),
+				    53,count(1),
+				    54,count(1),
+				    55,count(1),
+				    61,count(1),
+				    62,count(1),
+				    63,count(1),
+				    64,count(1),
+				    65,count(1),
+				    71,count(1),
+				    72,count(1),
+				    73,count(1),
+				    74,count(1),
+				    75,count(1),
+				    81,count(1),
+				    82,count(1),
+				    83,count(1),
+				    84,count(1),
+				    85,count(1),
+				    91,count(1),
+				    92,count(1),
+				    93,count(1),
+				    94,count(1),
+				    95,count(1)
+				    )
+				  ),
+				  8,decode(et.termtype,
+				    1,decode(
+				    11,count(1),
+				    12,count(1),
+				    21,count(1),
+				    23,count(1),
+				    31,count(1),
+				    32,count(1),
+				    33,count(1),
+				    34,count(1),
+				    35,count(1),
+				    41,count(1),
+				    42,count(1),
+				    43,count(1),
+				    44,count(1),
+				    45,count(1),
+				    46,count(1),
+				    51,count(1),
+				    52,count(1),
+				    53,count(1),
+				    54,count(1),
+				    55,count(1),
+				    61,count(1),
+				    62,count(1),
+				    63,count(1),
+				    64,count(1),
+				    65,count(1),
+				    71,count(1),
+				    72,count(1),
+				    73,count(1),
+				    74,count(1),
+				    75,count(1),
+				    81,count(1),
+				    82,count(1),
+				    83,count(1),
+				    84,count(1),
+				    85,count(1),
+				    91,count(1),
+				    92,count(1),
+				    93,count(1),
+				    94,count(1),
+				    95,count(1)
+				    ),
+				    2,decode(
+				    11,count(1),
+				    12,count(1),
+				    21,count(1),
+				    23,count(1),
+				    31,count(1),
+				    32,count(1),
+				    33,count(1),
+				    34,count(1),
+				    35,count(1),
+				    41,count(1),
+				    42,count(1),
+				    43,count(1),
+				    44,count(1),
+				    45,count(1),
+				    46,count(1),
+				    51,count(1),
+				    52,count(1),
+				    53,count(1),
+				    54,count(1),
+				    55,count(1),
+				    61,count(1),
+				    62,count(1),
+				    63,count(1),
+				    64,count(1),
+				    65,count(1),
+				    71,count(1),
+				    72,count(1),
+				    73,count(1),
+				    74,count(1),
+				    75,count(1),
+				    81,count(1),
+				    82,count(1),
+				    83,count(1),
+				    84,count(1),
+				    85,count(1),
+				    91,count(1),
+				    92,count(1),
+				    93,count(1),
+				    94,count(1),
+				    95,count(1)
+				    )
+				  ),
+				  9,decode(et.termtype,
+				    1,decode(
+				      11,count(1),
+				      12,count(1),
+				      21,count(1),
+				      23,count(1),
+				      31,count(1),
+				      32,count(1),
+				      33,count(1),
+				      34,count(1),
+				      35,count(1),
+				      41,count(1),
+				      42,count(1),
+				      43,count(1),
+				      44,count(1),
+				      45,count(1),
+				      46,count(1),
+				      51,count(1),
+				      52,count(1),
+				      53,count(1),
+				      54,count(1),
+				      55,count(1),
+				      61,count(1),
+				      62,count(1),
+				      63,count(1),
+				      64,count(1),
+				      65,count(1),
+				      71,count(1),
+				      72,count(1),
+				      73,count(1),
+				      74,count(1),
+				      75,count(1),
+				      81,count(1),
+				      82,count(1),
+				      83,count(1),
+				      84,count(1),
+				      85,count(1),
+				      91,count(1),
+				      92,count(1),
+				      93,count(1),
+				      94,count(1),
+				      95,count(1)
+				    ),
+				    2,decode
+				    (
+				      11,count(1),
+				      12,count(1),
+				      21,count(1),
+				      23,count(1),
+				      31,count(1),
+				      32,count(1),
+				      33,count(1),
+				      34,count(1),
+				      35,count(1),
+				      41,count(1),
+				      42,count(1),
+				      43,count(1),
+				      44,count(1),
+				      45,count(1),
+				      46,count(1),
+				      51,count(1),
+				      52,count(1),
+				      53,count(1),
+				      54,count(1),
+				      55,count(1),
+				      61,count(1),
+				      62,count(1),
+				      63,count(1),
+				      64,count(1),
+				      65,count(1),
+				      71,count(1),
+				      72,count(1),
+				      73,count(1),
+				      74,count(1),
+				      75,count(1),
+				      81,count(1),
+				      82,count(1),
+				      83,count(1),
+				      84,count(1),
+				      85,count(1),
+				      91,count(1),
+				      92,count(1),
+				      93,count(1),
+				      94,count(1),
+				      95,count(1)
+				    )
+				  )
+				) as checkcount
+		   
+			
+			 from partinfo p
+              join s_baseinfo sbi on sbi.edu_id=p.edu_id and sbi.edu_id=:eduid and sbi.cmis30id=:cmis30id and sbi.discode=:discode
+			  join E_STUCLASS stc on stc.studentid = sbi.studentid and stc.cmis30id=:cmis30id and stc.discode=:discode 
+              join e_grade eg on eg.gradeid = stc.gradeid and eg.cmis30id=:cmis30id and eg.discode=:discode 
+              join e_term et on et.schoolyear = eg.schoolyear 
+              where et.termid=p.termid
+              group by eg.gradenum,et.termtype,p.two_part_id
+			
+			
+			]]></value>
+		</entry>
+		
+	
+		<!-- 初中班主任 -->
+		
+		<entry key="DataCheckExtImpl.queryAssess.select">
+			<value><![CDATA[
+			select
+				eg.gradenum,et.termtype,
+				decode(
+				eg.gradenum,
+				  6,decode(et.termtype,
+				    1,count(1),
+				    2,count(1)
+				  ),
+				  7,decode(et.termtype,
+				    1,count(1),
+				    2,count(1)
+				  ),
+				  8,decode(et.termtype,
+				     1,count(1),
+				     2,count(1)
+				  ),
+				  9,decode(et.termtype,
+				    1,count(1),
+				    2,count(1)
+				  )
+				) as checkcount
+              from S_ASSESS p
+              join s_baseinfo sbi on sbi.studentid=p.studentid and sbi.cmis30id=:cmis30id and sbi.discode=:discode and sbi.edu_id=:eduid
+              join E_STUCLASS stc on stc.studentid = sbi.studentid and stc.cmis30id=:cmis30id and stc.discode=:discode 
+              join e_grade eg on eg.gradeid = stc.gradeid and eg.cmis30id=:cmis30id and eg.discode=:discode 
+              join e_term et on et.schoolyear = eg.schoolyear 
+              where et.termid=p.termid
+              and p.cmis30id=:cmis30id and p.discode=:discode and p.partid=mod(:cmis30id,20)  group by eg.gradenum,et.termtype
+			]]></value>
+		</entry>
+	<!-- 高中班主任 -->
+		
+		<entry key="DataCheckExtImpl.queryAssessGZ.select">
+			<value><![CDATA[
+			select
+				eg.gradenum,et.termtype,
+				decode(
+				eg.gradenum,
+				  1,decode(et.termtype,
+				    1,count(1),
+				    2,count(1)
+				  ),
+				  2,decode(et.termtype,
+				     1,count(1),
+				     2,count(1)
+				  ),
+				  3,decode(et.termtype,
+				    1,count(1),
+				    2,count(1)
+				  )
+				) as checkcount
+              from S_ASSESS p
+              join s_baseinfo sbi on sbi.studentid=p.studentid and sbi.cmis30id=:cmis30id and sbi.discode=:discode and sbi.edu_id=:eduid
+              join E_STUCLASS stc on stc.studentid = sbi.studentid and stc.cmis30id=:cmis30id and stc.discode=:discode 
+              join e_grade eg on eg.gradeid = stc.gradeid and eg.cmis30id=:cmis30id and eg.discode=:discode 
+              join e_term et on et.schoolyear = eg.schoolyear 
+              where et.termid=p.termid
+              and p.cmis30id=:cmis30id and p.discode=:discode and p.partid=mod(:cmis30id,20)  group by eg.gradenum,et.termtype
+			]]></value>
+		</entry>
+		<!-- 查询初中是3年还是4年制 -->
+		<entry key="DataCheckExtImpl.queryLength.select">
+			<value><![CDATA[
+			select length from e_edusys where levelid=:levelid
+			]]></value>
+		</entry>
+		
+		<!-- 数据检查高中app表 -->
+		<entry key="DataCheckExtImpl.queryApprasial.select">
+			<value><![CDATA[
+			select
+				SEMESTERID,APPRAISALTYPEID,APPRASERIDENTIFY,
+				decode(SEMESTERID,
+				  11,decode(APPRAISALTYPEID,
+				    1010,count(1),
+				    1020,count(1),
+				    2010,count(1),
+				    2020,count(1),
+				    2030,count(1),
+				    2040,count(1),
+				    3010,count(1),
+				    3020,count(1),
+				    3030,count(1),
+				    3040,count(1),
+				    4010,count(1),
+				    4020,count(1),
+				    5010,count(1),
+				    5020,count(1),
+				    6010,count(1),
+				    6020,count(1),
+				    7010,count(1),
+				    7020,count(1),
+				    7030,count(1),
+				    4030,count(1),
+				    4040,count(1),
+				    5030,count(1),
+				    5040,count(1),
+				    5050,count(1),
+				    6030,count(1),
+				    6040,count(1),
+				    7040,count(1),
+				    7050,count(1),
+				    8010,count(1),
+				    8020,count(1),
+				    8030,count(1),
+				    8040,count(1),
+				    9010,count(1),
+				    9020,count(1),
+				    9030,count(1)
+				  ),
+				  12,decode(APPRAISALTYPEID,
+				    1010,count(1),
+				    1020,count(1),
+				    2010,count(1),
+				    2020,count(1),
+				    2030,count(1),
+				    2040,count(1),
+				    3010,count(1),
+				    3020,count(1),
+				    3030,count(1),
+				    3040,count(1),
+				    4010,count(1),
+				    4020,count(1),
+				    5010,count(1),
+				    5020,count(1),
+				    6010,count(1),
+				    6020,count(1),
+				    7010,count(1),
+				    7020,count(1),
+				    7030,count(1),
+				    4030,count(1),
+				    4040,count(1),
+				    5030,count(1),
+				    5040,count(1),
+				    5050,count(1),
+				    6030,count(1),
+				    6040,count(1),
+				    7040,count(1),
+				    7050,count(1),
+				    8010,count(1),
+				    8020,count(1),
+				    8030,count(1),
+				    8040,count(1),
+				    9010,count(1),
+				    9020,count(1),
+				    9030,count(1)
+				  ),
+				  21,decode(APPRAISALTYPEID,
+				    1010,count(1),
+				    1020,count(1),
+				    2010,count(1),
+				    2020,count(1),
+				    2030,count(1),
+				    2040,count(1),
+				    3010,count(1),
+				    3020,count(1),
+				    3030,count(1),
+				    3040,count(1),
+				    4010,count(1),
+				    4020,count(1),
+				    5010,count(1),
+				    5020,count(1),
+				    6010,count(1),
+				    6020,count(1),
+				    7010,count(1),
+				    7020,count(1),
+				    7030,count(1),
+				    4030,count(1),
+				    4040,count(1),
+				    5030,count(1),
+				    5040,count(1),
+				    5050,count(1),
+				    6030,count(1),
+				    6040,count(1),
+				    7040,count(1),
+				    7050,count(1),
+				    8010,count(1),
+				    8020,count(1),
+				    8030,count(1),
+				    8040,count(1),
+				    9010,count(1),
+				    9020,count(1),
+				    9030,count(1)
+				  ),
+				  22,decode(APPRAISALTYPEID,
+				    1010,count(1),
+				    1020,count(1),
+				    2010,count(1),
+				    2020,count(1),
+				    2030,count(1),
+				    2040,count(1),
+				    3010,count(1),
+				    3020,count(1),
+				    3030,count(1),
+				    3040,count(1),
+				    4010,count(1),
+				    4020,count(1),
+				    5010,count(1),
+				    5020,count(1),
+				    6010,count(1),
+				    6020,count(1),
+				    7010,count(1),
+				    7020,count(1),
+				    7030,count(1),
+				    4030,count(1),
+				    4040,count(1),
+				    5030,count(1),
+				    5040,count(1),
+				    5050,count(1),
+				    6030,count(1),
+				    6040,count(1),
+				    7040,count(1),
+				    7050,count(1),
+				    8010,count(1),
+				    8020,count(1),
+				    8030,count(1),
+				    8040,count(1),
+				    9010,count(1),
+				    9020,count(1),
+				    9030,count(1)
+				  ),
+				  31,decode(APPRAISALTYPEID,
+				    1010,count(1),
+				    1020,count(1),
+				    2010,count(1),
+				    2020,count(1),
+				    2030,count(1),
+				    2040,count(1),
+				    3010,count(1),
+				    3020,count(1),
+				    3030,count(1),
+				    3040,count(1),
+				    4010,count(1),
+				    4020,count(1),
+				    5010,count(1),
+				    5020,count(1),
+				    6010,count(1),
+				    6020,count(1),
+				    7010,count(1),
+				    7020,count(1),
+				    7030,count(1),
+				    4030,count(1),
+				    4040,count(1),
+				    5030,count(1),
+				    5040,count(1),
+				    5050,count(1),
+				    6030,count(1),
+				    6040,count(1),
+				    7040,count(1),
+				    7050,count(1),
+				    8010,count(1),
+				    8020,count(1),
+				    8030,count(1),
+				    8040,count(1),
+				    9010,count(1),
+				    9020,count(1),
+				    9030,count(1)
+				  ),
+				  32,decode(APPRAISALTYPEID,
+				    1010,count(1),
+				    1020,count(1),
+				    2010,count(1),
+				    2020,count(1),
+				    2030,count(1),
+				    2040,count(1),
+				    3010,count(1),
+				    3020,count(1),
+				    3030,count(1),
+				    3040,count(1),
+				    4010,count(1),
+				    4020,count(1),
+				    5010,count(1),
+				    5020,count(1),
+				    6010,count(1),
+				    6020,count(1),
+				    7010,count(1),
+				    7020,count(1),
+				    7030,count(1),
+				    4030,count(1),
+				    4040,count(1),
+				    5030,count(1),
+				    5040,count(1),
+				    5050,count(1),
+				    6030,count(1),
+				    6040,count(1),
+				    7040,count(1),
+				    7050,count(1),
+				    8010,count(1),
+				    8020,count(1),
+				    8030,count(1),
+				    8040,count(1),
+				    9010,count(1),
+				    9020,count(1),
+				    9030,count(1)
+				  )
+				) as checkcount
+				from a_apprasial where edu_id=:eduid group by SEMESTERID,APPRAISALTYPEID,APPRASERIDENTIFY
+			]]></value>
+		</entry>
+		
+			<!-- 数据检查高中Recordpackage表 -->
+		<entry key="DataCheckExtImpl.queryRecordpackage.select">
+			<value><![CDATA[
+			select
+				SEMESTERID,APPRAISALTYPEID,
+				decode(SEMESTERID,
+				  11,decode(APPRAISALTYPEID,
+				    1010,count(1),
+				    1020,count(1),
+				    2010,count(1),
+				    2020,count(1),
+				    2030,count(1),
+				    2040,count(1),
+				    3010,count(1),
+				    3020,count(1),
+				    3030,count(1),
+				    3040,count(1),
+				    4010,count(1),
+				    4020,count(1),
+				    5010,count(1),
+				    5020,count(1),
+				    6010,count(1),
+				    6020,count(1),
+				    7010,count(1),
+				    7020,count(1),
+				    7030,count(1),
+				    4030,count(1),
+				    4040,count(1),
+				    5030,count(1),
+				    5040,count(1),
+				    5050,count(1),
+				    6030,count(1),
+				    6040,count(1),
+				    7040,count(1),
+				    7050,count(1),
+				    8010,count(1),
+				    8020,count(1),
+				    8030,count(1),
+				    8040,count(1),
+				    9010,count(1),
+				    9020,count(1),
+				    9030,count(1)
+				  ),
+				  12,decode(APPRAISALTYPEID,
+				    1010,count(1),
+				    1020,count(1),
+				    2010,count(1),
+				    2020,count(1),
+				    2030,count(1),
+				    2040,count(1),
+				    3010,count(1),
+				    3020,count(1),
+				    3030,count(1),
+				    3040,count(1),
+				    4010,count(1),
+				    4020,count(1),
+				    5010,count(1),
+				    5020,count(1),
+				    6010,count(1),
+				    6020,count(1),
+				    7010,count(1),
+				    7020,count(1),
+				    7030,count(1),
+				    4030,count(1),
+				    4040,count(1),
+				    5030,count(1),
+				    5040,count(1),
+				    5050,count(1),
+				    6030,count(1),
+				    6040,count(1),
+				    7040,count(1),
+				    7050,count(1),
+				    8010,count(1),
+				    8020,count(1),
+				    8030,count(1),
+				    8040,count(1),
+				    9010,count(1),
+				    9020,count(1),
+				    9030,count(1)
+				  ),
+				  21,decode(APPRAISALTYPEID,
+				    1010,count(1),
+				    1020,count(1),
+				    2010,count(1),
+				    2020,count(1),
+				    2030,count(1),
+				    2040,count(1),
+				    3010,count(1),
+				    3020,count(1),
+				    3030,count(1),
+				    3040,count(1),
+				    4010,count(1),
+				    4020,count(1),
+				    5010,count(1),
+				    5020,count(1),
+				    6010,count(1),
+				    6020,count(1),
+				    7010,count(1),
+				    7020,count(1),
+				    7030,count(1),
+				    4030,count(1),
+				    4040,count(1),
+				    5030,count(1),
+				    5040,count(1),
+				    5050,count(1),
+				    6030,count(1),
+				    6040,count(1),
+				    7040,count(1),
+				    7050,count(1),
+				    8010,count(1),
+				    8020,count(1),
+				    8030,count(1),
+				    8040,count(1),
+				    9010,count(1),
+				    9020,count(1),
+				    9030,count(1)
+				  ),
+				  22,decode(APPRAISALTYPEID,
+				    1010,count(1),
+				    1020,count(1),
+				    2010,count(1),
+				    2020,count(1),
+				    2030,count(1),
+				    2040,count(1),
+				    3010,count(1),
+				    3020,count(1),
+				    3030,count(1),
+				    3040,count(1),
+				    4010,count(1),
+				    4020,count(1),
+				    5010,count(1),
+				    5020,count(1),
+				    6010,count(1),
+				    6020,count(1),
+				    7010,count(1),
+				    7020,count(1),
+				    7030,count(1),
+				    4030,count(1),
+				    4040,count(1),
+				    5030,count(1),
+				    5040,count(1),
+				    5050,count(1),
+				    6030,count(1),
+				    6040,count(1),
+				    7040,count(1),
+				    7050,count(1),
+				    8010,count(1),
+				    8020,count(1),
+				    8030,count(1),
+				    8040,count(1),
+				    9010,count(1),
+				    9020,count(1),
+				    9030,count(1)
+				  ),
+				  31,decode(APPRAISALTYPEID,
+				    1010,count(1),
+				    1020,count(1),
+				    2010,count(1),
+				    2020,count(1),
+				    2030,count(1),
+				    2040,count(1),
+				    3010,count(1),
+				    3020,count(1),
+				    3030,count(1),
+				    3040,count(1),
+				    4010,count(1),
+				    4020,count(1),
+				    5010,count(1),
+				    5020,count(1),
+				    6010,count(1),
+				    6020,count(1),
+				    7010,count(1),
+				    7020,count(1),
+				    7030,count(1),
+				    4030,count(1),
+				    4040,count(1),
+				    5030,count(1),
+				    5040,count(1),
+				    5050,count(1),
+				    6030,count(1),
+				    6040,count(1),
+				    7040,count(1),
+				    7050,count(1),
+				    8010,count(1),
+				    8020,count(1),
+				    8030,count(1),
+				    8040,count(1),
+				    9010,count(1),
+				    9020,count(1),
+				    9030,count(1)
+				  ),
+				  32,decode(APPRAISALTYPEID,
+				    1010,count(1),
+				    1020,count(1),
+				    2010,count(1),
+				    2020,count(1),
+				    2030,count(1),
+				    2040,count(1),
+				    3010,count(1),
+				    3020,count(1),
+				    3030,count(1),
+				    3040,count(1),
+				    4010,count(1),
+				    4020,count(1),
+				    5010,count(1),
+				    5020,count(1),
+				    6010,count(1),
+				    6020,count(1),
+				    7010,count(1),
+				    7020,count(1),
+				    7030,count(1),
+				    4030,count(1),
+				    4040,count(1),
+				    5030,count(1),
+				    5040,count(1),
+				    5050,count(1),
+				    6030,count(1),
+				    6040,count(1),
+				    7040,count(1),
+				    7050,count(1),
+				    8010,count(1),
+				    8020,count(1),
+				    8030,count(1),
+				    8040,count(1),
+				    9010,count(1),
+				    9020,count(1),
+				    9030,count(1)
+				  )
+				) as checkcount
+				from a_recordpackage where edu_id=:eduid group by SEMESTERID,APPRAISALTYPEID
+			]]></value>
+		</entry>
+		
+		<!-- 数据检查高中Recordpackage表 -->
+		<entry key="DataCheckExtImpl.queryLearnprocessWorks.select">
+			<value><![CDATA[
+			select
+				SEMESTERID,
+				decode(SEMESTERID,
+				  11,count(1),
+				  12,count(1),
+				  21,count(1),
+				  22,count(1),
+				  31,count(1),
+				  32,count(1)
+				) as checkcount
+				from A_LEARNPROCESS_WORKS where edu_id=:eduid group by SEMESTERID
+			]]></value>
+		</entry>
+		
+		<!-- 数据检查高中综合实践活动 -->
+		<entry key="DataCheckExtImpl.queryPractices.select">
+			<value><![CDATA[
+			select
+				SEMESTERID,APPRAISALTYPEID,
+				decode(SEMESTERID,
+				  11,decode(APPRAISALTYPEID,
+				    9010,count(1),
+				    9020,count(1),
+				    9030,count(1)
+				  ),
+				  12,decode(APPRAISALTYPEID,
+				    9010,count(1),
+				    9020,count(1),
+				    9030,count(1)
+				  ),
+				  21,decode(APPRAISALTYPEID,
+				    9010,count(1),
+				    9020,count(1),
+				    9030,count(1)
+				  ),
+				  22,decode(APPRAISALTYPEID,
+				    9010,count(1),
+				    9020,count(1),
+				    9030,count(1)
+				  ),
+				  31,decode(APPRAISALTYPEID,
+				    9010,count(1),
+				    9020,count(1),
+				    9030,count(1)
+				  ),
+				  32,decode(APPRAISALTYPEID,
+				    9010,count(1),
+				    9020,count(1),
+				    9030,count(1)
+				  )
+				) as checkcount
+				from A_PRACTICES where edu_id=:eduid group by SEMESTERID,APPRAISALTYPEID
+			]]></value>
+		</entry>
+		
+		<!-- 数据检查高中LearnprocessAppraisal表 -->
+		<entry key="DataCheckExtImpl.queryPersonality.select">
+			<value><![CDATA[
+			select
+				SEMESTERID,
+				decode(SEMESTERID,
+				  11,count(1),
+				  12,count(1),
+				  21,count(1),
+				  22,count(1),
+				  31,count(1),
+				  32,count(1)
+				) as checkcount
+				from a_personality where edu_id=:eduid group by SEMESTERID
+		]]></value>
+		</entry>
+		<!-- 数据检查高中LearnprocessAppraisal表 -->
+		<entry key="DataCheckExtImpl.queryLearnprocessAppraisal.select">
+			<value><![CDATA[
+			select
+				SEMESTERID,
+				decode(SEMESTERID,
+				  11,count(1),
+				  12,count(1),
+				  21,count(1),
+				  22,count(1),
+				  31,count(1),
+				  32,count(1)
+				) as checkcount
+				from a_learnprocess_appraisal where edu_id=:eduid group by SEMESTERID
+			]]></value>
+		</entry>
+		<!-- 获取栏目号 -->
+		<entry key="PartInfo.getSectionCode.select">
+			<value><![CDATA[
+			 select two_part_id as sectionCode from partinfo 
+			 where 1=1
+			 and userid=:userid
+			 and write_man='本人'
+			 and part_id=:partId
+			]]></value>
+		</entry>
+			<!-- 缓存开始 -->
+			<!-- 高综_自我评价 -->
+			<entry key="HighSchoolCacheExtImpl.getAapprasialCache.select">
+			<value>
+				<![CDATA[
+					select ap.* from a_apprasial ap 
+					inner join s_baseinfo sb on sb.edu_id = ap.edu_id and sb.beadrollstate='1517001' and sb.discode=:discode
+					inner join e_stuclass est on est.studentid=sb.studentid and est.used=1 and est.discode=:discode
+					inner join e_grade eg on eg.gradeid=est.gradeid and eg.used=1
+					inner join e_term et on et.schoolyear=eg.schoolyear and et.used=1
+					inner join e_class ecl on ecl.classid=est.classid and ecl.used=1
+					where ap.appraiserrid is not null and ap.edu_id is not null and ap.semesterid is not null
+          			and ap.appraseridentify is not null and ap.appraisaltypeid is not null 
+				]]>
+			</value>
+			</entry>
+			<!-- 高综_记录袋 -->
+			<entry key="HighSchoolCacheExtImpl.getArecordpackageCache.select">
+			<value>
+				<![CDATA[
+					select re.* from a_recordpackage re
+					inner join s_baseinfo sb on sb.edu_id = re.edu_id and sb.beadrollstate='1517001' and sb.discode=:discode
+					inner join e_stuclass est on est.studentid=sb.studentid and est.used=1 and est.discode=:discode
+					inner join e_grade eg on eg.gradeid=est.gradeid and eg.used=1
+					inner join e_term et on et.schoolyear=eg.schoolyear and et.used=1
+					inner join e_class ecl on ecl.classid=est.classid and ecl.used=1
+					where re.edu_id is not null and re.appraseridentify is not null
+          			and re.appraisaltypeid is not null and re.semesterid is not null 
+				]]>
+			</value>
+			</entry>
+			<!-- 高综_个性与发展_基本情况 -->
+			<entry key="HighSchoolCacheExtImpl.getApersonalityCache.select">
+			<value>
+				<![CDATA[
+					select pe.* from a_personality pe
+					inner join s_baseinfo sb on sb.edu_id = pe.edu_id and sb.beadrollstate='1517001' and sb.discode=:discode
+					inner join e_stuclass est on est.studentid=sb.studentid and est.used=1 and est.discode=:discode
+					inner join e_grade eg on eg.gradeid=est.gradeid and eg.used=1
+					inner join e_term et on et.schoolyear=eg.schoolyear and et.used=1
+					inner join e_class ecl on ecl.classid=est.classid and ecl.used=1
+					where pe.semesterid is not null and pe.edu_id is not null and pe.semesterid is not null 
+				]]>
+			</value>
+			</entry>
+			<!-- 高综_学业成就_学科学习过程记录_作品相关信息介绍 -->
+			<entry key="HighSchoolCacheExtImpl.getAlearnprocessWorksCache.select">
+			<value>
+				<![CDATA[
+					select le.* from a_learnprocess_works le
+					inner join s_baseinfo sb on sb.edu_id = le.edu_id and sb.beadrollstate='1517001' and sb.discode=:discode
+					inner join e_stuclass est on est.studentid=sb.studentid and est.used=1 and est.discode=:discode
+					inner join e_grade eg on eg.gradeid=est.gradeid and eg.used=1
+					inner join e_term et on et.schoolyear=eg.schoolyear and et.used=1
+					inner join e_class ecl on ecl.classid=est.classid and ecl.used=1
+					where le.edu_id is not null and le.semesterid is not null 
+				]]>
+			</value>
+			</entry>
+			<!-- 高综_学业成就_学科学习过程记录_成绩 -->
+			<entry key="HighSchoolCacheExtImpl.getAlearnprocessMarksCache.select">
+			<value>
+				<![CDATA[
+					select lem.* from a_learnprocess_marks lem
+					inner join s_baseinfo sb on sb.edu_id = lem.edu_id and sb.beadrollstate='1517001'
+					inner join e_stuclass est on est.studentid=sb.studentid and est.used=1
+					inner join e_grade eg on eg.gradeid=est.gradeid and eg.used=1
+					inner join e_term et on et.schoolyear=eg.schoolyear and et.used=1
+					inner join e_class ecl on ecl.classid=est.classid and ecl.used=1
+				]]>
+			</value>
+			</entry>
+			<!-- 高综_学业成就_学科学习过程记录_评语 -->
+			<entry key="HighSchoolCacheExtImpl.getAlearnprocessAppraisalCache.select">
+			<value>
+				<![CDATA[
+					select lea.* from a_learnprocess_appraisal lea
+					inner join s_baseinfo sb on sb.edu_id = lea.edu_id and sb.beadrollstate='1517001' and sb.discode=:discode
+					inner join e_stuclass est on est.studentid=sb.studentid and est.used=1 and est.discode=:discode
+					inner join e_grade eg on eg.gradeid=est.gradeid and eg.used=1
+					inner join e_term et on et.schoolyear=eg.schoolyear and et.used=1
+					inner join e_class ecl on ecl.classid=est.classid and ecl.used=1
+					where lea.edu_id is not null and lea.semesterid is not null and lea.appraiserrid is not null
+				]]>
+			</value>
+			</entry>
+			<!-- 高综_综合实践活动 -->
+			<entry key="HighSchoolCacheExtImpl.getApracticesCache.select">
+			<value>
+				<![CDATA[
+					select pr.* from a_practices pr
+					inner join s_baseinfo sb on sb.edu_id = pr.edu_id and sb.beadrollstate='1517001' and sb.discode=:discode
+					inner join e_stuclass est on est.studentid=sb.studentid and est.used=1 and est.discode=:discode
+					inner join e_grade eg on eg.gradeid=est.gradeid and eg.used=1
+					inner join e_term et on et.schoolyear=eg.schoolyear and et.used=1
+					inner join e_class ecl on ecl.classid=est.classid and ecl.used=1
+					where pr.semesterid is not null and pr.appraisaltypeid is not null 
+				]]>
+			</value>
+			</entry>
+			<!-- 高综_综合实践活动_评价表 -->
+			<entry key="HighSchoolCacheExtImpl.getApracticeappraisalCache.select">
+			<value>
+				<![CDATA[
+					select pra.* from a_practiceappraisal pra
+					inner join a_practices pr on pr.practiceid = pra.practiceid 
+				]]>
+			</value>
+			</entry>
+			<!-- 高综_记录袋_附件 -->
+			<entry key="HighSchoolCacheExtImpl.getAattachRecordPackageCache.select">
+			<value>
+				<![CDATA[
+					select * from a_attach att
+					inner join a_recordpackage ar on att.attachtypeid=ar.recordid 
+					where att.discode=:discode
+				]]>
+			</value>
+			</entry>
+			<!-- 高综_个人发展_附件 -->
+			<entry key="HighSchoolCacheExtImpl.getAattachPersonalityCache.select">
+			<value>
+				<![CDATA[
+					select * from a_attach att
+					inner join a_apprasial ar on att.attachtypeid=ar.apprasialid 
+					where att.discode=:discode
+				]]>
+			</value>
+			</entry>
+			<!-- 高综_综合实践_附件 -->
+			<entry key="HighSchoolCacheExtImpl.getAattachPracticesCache.select">
+			<value>
+				<![CDATA[
+					select * from a_attach att
+					inner join a_practices ar on att.attachtypeid=ar.practiceid
+					where att.discode=:discode
+				]]>
+			</value>
+			</entry>
+			<!-- 高综_学科学习发展过程_附件 -->
+			<entry key="HighSchoolCacheExtImpl.getAattachLearnprocessWorksCache.select">
+			<value>
+				<![CDATA[
+					select * from a_attach att
+					inner join a_learnprocess_works ar on att.attachtypeid=ar.workid 
+					where att.discode=:discode
+				]]>
+			</value>
+			</entry>
+			<entry key="SchoolCourseExt.querySchoolyear.query">
+			<value>
+				<![CDATA[
+					select kss.schoolyear from k_study_segment kss
+				    where kss.segment_id=:segmentid and kss.schoolyear<>(
+				    select eg.schoolyear from e_grade eg
+				    inner join e_class ecl on eg.gradeid=ecl.gradeid and ecl.classid=:classid
+				    )
+				]]>
+			</value>
+			</entry>
+			<entry key="Innercourse.querySmentIds.query">
+			<value>
+				<![CDATA[
+					select 
+					  sement_model_id||'@'||course_id||'--'||segment_id as infos
+					from k_segment_model
+					where
+					<#if queryParams?has_content>
+						<#list queryParams as queryInfos>
+							${queryInfos}
+							<#if queryInfos_has_next> or </#if>
+						</#list>
+					<#else>
+						course_id='' and segment_id=''
+					</#if>
+				]]>
+			</value>
+			</entry>
+			<entry key="Innercourse.bachInsertQSDatas.insert">
+				<value>
+					<![CDATA[
+						insert into
+							 k_class_model 
+						value(class_model_id,sement_model_id,teacherid,classid)
+						values(sys_guid(),?,?,?)
+					]]>
+				</value>
+			</entry>
+			</map>	                                                            
+		</property>
+	</bean>
+</beans>

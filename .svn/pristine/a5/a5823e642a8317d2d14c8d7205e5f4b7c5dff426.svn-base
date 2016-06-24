@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd"
+	default-autowire="byName" default-lazy-init="true">
+
+	<bean id="queryProviderMapping-xcs-stat"
+		class="org.nestframework.commons.hibernate.QueryProviderMappingImpl">
+		<property name="queryMap">
+			<map>
+				<!--区域的学校 --> 
+				<entry key="AreaStatExtImpl.findAllSchoolid.query">
+					<value><![CDATA[
+						 select distinct bba.cmis30id,bba.schoolname from b_baseinfo bba  
+                          inner join b_campus bca on bca.cmis30id=bba.cmis30id and bca.discode=:discode and used=1
+                          inner join e_edusys eed on bca.campusid=eed.campusid and bca.cmis30id=eed.cmis30id and eed.discode=:discode and eed.used=1
+                          and eed.levelcode=:levelCode
+                          where bba.discode=:discode 
+                           <#if schoolName?has_content>
+									 and bba.schoolname LIKE %:schoolName%
+							</#if>
+                          order by bba.cmis30id
+					]]></value>
+				</entry>
+				<!--初中区域的学校 --> 
+				<entry key="AreaStatExtImpl.findCzAllSchoolid.query">
+					<value><![CDATA[
+						 select distinct(bba.cmis30id) cmis30id, eed.length numbe 
+						 from b_baseinfo bba  
+                          inner join b_campus bca on bca.cmis30id=bba.cmis30id and bca.discode=:discode and used=1
+                          inner join e_edusys eed on bca.campusid=eed.campusid and bca.cmis30id=eed.cmis30id and eed.discode=:discode and eed.used=1
+                          and eed.levelcode=:levelCode
+                          where bba.discode=:discode 
+                           <#if schoolName?has_content>
+									 and bba.schoolname LIKE %:schoolName%
+							</#if>
+                          order by bba.cmis30id
+					]]></value>
+				</entry>
+				
+				<!--某个学校某届班级id  inner join e_term et on et.schoolyear=egr.schoolyear and et.used=1  --> 
+				<entry key="AreaStatExtImpl.findClassApper.query">
+					<value><![CDATA[
+						  select   ecl.classid,ecl.educlassname from e_class ecl
+                            inner join e_grade egr on egr.gradeid=ecl.gradeid and egr.cmis30id=:cmis30id and egr.discode=:discode and egr.used=1
+                              and to_char(egr.graduateyear,'yyyy')=:graduateyear
+                          
+                            inner join e_edusys eed on egr.levelid=eed.levelid and eed.cmis30id=:cmis30id and eed.discode=:discode and eed.used=1
+                               and eed.levelcode=:levelCode
+                            inner join b_campus bca on bca.campusid=eed.campusid and bca.cmis30id=:cmis30id and bca.discode=:discode and bca.used=1
+                            inner join b_baseinfo bba on bba.cmis30id=:cmis30id and bba.discode=:discode and bba.partid = mod(:cmis30id,20)
+                            where ecl.used=1 and ecl.cmis30id=:cmis30id  and ecl.discode=:discode
+					]]></value>
+				</entry>
+				
+				
+				 
+				<!--高中某个学校某届班级id  inner join e_term et on et.schoolyear=egr.schoolyear and et.used=1  --> 
+				<entry key="AreaStatExtImpl.findClassAppercount.query">
+					<value><![CDATA[
+						 select count(aap.apprasialid) num  from a_apprasial aap
+                         inner join s_baseinfo sba on sba.cmis30id=:cmis30id and sba.discode=:discode  and aap.edu_id=sba.edu_id and sba.partid = mod(:cmis30id,20)
+                         inner join e_stuclass  est on est.cmis30id=:cmis30id and est.discode=:discode and est.used=1  and est.studentid=sba.studentid and est.partid = mod(:cmis30id,20)
+                         and est.classid=:classid
+                         where aap.semesterid=:termid
+					]]></value>
+				</entry>
+				<!--初中某个学校某届班级id  inner join e_term et on et.schoolyear=egr.schoolyear and et.used=1  --> 
+				<entry key="AreaStatExtImpl.CzfindClassAppercount.query">
+					<value><![CDATA[
+							 select count(aap.part_id) num  from partinfo aap
+                         inner join s_baseinfo sba on sba.cmis30id=:cmis30id and sba.discode=:discode  and aap.edu_id=sba.edu_id and sba.partid = mod(:cmis30id,20)
+                         inner join e_stuclass  est on est.cmis30id=:cmis30id and est.discode=:discode and est.used=1  and est.studentid=sba.studentid and est.partid = mod(:cmis30id,20)
+                         and est.classid=:classid
+                         where aap.termid=:termid 
+					]]></value>
+				</entry>
+				
+				<!--学校名id --> 
+				<entry key="AreaStatExtImpl.findSchoolidName.query">
+					<value><![CDATA[
+						 select bba.schoolname name from b_baseinfo bba 
+                            where bba.cmis30id=:cmis30id and bba.discode=:discode
+					]]></value>
+				</entry>
+				
+				<!--年级学生数量 -->  
+				<entry key="AreaStatExtImpl.findStudentCount.query">
+					<value><![CDATA[
+						  select count(bba.studentid) num from  s_baseinfo  bba
+							  inner join e_stuclass est on est.studentid=bba.studentid and est.cmis30id=:cmis30id and est.discode=:discode and est.used=1 and est.partid = mod(:cmis30id,20)
+							  inner join e_grade agr on agr.gradeid=est.gradeid and agr.cmis30id=:cmis30id and agr.discode=:discode and agr.used=1
+                              and to_char(agr.graduateyear,'yyyy')=:graduateyear
+                              inner join e_term et on et.schoolyear=agr.schoolyear and et.used=1
+                              where  bba.cmis30id=:cmis30id and  bba.discode=:discode  and bba.partid = mod(:cmis30id,20)
+					]]></value>
+				</entry>
+				<!--高中各科评价书 --> 
+				<entry key="AreaStatExtImpl.findTopicApper.query">
+				<!-- 	<value><![CDATA[
+						    select (ala.appraisalid)su, count(distinct(ala.edu_id)) stedentsu ,ala.subject subject from   a_learnprocess_appraisal ala
+                              inner join s_baseinfo  bba on  ala.edu_id=bba.edu_id and bba.cmis30id=:cmis30id and  bba.discode=:discode  and bba.partid = mod(:cmis30id,20)
+                              inner join e_stuclass est on est.studentid=bba.studentid and est.cmis30id=:cmis30id and est.discode=:discode and est.used=1 and est.partid = mod(:cmis30id,20)
+                              inner join e_grade agr on agr.gradeid=est.gradeid and agr.cmis30id=:cmis30id and agr.discode=:discode and agr.used=1
+                              and to_char(agr.graduateyear,'yyyy')=:graduateyear
+                              inner join e_term et on et.schoolyear=agr.schoolyear and et.used=1
+                              where  ala.subject=:subject and ala.cmis30id=:cmis30id and  ala.discode=:discode  and ala.partid = mod(:cmis30id,20) and semesterid in (:semesterid1,:semesterid2)
+					]]></value> -->
+				<value><![CDATA[
+						    select asb.subject subject, count(ala.appraisalid) su, count(distinct(ala.edu_id)) stedentsu   
+                   from   a_learnprocess_appraisal ala
+                   inner join s_baseinfo  bba on  ala.edu_id=bba.edu_id  
+                   inner join e_stuclass est on est.studentid=bba.studentid 
+                   inner join e_grade agr on agr.gradeid=est.gradeid
+                          and to_char(agr.graduateyear,'yyyy')=:graduateyear
+                   inner join e_term et on et.schoolyear=agr.schoolyear and et.used=1
+                   right join a_subject  asb on  asb.subject=ala.subject
+                           where ala.semesterid in (:semesterid1,:semesterid2)
+                   group by asb.subject
+					]]></value>
+				</entry>
+				<!--初中各科评价书 --> 
+				<entry key="AreaStatExtImpl.findCzTopicApper.query">
+				<value><![CDATA[
+						    select asb.subject_id subject, count(ala.part_id) su, count(distinct(ala.edu_id)) stedentsu   
+                   from   partInfo ala
+                   inner join s_baseinfo  bba on  ala.edu_id=bba.edu_id and bba.cmis30id=:cmis30id and  bba.discode=:discode  and bba.partid = mod(:cmis30id,20)
+                   inner join e_stuclass est on est.studentid=bba.studentid and est.cmis30id=:cmis30id and est.discode=:discode and est.used=1 and est.partid = mod(:cmis30id,20)
+                   inner join e_grade agr on agr.gradeid=est.gradeid and agr.cmis30id=:cmis30id and agr.discode=:discode and agr.used=1
+  					       and to_char(agr.graduateyear,'yyyy')=:graduateyear
+                   inner join e_term et on et.schoolyear=agr.schoolyear and et.used=1
+                   right join subject  asb on  asb.subject_id=ala.subject_id  
+                           where   ala.termid in (:semesterid1,:semesterid2)
+                   group by asb.subject_id
+					]]></value>
+				</entry>
+				<!--初中具体科目科评价书 --> 
+				<entry key="AreaStatExtImpl.findCzTopicApperTopic.query">
+				<value><![CDATA[
+						    select  count(ala.part_id) su, count(distinct(ala.edu_id)) stedentsu   
+                   from   partInfo ala
+                   inner join s_baseinfo  bba on  ala.edu_id=bba.edu_id and bba.cmis30id=:cmis30id and  bba.discode=:discode  and bba.partid = mod(:cmis30id,20)
+                   inner join e_stuclass est on est.studentid=bba.studentid and est.cmis30id=:cmis30id and est.discode=:discode and est.used=1 and est.partid = mod(:cmis30id,20)
+                   inner join e_grade agr on agr.gradeid=est.gradeid and agr.cmis30id=:cmis30id and agr.discode=:discode and agr.used=1
+  					       and to_char(agr.graduateyear,'yyyy')=:graduateyear
+                   inner join e_term et on et.schoolyear=agr.schoolyear and et.used=1
+                           where  ala.subject_id=:subject_id and ala.termid in (:semesterid1,:semesterid2)
+                   
+					]]></value>
+				</entry>
+			
+			</map>	                                                            
+		</property>
+	</bean>
+</beans>

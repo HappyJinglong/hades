@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd"
+	default-lazy-init="false">
+    
+	<!-- 任务调度Quartz的配置 begin -->
+	<bean id="cmisSynchronizationTriggerBean" class="com.flyrish.hades.quartz.CmisSynchronizationTriggerBean">
+        <property name="constantBean" ref="constantBean"></property>
+        <property name="userLoginServiceExt" ref="userLoginServiceExt"></property>
+        <property name="redisServiceExt" ref="redisServiceExt"></property>
+         <property name="informDoQueAndCacheExt1" ref="informDoQueAndCacheExt1"></property>
+	</bean>
+	<!-- 指定定时任务-->
+	<bean id="synchronizationCmisJobDetail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="cmisSynchronizationTriggerBean"></property>
+		<property name="targetMethod" value="synchronizationCmis"></property>
+		<property name="concurrent" value="false"></property>
+	</bean>
+	<!--定时任务设置 -->
+	<bean id="synchronizationCmisCronTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail" ref="synchronizationCmisJobDetail"></property>
+		<property name="cronExpression" value="$[synchronizationCmisTime]"></property>
+	</bean>
+	
+	<bean id="scheduler" class="org.springframework.scheduling.quartz.SchedulerFactoryBean" autowire="no" lazy-init="false">
+		<property name="triggers">
+			<list>  
+				<ref bean="synchronizationCmisCronTrigger" />
+			</list>
+		</property>
+		<property name="quartzProperties">
+			<props>
+				<prop key="org.quartz.threadPool.threadCount">5</prop>
+			</props>
+		</property>
+	</bean>
+</beans>
